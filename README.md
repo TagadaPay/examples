@@ -8,10 +8,10 @@ This demo showcases a complete 3-step payment integration:
 
 ### Step 1: Card Tokenization 🎯
 
-- Secure card tokenization using BasisTheory
+- Secure card tokenization using Secure Vault
 - Real-time form validation and 3D card preview
 - Creates a base64-encoded TagadaToken containing:
-  - Card token from BasisTheory
+  - Card token from Secure Vault
   - Non-sensitive metadata (last4, brand, expiry, etc.)
   - Provider information
 
@@ -122,7 +122,7 @@ Use these test card numbers for development:
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   BasisTheory    │    │   TagadaPay     │
+│   Frontend      │    │   Secure Vault   │    │   TagadaPay     │
 │   (React)       │    │   (Tokenization) │    │   (API)         │
 ├─────────────────┤    ├──────────────────┤    ├─────────────────┤
 │ 1. Card Form    │───▶│ Secure Token     │    │                 │
@@ -140,4 +140,4 @@ Use these test card numbers for development:
 - **Vite** - Build tool
 - **Tailwind CSS** - Styling
 - **@tagadapay/core-js** - Payment SDK
-- **BasisTheory** - Secure tokenization
+- **Secure Vault** - Secure tokenization
