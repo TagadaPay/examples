@@ -4,7 +4,6 @@
  */
 
 import { useState } from 'react';
-import type { CardTokenResponse } from '@tagadapay/core-js/react';
 import type { TagadaToken } from './CardForm';
 import {
   getTokenHistory,

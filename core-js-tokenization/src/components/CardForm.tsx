@@ -1,159 +1,10 @@
 import { useState } from 'react';
 import { useCardTokenization } from '@tagadapay/core-js/react';
-import type { CardPaymentMethod, CardTokenResponse, ApiService } from '@tagadapay/core-js/react';
+import type { CardPaymentMethod, CardTokenResponse } from '@tagadapay/core-js/react';
+import type { TagadaToken } from '@tagadapay/core-js';
 
-export interface TagadaToken {
-  type: 'card';
-  token: string;
-  provider: 'basistheory';
-  nonSensitiveMetadata: Record<string, any>;
-}
-
-// Function to create TagadaToken from CardTokenResponse
-function createTagadaToken(cardTokenResponse: any): string {
-  const tagadaToken: TagadaToken = {
-    type: 'card',
-    token: cardTokenResponse.id,
-    provider: 'basistheory',
-    nonSensitiveMetadata: {
-      // Basic card information
-      cardType: cardTokenResponse.type,
-      ...(cardTokenResponse.data?.expiration_month &&
-        cardTokenResponse.data?.expiration_year && {
-          expiryMonth: cardTokenResponse.data.expiration_month,
-          expiryYear: cardTokenResponse.data.expiration_year,
-        }),
-
-      // Card details from enrichments or card object
-      ...(cardTokenResponse.card?.last4 && {
-        last4: cardTokenResponse.card.last4,
-      }),
-      ...(cardTokenResponse.enrichments?.card_details?.last4 && {
-        last4: cardTokenResponse.enrichments.card_details.last4,
-      }),
-      ...(cardTokenResponse.data?.number && {
-        last4: String(cardTokenResponse.data.number).slice(-4),
-      }),
-
-      // BIN information
-      ...(cardTokenResponse.card?.bin && {
-        bin: cardTokenResponse.card.bin,
-      }),
-      ...(cardTokenResponse.enrichments?.card_details?.bin && {
-        bin: cardTokenResponse.enrichments.card_details.bin,
-      }),
-
-      // Card brand and type
-      ...(cardTokenResponse.card?.brand && {
-        brand: cardTokenResponse.card.brand,
-      }),
-      ...(cardTokenResponse.enrichments?.bin_details?.card_brand && {
-        brand: cardTokenResponse.enrichments.bin_details.card_brand.toLowerCase(),
-      }),
-
-      // Funding type (credit/debit)
-      ...(cardTokenResponse.card?.funding && {
-        funding: cardTokenResponse.card.funding,
-      }),
-      ...(cardTokenResponse.enrichments?.bin_details?.type && {
-        funding: cardTokenResponse.enrichments.bin_details.type.toLowerCase(),
-      }),
-
-      // Issuer information
-      ...(cardTokenResponse.card?.issuer && {
-        issuer: {
-          name: cardTokenResponse.card.issuer.name,
-          country: cardTokenResponse.card.issuer.country,
-        },
-      }),
-      ...(cardTokenResponse.enrichments?.bin_details?.bank && {
-        issuer: {
-          name: cardTokenResponse.enrichments.bin_details.bank.name,
-          cleanName: cardTokenResponse.enrichments.bin_details.bank.clean_name,
-          phone: cardTokenResponse.enrichments.bin_details.bank.phone,
-          url: cardTokenResponse.enrichments.bin_details.bank.url,
-        },
-      }),
-
-      // Country information
-      ...(cardTokenResponse.card?.issuer_country && {
-        country: {
-          code: cardTokenResponse.card.issuer_country.alpha2,
-          name: cardTokenResponse.card.issuer_country.name,
-          numeric: cardTokenResponse.card.issuer_country.numeric,
-        },
-      }),
-      ...(cardTokenResponse.enrichments?.bin_details?.country && {
-        country: {
-          code: cardTokenResponse.enrichments.bin_details.country.alpha2,
-          name: cardTokenResponse.enrichments.bin_details.country.name,
-          numeric: cardTokenResponse.enrichments.bin_details.country.numeric,
-        },
-      }),
-
-      // Card segment and product information
-      ...(cardTokenResponse.card?.segment && {
-        segment: cardTokenResponse.card.segment,
-      }),
-      ...(cardTokenResponse.enrichments?.bin_details?.card_segment_type && {
-        segment: cardTokenResponse.enrichments.bin_details.card_segment_type,
-      }),
-
-      // Product information
-      ...(cardTokenResponse.enrichments?.bin_details?.product && {
-        product: {
-          code: cardTokenResponse.enrichments.bin_details.product.code,
-          name: cardTokenResponse.enrichments.bin_details.product.name,
-        },
-      }),
-
-      // Additional BIN details
-      ...(cardTokenResponse.enrichments?.bin_details && {
-        binDetails: {
-          prepaid: cardTokenResponse.enrichments.bin_details.prepaid,
-          reloadable: cardTokenResponse.enrichments.bin_details.reloadable,
-          panOrToken: cardTokenResponse.enrichments.bin_details.pan_or_token,
-          accountUpdater: cardTokenResponse.enrichments.bin_details.account_updater,
-          alm: cardTokenResponse.enrichments.bin_details.alm,
-          domesticOnly: cardTokenResponse.enrichments.bin_details.domestic_only,
-          gamblingBlocked: cardTokenResponse.enrichments.bin_details.gambling_blocked,
-          level2: cardTokenResponse.enrichments.bin_details.level2,
-          level3: cardTokenResponse.enrichments.bin_details.level3,
-          issuerCurrency: cardTokenResponse.enrichments.bin_details.issuer_currency,
-          binLength: cardTokenResponse.enrichments.bin_details.bin_length,
-        },
-      }),
-
-      // Fingerprint for deduplication
-      ...(cardTokenResponse.fingerprint && {
-        fingerprint: cardTokenResponse.fingerprint,
-      }),
-
-      // Original metadata from tokenization
-      ...(cardTokenResponse.metadata && {
-        originalMetadata: cardTokenResponse.metadata,
-      }),
-
-      // Timestamps
-      createdAt: new Date().toISOString(),
-      ...(cardTokenResponse.created_at && {
-        basisTheoryCreatedAt: cardTokenResponse.created_at,
-      }),
-    },
-  };
-
-  // Encode to base64
-  return btoa(JSON.stringify(tagadaToken));
-}
-
-// Mock API service for the example
-const mockApiService: ApiService = {
-  async fetch<T = any>(endpoint: string, options?: any): Promise<T> {
-    console.log('Mock API call:', endpoint, options);
-    // In a real app, this would make actual API calls
-    return Promise.resolve({ success: true } as T);
-  },
-};
+// Re-export TagadaToken type for convenience
+export type { TagadaToken };
 
 interface CardFormProps {
   onTokenized?: (tagadaToken: string, originalToken: CardTokenResponse) => void;
@@ -169,7 +20,6 @@ export function CardForm({ onTokenized }: CardFormProps) {
 
   const { tokenizeCard, isLoading, error, clearError, isInitialized } = useCardTokenization({
     environment: 'production',
-    apiService: mockApiService,
     autoInitialize: true,
   });
 
@@ -178,14 +28,14 @@ export function CardForm({ onTokenized }: CardFormProps) {
     clearError();
 
     try {
-      const token = await tokenizeCard(cardData);
-      console.log('Card tokenized successfully:', token);
+      // Tokenize card - returns both TagadaToken (for backend) and raw token (for UI)
+      const result = await tokenizeCard(cardData);
+      console.log('Card tokenized successfully');
+      console.log('- TagadaToken (for backend):', result.tagadaToken);
+      console.log('- Raw token (for UI):', result.rawToken);
 
-      // Create TagadaToken
-      const tagadaToken = createTagadaToken(token);
-      console.log('TagadaToken created:', tagadaToken);
-
-      onTokenized?.(tagadaToken, token);
+      // Pass to parent component
+      onTokenized?.(result.tagadaToken, result.rawToken);
     } catch (error) {
       console.error('Tokenization failed:', error);
     }

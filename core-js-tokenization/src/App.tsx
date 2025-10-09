@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { CardForm } from './components/CardForm';
 import type { TagadaToken } from './components/CardForm';
 import type { CardTokenResponse } from '@tagadapay/core-js/react';
-import { useThreeds } from '@tagadapay/core-js/react';
+import { usePaymentFlow } from './hooks/usePaymentFlow';
+import { DemoBackendClient } from './api/paymentBackend';
 import { HistorySidebar } from './components/HistorySidebar';
 import {
   saveTokenToHistory,
@@ -66,6 +67,12 @@ interface PaymentResult {
       };
     };
     createdAt: string;
+    error?: {
+      code?: string;
+      message?: string;
+      processorCode?: string;
+      processorMessage?: string;
+    };
   };
 }
 
@@ -85,19 +92,12 @@ function App() {
   const [paymentInstrumentResult, setPaymentInstrumentResult] = useState<PaymentInstrumentResult | null>(
     null,
   );
-  const [isCreatingPaymentInstrument, setIsCreatingPaymentInstrument] = useState<boolean>(false);
   const [paymentResult, setPaymentResult] = useState<PaymentResult | null>(null);
-  const [isProcessingPayment, setIsProcessingPayment] = useState<boolean>(false);
   const [paymentAmount, setPaymentAmount] = useState<number>(2999); // $29.99 default
   const [storeId, setStoreId] = useState<string>('store_eaa20d619f6b');
-  const [apiError, setApiError] = useState<string | null>(null);
   const [threedsSessionResult, setThreedsSessionResult] = useState<ThreedsSessionResult | null>(null);
-  const [isCreatingThreedsSession, setIsCreatingThreedsSession] = useState<boolean>(false);
   const [showHistory, setShowHistory] = useState<boolean>(false);
-  const [threeDsStatus, setThreeDsStatus] = useState<
-    'idle' | 'required' | 'in_progress' | 'completed' | 'failed'
-  >('idle');
-  const [lastChallengeData, setLastChallengeData] = useState<PaymentResult | null>(null);
+  const [skipMethodRequest, setSkipMethodRequest] = useState<boolean>(false);
 
   // Load store from localStorage on mount
   useEffect(() => {
@@ -107,52 +107,67 @@ function App() {
     }
   }, []);
 
-  // Initialize 3DS hook (without backend config - we'll handle that manually)
+  // 🟢 CLIENT: Create backend client (memoized to avoid recreating on every render)
+  const backendClient = useMemo(
+    () => new DemoBackendClient(apiBaseUrl, () => apiToken),
+    [apiBaseUrl, apiToken],
+  );
+
+  // 🟢 CLIENT: Use the simplified payment flow hook
   const {
-    createSession: createLocalSession,
-    startChallenge,
-    isLoading: isThreeDsLoading,
-    error: threeDsError,
-  } = useThreeds({
+    createPaymentInstrument: createPI,
+    create3DSSession: create3DS,
+    processPayment: processPaymentAPI,
+    isLoading,
+    error: paymentFlowError,
+    threeDsStatus,
+    clearError,
+    resetThreeDsStatus,
+  } = usePaymentFlow({
+    backendClient,
     environment: 'production',
-    autoInitialize: true,
   });
 
-  const handleTokenized = (tagadaToken: string, originalToken: CardTokenResponse) => {
+  const handleTokenized = (tagadaToken: string, rawToken: CardTokenResponse) => {
     // Decode the TagadaToken for display purposes
     const decodedTagadaToken = JSON.parse(atob(tagadaToken)) as TagadaToken;
 
+    // Log SCA requirement (from normalized metadata)
+    console.log('🔐 SCA/3DS Detection:');
+    console.log('  - metadata.auth.scaRequired:', rawToken.metadata?.auth?.scaRequired);
+    console.log('  - Provider-agnostic check works with any tokenization provider!');
+
     setTokenResult({
       tagadaToken,
-      originalToken,
+      originalToken: rawToken, // Store rawToken from SDK (includes metadata.auth.scaRequired)
       decodedTagadaToken,
     });
 
     // Save to history
     saveTokenToHistory({
       tagadaToken,
-      cardLast4: decodedTagadaToken.nonSensitiveMetadata.last4,
-      cardBrand: decodedTagadaToken.nonSensitiveMetadata.brand,
+      cardLast4: decodedTagadaToken.nonSensitiveMetadata.last4 || 'Unknown',
+      cardBrand: decodedTagadaToken.nonSensitiveMetadata.brand || 'Unknown',
     });
   };
 
   const handleSelectTokenFromHistory = (tagadaToken: string, decodedToken: TagadaToken) => {
-    // Reconstruct the original token format (we don't have full CardTokenResponse in history)
+    // Reconstruct the original token format from TagadaToken metadata
     const mockOriginalToken: CardTokenResponse = {
       id: decodedToken.token,
       type: 'card',
-      enrichments: {
-        cardDetails: {
-          bin: decodedToken.nonSensitiveMetadata.bin,
-          last4: decodedToken.nonSensitiveMetadata.last4,
-          brand: decodedToken.nonSensitiveMetadata.brand,
+      data: {},
+      metadata: {
+        auth: {
+          scaRequired: decodedToken.nonSensitiveMetadata.authentication === 'sca_required',
         },
+        tokenizedAt: decodedToken.nonSensitiveMetadata.createdAt,
       },
     };
 
     setTokenResult({
       tagadaToken,
-      originalToken: mockOriginalToken,
+      originalToken: mockOriginalToken, // Now includes metadata.auth.scaRequired
       decodedTagadaToken: decodedToken,
     });
 
@@ -170,9 +185,8 @@ function App() {
     setTokenResult(null);
     setPaymentInstrumentResult(null);
     setPaymentResult(null);
-    setApiError(null);
     setThreedsSessionResult(null);
-    setThreeDsStatus('idle');
+    clearError();
   };
 
   const copyToClipboard = async () => {
@@ -182,285 +196,163 @@ function App() {
     }
   };
 
+  // Check if 3DS/SCA is required (provider-agnostic via normalized metadata)
+  const isScaRequired = () => {
+    // ✅ RECOMMENDED: Use normalized metadata from rawToken
+    // The SDK automatically detects SCA requirement from any provider
+    // and normalizes it to metadata.auth.scaRequired
+    //
+    // This works with BasisTheory, Stripe, Adyen, or any other provider!
+    return tokenResult?.originalToken?.metadata?.auth?.scaRequired === true;
+  };
+
+  // 🟢 CLIENT: Simplified payment instrument creation using hook
   const createPaymentInstrument = async () => {
     if (!tokenResult || !apiToken.trim() || !storeId.trim()) {
-      setApiError('Please provide API token and Store ID');
       return;
     }
 
-    setIsCreatingPaymentInstrument(true);
-    setApiError(null);
+    clearError();
 
     try {
-      const response = await fetch(`${apiBaseUrl}/api/public/v1/payment-instruments/create-from-token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiToken.trim()}`,
+      const result = await createPI({
+        tagadaToken: tokenResult.tagadaToken,
+        storeId: storeId.trim(),
+        customerData: {
+          email: 'demo@example.com',
+          firstName: 'Demo',
+          lastName: 'User',
         },
-        body: JSON.stringify({
-          tagadaToken: tokenResult.tagadaToken,
-          storeId: storeId.trim(),
-          customerData: {
-            email: 'demo@example.com',
-            firstName: 'Demo',
-            lastName: 'User',
-          },
-        }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const result: PaymentInstrumentResult = await response.json();
       setPaymentInstrumentResult(result);
 
       // Save store to history
       saveCurrentStore(storeId.trim());
     } catch (error) {
       console.error('Error creating payment instrument:', error);
-      setApiError(error instanceof Error ? error.message : 'Failed to create payment instrument');
-    } finally {
-      setIsCreatingPaymentInstrument(false);
     }
   };
 
+  // 🟢 CLIENT: Simplified 3DS session creation using hook
   const createThreedsSession = async () => {
-    if (!paymentInstrumentResult || !apiToken.trim() || !storeId.trim() || !tokenResult) {
-      setApiError('Payment instrument, API token, and Store ID are required');
+    if (!paymentInstrumentResult || !tokenResult) {
       return;
     }
 
-    setIsCreatingThreedsSession(true);
-    setApiError(null);
+    clearError();
 
     try {
-      // Step 1: Use core-js SDK hook to create session with BasisTheory SDK (local)
-      console.log('🔐 Step 1: Creating local 3DS session with BasisTheory SDK...');
-      const localSession = await createLocalSession(
+      const session = await create3DS(
+        paymentInstrumentResult.paymentInstrument,
         {
-          id: paymentInstrumentResult.paymentInstrument.id,
           token: tokenResult.decodedTagadaToken.token,
-          type: paymentInstrumentResult.paymentInstrument.type,
-          card: {
-            expirationMonth: paymentInstrumentResult.paymentInstrument.card.expMonth,
-            expirationYear: paymentInstrumentResult.paymentInstrument.card.expYear,
-            last4: paymentInstrumentResult.paymentInstrument.card.last4,
-            bin: tokenResult.decodedTagadaToken.nonSensitiveMetadata.bin,
-          },
+          bin: tokenResult.decodedTagadaToken.nonSensitiveMetadata.bin,
         },
         {
           amount: paymentAmount,
           currency: 'USD',
-          customerInfo: {
-            name: `${paymentInstrumentResult.customer.firstName} ${paymentInstrumentResult.customer.lastName}`,
-            email: paymentInstrumentResult.customer.email,
-          },
+          customerName: `${paymentInstrumentResult.customer.firstName} ${paymentInstrumentResult.customer.lastName}`,
+          customerEmail: paymentInstrumentResult.customer.email,
+          storeId: storeId.trim(),
+          skipMethodRequest, // Pass toggle state
         },
       );
 
-      console.log('✅ BasisTheory session created:', {
-        sessionId: localSession.sessionId,
-        provider: localSession.provider,
-        raw: localSession.metadata?.raw,
-      });
-
-      // Step 2: Manually persist the BasisTheory session data to backend
-      console.log('💾 Step 2: Persisting session to backend API...');
-      const response = await fetch(`${apiBaseUrl}/api/public/v1/threeds/create-session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiToken.trim()}`,
-        },
-        body: JSON.stringify({
-          provider: localSession.provider,
-          storeId: storeId.trim(),
-          paymentInstrumentId: paymentInstrumentResult.paymentInstrument.id,
-          sessionData: localSession.metadata?.raw || localSession, // Send BasisTheory session data
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const persistedSession: ThreedsSessionResult = await response.json();
-      console.log('✅ Session persisted to database:', persistedSession.id);
-
-      setThreedsSessionResult(persistedSession);
+      setThreedsSessionResult(session);
     } catch (error) {
       console.error('Error creating 3DS session:', error);
-      setApiError(error instanceof Error ? error.message : 'Failed to create 3DS session');
-    } finally {
-      setIsCreatingThreedsSession(false);
     }
   };
 
-  // Poll payment status after 3DS
-  const pollPaymentStatus = async (paymentId: string, maxAttempts = 20): Promise<PaymentResult> => {
-    for (let i = 0; i < maxAttempts; i++) {
-      const response = await fetch(`${apiBaseUrl}/api/public/v1/payments/${paymentId}`, {
-        headers: {
-          Authorization: `Bearer ${apiToken.trim()}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch payment status');
-      }
-
-      const data = await response.json();
-
-      // Handle both response formats: { payment: {...} } or direct payment object
-      const payment = data.payment || data;
-
-      if (!payment || !payment.status) {
-        console.error('Invalid payment response:', data);
-        throw new Error('Invalid payment response from server');
-      }
-
-      const result: PaymentResult = { payment };
-
-      // Check if payment is complete
-      if (payment.status === 'succeeded' || payment.status === 'failed' || payment.status === 'declined') {
-        console.log(`✅ Payment polling complete: ${payment.status}`);
-        return result;
-      }
-
-      console.log(`⏳ Polling attempt ${i + 1}/${maxAttempts}, status: ${payment.status}`);
-
-      // Wait before next poll
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-    }
-
-    throw new Error('Payment verification timeout');
-  };
-
-  // Handle 3DS challenge (matches CMS usePayment.ts logic exactly)
-  const handle3DSChallenge = async (paymentResult: PaymentResult) => {
-    const actionData = paymentResult.payment.requireActionData;
-
-    // Check exact same fields as usePayment.ts
-    if (!actionData?.metadata?.threedsSession) {
-      console.log('No 3DS session data found in requireActionData');
-      return;
-    }
-
-    const { threedsSession } = actionData.metadata;
-
-    // Save challenge data for retry
-    setLastChallengeData(paymentResult);
-    setThreeDsStatus('in_progress');
-
-    try {
-      console.log('Starting 3DS challenge...');
-
-      // Start challenge with exact same structure as usePayment.ts
-      const challengeCompletion = await startChallenge({
-        sessionId: threedsSession.externalSessionId,
-        acsChallengeUrl: threedsSession.acsChallengeUrl,
-        acsTransactionId: threedsSession.acsTransID,
-        threeDSVersion: threedsSession.messageVersion,
-      });
-
-      console.log('3DS challenge completed');
-      console.log('challengeCompletion', challengeCompletion);
-      setThreeDsStatus('completed');
-
-      // Poll for payment status after 3DS completion
-      console.log('Starting polling for payment status...');
-      const finalResult = await pollPaymentStatus(paymentResult.payment.id);
-      setPaymentResult(finalResult);
-
-      if (finalResult.payment.status === 'succeeded') {
-        setThreeDsStatus('completed');
-      } else {
-        setThreeDsStatus('failed');
-        setApiError('Payment failed after 3DS authentication');
-      }
-    } catch (error) {
-      setThreeDsStatus('failed');
-      console.error('Error starting 3DS challenge:', error);
-      setApiError(error instanceof Error ? error.message : 'Failed to start 3DS challenge');
-      throw error;
-    }
-  };
-
-  // Retry 3DS challenge
-  const retryChallenge = async () => {
-    if (!lastChallengeData) {
-      setApiError('No challenge data available to retry');
-      return;
-    }
-
-    setApiError(null);
-    setThreeDsStatus('idle');
-
-    try {
-      // Re-run the challenge with saved data
-      await handle3DSChallenge(lastChallengeData);
-    } catch (error) {
-      // Error is already handled in handle3DSChallenge
-      console.error('Retry failed:', error);
-    }
-  };
-
+  // 🟢 CLIENT: Simplified payment processing using hook
   const processPayment = async () => {
-    if (!paymentInstrumentResult || !apiToken.trim()) {
-      setApiError('Payment instrument and API token are required');
+    if (!paymentInstrumentResult) {
       return;
     }
 
-    setIsProcessingPayment(true);
-    setApiError(null);
-    setThreeDsStatus('idle');
+    clearError();
 
     try {
-      const response = await fetch(`${apiBaseUrl}/api/public/v1/payments/process`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiToken.trim()}`,
-        },
-        body: JSON.stringify({
-          amount: paymentAmount,
-          currency: 'USD',
-          storeId: storeId,
-          paymentInstrumentId: paymentInstrumentResult.paymentInstrument.id,
-          ...(threedsSessionResult && { threedsSessionId: threedsSessionResult.id }),
-        }),
+      const result = await processPaymentAPI({
+        amount: paymentAmount,
+        currency: 'USD',
+        storeId: storeId.trim(),
+        paymentInstrumentId: paymentInstrumentResult.paymentInstrument.id,
+        ...(threedsSessionResult && { threedsSessionId: threedsSessionResult.id }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
-      }
+      // Log final payment result (after 3DS if required)
+      console.log('💰 Final payment result:', {
+        id: result.payment.id,
+        status: result.payment.status,
+        subStatus: result.payment.subStatus,
+        error: result.payment.error,
+      });
 
-      const result: PaymentResult = await response.json();
       setPaymentResult(result);
-
-      // Check if 3DS authentication is required (exact same check as usePayment.ts)
-      if (result.payment.requireAction !== 'none') {
-        const actionData = result.payment.requireActionData;
-
-        if (actionData?.type === 'threeds_auth' && actionData.metadata?.threedsSession) {
-          setThreeDsStatus('required');
-          await handle3DSChallenge(result);
-        }
-      } else if (result.payment.status === 'succeeded') {
-        // Payment succeeded without 3DS
-        setIsProcessingPayment(false);
-      }
     } catch (error) {
       console.error('Error processing payment:', error);
-      setApiError(error instanceof Error ? error.message : 'Failed to process payment');
-      setThreeDsStatus('failed');
-    } finally {
-      setIsProcessingPayment(false);
+    }
+  };
+
+  // 🔄 Retry 3DS from beginning: Recreate session and process payment
+  const retry3DSFromBeginning = async () => {
+    if (!paymentInstrumentResult || !tokenResult) {
+      return;
+    }
+
+    console.log('🔄 Retrying 3DS flow from the beginning...');
+
+    // Reset states
+    resetThreeDsStatus();
+    setThreedsSessionResult(null);
+    setPaymentResult(null);
+
+    try {
+      // Step 1: Create new 3DS session
+      console.log('Step 1: Creating new 3DS session...');
+      const newSession = await create3DS(
+        paymentInstrumentResult.paymentInstrument,
+        {
+          token: tokenResult.decodedTagadaToken.token,
+          bin: tokenResult.decodedTagadaToken.nonSensitiveMetadata.bin,
+        },
+        {
+          amount: paymentAmount,
+          currency: 'USD',
+          customerName: `${paymentInstrumentResult.customer.firstName} ${paymentInstrumentResult.customer.lastName}`,
+          customerEmail: paymentInstrumentResult.customer.email,
+          storeId: storeId.trim(),
+          skipMethodRequest, // Pass toggle state
+        },
+      );
+
+      setThreedsSessionResult(newSession);
+      console.log('✅ New 3DS session created:', newSession.id);
+
+      // Step 2: Process payment with new session
+      console.log('Step 2: Processing payment with new 3DS session...');
+      const result = await processPaymentAPI({
+        amount: paymentAmount,
+        currency: 'USD',
+        storeId: storeId.trim(),
+        paymentInstrumentId: paymentInstrumentResult.paymentInstrument.id,
+        threedsSessionId: newSession.id,
+      });
+
+      // Log final result (after 3DS polling)
+      console.log('💰 Final payment result after retry:', {
+        id: result.payment.id,
+        status: result.payment.status,
+        subStatus: result.payment.subStatus,
+        error: result.payment.error,
+      });
+
+      setPaymentResult(result);
+      console.log('✅ Payment processed with new 3DS session');
+    } catch (error) {
+      console.error('❌ Retry failed:', error);
     }
   };
 
@@ -485,12 +377,22 @@ function App() {
                   TagadaPay Card Tokenization
                 </h1>
                 <p className="text-primary-600 mx-auto mt-2 max-w-xl text-sm">
-                  Complete payment demo with 3DS: Tokenize → Create PI → Create 3DS Session (optional) →
-                  Process Payment with{' '}
+                  Complete payment demo with 3DS using{' '}
                   <code className="bg-primary-100 text-primary-700 rounded px-1 py-0.5 font-mono text-xs">
                     @tagadapay/core-js
                   </code>
                 </p>
+                {/* Architecture Indicator */}
+                <div className="mt-3 flex items-center justify-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                    <span className="text-xs font-medium text-green-700">🟢 Client-Side</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-red-500"></div>
+                    <span className="text-xs font-medium text-red-700">🔴 Server-Side</span>
+                  </div>
+                </div>
               </div>
               <button
                 onClick={() => setShowHistory(!showHistory)}
@@ -510,20 +412,101 @@ function App() {
         {/* Main Content - Centered */}
         <main className="flex flex-1 items-center justify-center px-6 py-8">
           <div className="w-full max-w-2xl">
+            {/* API Configuration - Always visible at top */}
+            {tokenResult && (
+              <div className="border-primary-200 mb-6 rounded-xl border bg-white p-6 shadow-lg">
+                <div className="mb-4 flex items-center justify-center gap-2">
+                  <div className="inline-flex rounded-full bg-red-100 px-3 py-1">
+                    <span className="text-xs font-semibold text-red-700">🔴 SERVER CONFIG</span>
+                  </div>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {/* API Base URL */}
+                  <div>
+                    <label
+                      htmlFor="apiBaseUrlTop"
+                      className="text-primary-700 mb-1 block text-xs font-semibold"
+                    >
+                      API Base URL
+                    </label>
+                    <input
+                      id="apiBaseUrlTop"
+                      type="text"
+                      value={apiBaseUrl}
+                      onChange={(e) => setApiBaseUrl(e.target.value)}
+                      className="border-primary-300 focus:border-accent-500 focus:ring-accent-500 w-full rounded-lg border px-3 py-2 text-sm transition-colors"
+                      placeholder="https://app.tagadapay.com"
+                    />
+                  </div>
+
+                  {/* Store ID */}
+                  <div>
+                    <label htmlFor="storeIdTop" className="text-primary-700 mb-1 block text-xs font-semibold">
+                      Store ID
+                    </label>
+                    <input
+                      id="storeIdTop"
+                      type="text"
+                      value={storeId}
+                      onChange={(e) => {
+                        setStoreId(e.target.value);
+                        if (e.target.value.trim()) {
+                          saveCurrentStore(e.target.value.trim());
+                        }
+                      }}
+                      className="border-primary-300 focus:border-accent-500 focus:ring-accent-500 w-full rounded-lg border px-3 py-2 text-sm transition-colors"
+                      placeholder="store_eaa20d619f6b"
+                    />
+                  </div>
+
+                  {/* API Token */}
+                  <div className="md:col-span-2">
+                    <label
+                      htmlFor="apiTokenTop"
+                      className="text-primary-700 mb-1 block text-xs font-semibold"
+                    >
+                      API Access Token (org:admin required)
+                    </label>
+                    <input
+                      id="apiTokenTop"
+                      type="password"
+                      value={apiToken}
+                      onChange={(e) => setApiToken(e.target.value)}
+                      className="border-primary-300 focus:border-accent-500 focus:ring-accent-500 w-full rounded-lg border px-3 py-2 text-sm transition-colors"
+                      placeholder="Enter your API token..."
+                    />
+                    <p className="text-primary-500 mt-1 text-xs">
+                      Get your API token from TagadaPay dashboard → API Keys
+                    </p>
+                  </div>
+
+                  {/* Error Display */}
+                  {paymentFlowError && (
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-red-700 md:col-span-2">
+                      <p className="text-sm">❌ {paymentFlowError}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {!tokenResult ? (
               <CardForm onTokenized={handleTokenized} />
             ) : (
               <div className="space-y-8">
-                {/* Step Progress Indicator */}
+                {/* Step Progress Indicator with Client/Server Labels */}
                 <div className="flex items-center justify-center space-x-2">
-                  <div className="flex items-center">
+                  <div className="flex flex-col items-center">
                     <div className="bg-accent-600 flex h-8 w-8 items-center justify-center rounded-full text-white">
                       <span className="text-sm font-bold">1</span>
                     </div>
-                    <span className="text-primary-700 ml-2 text-xs font-medium">Tokenize</span>
+                    <span className="text-primary-700 mt-1 text-xs font-medium">Tokenize</span>
+                    <span className="mt-0.5 rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
+                      🟢 Client
+                    </span>
                   </div>
                   <div className="border-primary-300 h-px w-6 border-t"></div>
-                  <div className="flex items-center">
+                  <div className="flex flex-col items-center">
                     <div
                       className={`flex h-8 w-8 items-center justify-center rounded-full text-white ${
                         paymentInstrumentResult ? 'bg-accent-600' : 'bg-primary-300'
@@ -531,10 +514,13 @@ function App() {
                     >
                       <span className="text-sm font-bold">2</span>
                     </div>
-                    <span className="text-primary-700 ml-2 text-xs font-medium">Create PI</span>
+                    <span className="text-primary-700 mt-1 text-xs font-medium">Create PI</span>
+                    <span className="mt-0.5 rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700">
+                      🔴 Server
+                    </span>
                   </div>
                   <div className="border-primary-300 h-px w-6 border-t"></div>
-                  <div className="flex items-center">
+                  <div className="flex flex-col items-center">
                     <div
                       className={`flex h-8 w-8 items-center justify-center rounded-full text-white ${
                         threedsSessionResult ? 'bg-accent-600' : 'bg-blue-300'
@@ -542,11 +528,17 @@ function App() {
                     >
                       <span className="text-sm font-bold">3</span>
                     </div>
-                    <span className="text-primary-700 ml-2 text-xs font-medium">3DS Session</span>
-                    <span className="text-primary-500 ml-1 text-xs italic">(optional)</span>
+                    <span className="text-primary-700 mt-1 text-xs font-medium">3DS Session</span>
+                    <div className="mt-0.5 flex items-center gap-1">
+                      <span className="rounded-full bg-green-100 px-1.5 py-0.5 text-xs text-green-700">
+                        🟢
+                      </span>
+                      <span className="text-xs text-gray-400">+</span>
+                      <span className="rounded-full bg-red-100 px-1.5 py-0.5 text-xs text-red-700">🔴</span>
+                    </div>
                   </div>
                   <div className="border-primary-300 h-px w-6 border-t"></div>
-                  <div className="flex items-center">
+                  <div className="flex flex-col items-center">
                     <div
                       className={`flex h-8 w-8 items-center justify-center rounded-full text-white ${
                         paymentResult ? 'bg-accent-600' : 'bg-primary-300'
@@ -554,7 +546,14 @@ function App() {
                     >
                       <span className="text-sm font-bold">4</span>
                     </div>
-                    <span className="text-primary-700 ml-2 text-xs font-medium">Payment</span>
+                    <span className="text-primary-700 mt-1 text-xs font-medium">Payment</span>
+                    <div className="mt-0.5 flex items-center gap-1">
+                      <span className="rounded-full bg-green-100 px-1.5 py-0.5 text-xs text-green-700">
+                        🟢
+                      </span>
+                      <span className="text-xs text-gray-400">+</span>
+                      <span className="rounded-full bg-red-100 px-1.5 py-0.5 text-xs text-red-700">🔴</span>
+                    </div>
                   </div>
                 </div>
 
@@ -593,6 +592,9 @@ function App() {
                 {!paymentInstrumentResult && !paymentResult && (
                   <div className="border-primary-200 rounded-xl border bg-white p-6 shadow-lg">
                     <div className="mb-4 text-center">
+                      <div className="mb-2 inline-flex rounded-full bg-red-100 px-3 py-1">
+                        <span className="text-xs font-semibold text-red-700">🔴 SERVER-SIDE</span>
+                      </div>
                       <h3 className="text-primary-800 mb-1 text-lg font-bold">
                         🚀 Step 2: Create Payment Instrument
                       </h3>
@@ -600,85 +602,29 @@ function App() {
                     </div>
 
                     <div className="space-y-4">
-                      {/* API Base URL */}
-                      <div>
-                        <label
-                          htmlFor="apiBaseUrl"
-                          className="text-primary-700 mb-1 block text-xs font-semibold"
-                        >
-                          API Base URL
-                        </label>
-                        <input
-                          id="apiBaseUrl"
-                          type="text"
-                          value={apiBaseUrl}
-                          onChange={(e) => setApiBaseUrl(e.target.value)}
-                          className="border-primary-300 focus:border-accent-500 focus:ring-accent-500 w-full rounded-lg border px-3 py-2 text-sm transition-colors"
-                          placeholder="https://app.tagadapay.com"
-                        />
-                      </div>
-
-                      {/* API Token */}
-                      <div>
-                        <label
-                          htmlFor="apiToken"
-                          className="text-primary-700 mb-1 block text-xs font-semibold"
-                        >
-                          API Access Token (org:admin required)
-                        </label>
-                        <input
-                          id="apiToken"
-                          type="password"
-                          value={apiToken}
-                          onChange={(e) => setApiToken(e.target.value)}
-                          className="border-primary-300 focus:border-accent-500 focus:ring-accent-500 w-full rounded-lg border px-3 py-2 text-sm transition-colors"
-                          placeholder="Enter your API token..."
-                        />
-                        <p className="text-primary-500 mt-1 text-xs">
-                          Get your API token from TagadaPay dashboard → API Keys
-                        </p>
-                      </div>
-
-                      {/* API Error */}
-                      {apiError && (
-                        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-red-700">
-                          <p className="text-sm">❌ {apiError}</p>
+                      {/* Config Summary */}
+                      <div className="rounded-lg bg-gray-50 p-3">
+                        <h4 className="text-primary-800 mb-2 text-sm font-semibold">Configuration</h4>
+                        <div className="space-y-1 text-xs text-gray-600">
+                          <p>
+                            <strong>Store ID:</strong> {storeId || 'Not set'}
+                          </p>
+                          <p>
+                            <strong>API Token:</strong> {apiToken ? '••••••••' : 'Not set'}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            (Configure in the Server Config section above)
+                          </p>
                         </div>
-                      )}
-
-                      {/* Store ID */}
-                      <div>
-                        <label
-                          htmlFor="storeIdInput"
-                          className="text-primary-700 mb-1 block text-xs font-semibold"
-                        >
-                          Store ID
-                        </label>
-                        <input
-                          id="storeIdInput"
-                          type="text"
-                          value={storeId}
-                          onChange={(e) => {
-                            setStoreId(e.target.value);
-                            if (e.target.value.trim()) {
-                              saveCurrentStore(e.target.value.trim());
-                            }
-                          }}
-                          className="border-primary-300 focus:border-accent-500 focus:ring-accent-500 w-full rounded-lg border px-3 py-2 text-sm transition-colors"
-                          placeholder="store_eaa20d619f6b"
-                        />
-                        <p className="text-primary-500 mt-1 text-xs">
-                          Your TagadaPay store ID (saved automatically)
-                        </p>
                       </div>
 
                       {/* Create Button */}
                       <button
                         onClick={createPaymentInstrument}
-                        disabled={isCreatingPaymentInstrument || !apiToken.trim() || !storeId.trim()}
+                        disabled={isLoading || !apiToken.trim() || !storeId.trim()}
                         className="bg-accent-600 hover:bg-accent-700 disabled:bg-primary-300 w-full rounded-lg px-4 py-3 text-sm font-medium text-white shadow transition-all duration-200 disabled:cursor-not-allowed"
                       >
-                        {isCreatingPaymentInstrument ? (
+                        {isLoading ? (
                           <span className="flex items-center justify-center">
                             <svg className="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24">
                               <circle
@@ -753,6 +699,18 @@ function App() {
                               {paymentInstrumentResult.paymentInstrument.card.expMonth}/
                               {paymentInstrumentResult.paymentInstrument.card.expYear}
                             </p>
+                            {tokenResult?.originalToken?.metadata?.auth && (
+                              <p>
+                                <strong>3DS/SCA:</strong>{' '}
+                                <span
+                                  className={`font-medium ${
+                                    isScaRequired() ? 'text-orange-600' : 'text-green-600'
+                                  }`}
+                                >
+                                  {isScaRequired() ? '⚠️ Required' : '✓ Optional'}
+                                </span>
+                              </p>
+                            )}
                           </div>
                         </div>
                         <div>
@@ -773,15 +731,46 @@ function App() {
                       </div>
                     </div>
 
-                    {/* 3DS Session Button (Optional) */}
+                    {/* 3DS Session Button */}
                     {!threedsSessionResult && (
                       <div className="mt-4">
+                        {/* SCA Required Indicator */}
+                        {isScaRequired() && (
+                          <div className="mb-2 rounded-lg border border-orange-200 bg-orange-50 p-2">
+                            <p className="text-center text-xs text-orange-700">
+                              <strong>⚠️ SCA Required:</strong> This card requires 3DS authentication
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Skip Method Request Toggle */}
+                        <div className="mb-2 flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-2">
+                          <input
+                            type="checkbox"
+                            id="skipMethodRequest"
+                            checked={skipMethodRequest}
+                            onChange={(e) => setSkipMethodRequest(e.target.checked)}
+                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                          />
+                          <label
+                            htmlFor="skipMethodRequest"
+                            className="flex items-center gap-1 text-xs text-gray-700"
+                          >
+                            <span className="font-medium">⚡ Skip Device Fingerprint</span>
+                            <span className="text-gray-500">(faster but may reduce approval rates)</span>
+                          </label>
+                        </div>
+
                         <button
                           onClick={createThreedsSession}
-                          disabled={isCreatingThreedsSession || isThreeDsLoading}
-                          className="w-full rounded-lg border-2 border-blue-300 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition-all duration-200 hover:border-blue-400 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
+                          disabled={isLoading}
+                          className={`w-full rounded-lg border-2 px-4 py-2 text-sm font-medium transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
+                            isScaRequired()
+                              ? 'border-orange-300 bg-orange-50 text-orange-700 hover:border-orange-400 hover:bg-orange-100'
+                              : 'border-blue-300 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100'
+                          }`}
                         >
-                          {isCreatingThreedsSession || isThreeDsLoading ? (
+                          {isLoading ? (
                             <span className="flex items-center justify-center">
                               <svg className="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24">
                                 <circle
@@ -800,22 +789,27 @@ function App() {
                               </svg>
                               Creating 3DS Session...
                             </span>
+                          ) : isScaRequired() ? (
+                            '🔐 Create 3DS Session (Required by Card)'
                           ) : (
                             '🔐 Create 3DS Session (Optional - Recommended)'
                           )}
                         </button>
-                        <p className="mt-2 text-center text-xs text-blue-600">
-                          <strong>Step 1:</strong> SDK creates session with BasisTheory{' '}
-                          <strong>→ Step 2:</strong> Persists to backend
-                        </p>
+                        <div className="mt-2 rounded-lg bg-gray-50 p-2">
+                          <p className="text-center text-xs text-gray-700">
+                            <strong className="text-green-600">🟢 Client:</strong> SDK creates session{' '}
+                            <span className="text-gray-400">→</span>{' '}
+                            <strong className="text-red-600">🔴 Server:</strong> Persists to DB
+                          </p>
+                        </div>
                       </div>
                     )}
 
-                    {/* 3DS Error */}
-                    {threeDsError && (
+                    {/* Error Display */}
+                    {paymentFlowError && (
                       <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3">
                         <p className="text-sm text-red-700">
-                          ❌ <strong>3DS SDK Error:</strong> {threeDsError.message}
+                          ❌ <strong>Error:</strong> {paymentFlowError}
                         </p>
                       </div>
                     )}
@@ -851,6 +845,11 @@ function App() {
                 {paymentInstrumentResult && !paymentResult && (
                   <div className="border-primary-200 rounded-xl border bg-white p-6 shadow-lg">
                     <div className="mb-4 text-center">
+                      <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-purple-100 px-3 py-1">
+                        <span className="text-xs font-semibold text-green-700">🟢 Client</span>
+                        <span className="text-xs text-gray-400">+</span>
+                        <span className="text-xs font-semibold text-red-700">🔴 Server</span>
+                      </div>
                       <h3 className="text-primary-800 mb-1 text-lg font-bold">
                         💳 Step 4: Process Demo Payment
                       </h3>
@@ -881,28 +880,13 @@ function App() {
                         <p className="text-primary-500 mt-1 text-xs">Amount in cents (e.g., 2999 = $29.99)</p>
                       </div>
 
-                      {/* Store ID */}
-                      <div>
-                        <label
-                          htmlFor="storeId"
-                          className="text-primary-700 mb-1 block text-xs font-semibold"
-                        >
-                          Store ID
-                        </label>
-                        <input
-                          id="storeId"
-                          type="text"
-                          value={storeId}
-                          onChange={(e) => setStoreId(e.target.value)}
-                          className="border-primary-300 focus:border-accent-500 focus:ring-accent-500 w-full rounded-lg border px-3 py-2 text-sm transition-colors"
-                          placeholder="store_eaa20d619f6b"
-                        />
-                      </div>
-
                       {/* Payment Details Summary */}
                       <div className="bg-primary-50 rounded-lg p-3">
                         <h4 className="text-primary-800 mb-2 text-sm font-semibold">Payment Summary</h4>
                         <div className="text-primary-600 space-y-1 text-xs">
+                          <p>
+                            <strong>Store ID:</strong> {storeId}
+                          </p>
                           <p>
                             <strong>Card:</strong> **** **** ****{' '}
                             {paymentInstrumentResult.paymentInstrument.card.last4}
@@ -920,17 +904,10 @@ function App() {
                         </div>
                       </div>
 
-                      {/* API Error */}
-                      {apiError && (
+                      {/* Error Display */}
+                      {paymentFlowError && (
                         <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-red-700">
-                          <p className="text-sm">❌ {apiError}</p>
-                        </div>
-                      )}
-
-                      {/* 3DS Error */}
-                      {threeDsError && (
-                        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-red-700">
-                          <p className="text-sm">🔐 3DS Error: {threeDsError.message}</p>
+                          <p className="text-sm">❌ {paymentFlowError}</p>
                         </div>
                       )}
 
@@ -952,12 +929,10 @@ function App() {
                       {/* Process Payment Button */}
                       <button
                         onClick={processPayment}
-                        disabled={
-                          isProcessingPayment || isThreeDsLoading || !paymentAmount || !storeId.trim()
-                        }
+                        disabled={isLoading || !paymentAmount || !storeId.trim()}
                         className="bg-accent-600 hover:bg-accent-700 disabled:bg-primary-300 w-full rounded-lg px-4 py-3 text-sm font-medium text-white shadow transition-all duration-200 disabled:cursor-not-allowed"
                       >
-                        {isProcessingPayment || isThreeDsLoading ? (
+                        {isLoading ? (
                           <span className="flex items-center justify-center">
                             <svg className="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24">
                               <circle
@@ -982,16 +957,33 @@ function App() {
                       </button>
 
                       {/* 3DS Info */}
-                      <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
-                        <div className="space-y-2 text-xs text-blue-700">
-                          <p>
-                            <strong>ℹ️ 3DS Authentication:</strong> If your payment requires 3DS verification,
-                            a secure modal will automatically appear.
+                      <div
+                        className={`rounded-lg border p-3 ${
+                          isScaRequired() ? 'border-orange-200 bg-orange-50' : 'border-blue-200 bg-blue-50'
+                        }`}
+                      >
+                        <div className="space-y-2 text-xs">
+                          <p className={isScaRequired() ? 'text-orange-700' : 'text-blue-700'}>
+                            <strong>{isScaRequired() ? '⚠️ SCA Required:' : 'ℹ️ 3DS Authentication:'}</strong>{' '}
+                            {isScaRequired()
+                              ? 'This card requires 3DS authentication. A secure modal will appear during payment.'
+                              : 'If your payment requires 3DS verification, a secure modal will automatically appear.'}
                           </p>
                           {threedsSessionResult ? (
-                            <p className="rounded bg-blue-100 p-2">
+                            <p
+                              className={`rounded p-2 ${
+                                isScaRequired()
+                                  ? 'bg-orange-100 text-orange-700'
+                                  : 'bg-blue-100 text-blue-700'
+                              }`}
+                            >
                               <strong>✅ 3DS Session Ready:</strong> Payment will use pre-created session for
                               faster processing.
+                            </p>
+                          ) : isScaRequired() ? (
+                            <p className="rounded bg-orange-100 p-2 text-orange-700">
+                              <strong>⚠️ Important:</strong> Create a 3DS session above before processing
+                              payment (required by this card).
                             </p>
                           ) : (
                             <p className="rounded bg-yellow-50 p-2 text-yellow-700">
@@ -1200,21 +1192,21 @@ function App() {
                         )}
 
                         {/* Failed message with retry button */}
-                        {threeDsStatus === 'failed' && lastChallengeData && (
+                        {threeDsStatus === 'failed' && (
                           <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3">
                             <div className="space-y-2">
                               <p className="text-sm text-red-700">
                                 ❌ <strong>3DS Authentication Failed</strong>
                               </p>
                               <p className="text-xs text-red-600">
-                                {apiError || 'The authentication challenge could not be completed'}
+                                {paymentFlowError || 'The authentication challenge could not be completed'}
                               </p>
                               <button
-                                onClick={retryChallenge}
-                                disabled={isThreeDsLoading}
+                                onClick={retry3DSFromBeginning}
+                                disabled={isLoading}
                                 className="w-full rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-gray-400"
                               >
-                                {isThreeDsLoading ? (
+                                {isLoading ? (
                                   <span className="flex items-center justify-center">
                                     <svg className="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24">
                                       <circle
@@ -1231,10 +1223,10 @@ function App() {
                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                       />
                                     </svg>
-                                    Retrying...
+                                    Retrying from beginning...
                                   </span>
                                 ) : (
-                                  '🔄 Retry 3DS Challenge'
+                                  '🔄 Retry 3DS from Beginning'
                                 )}
                               </button>
                             </div>
@@ -1247,13 +1239,13 @@ function App() {
 
                 {/* Actions */}
                 <div className="flex justify-center gap-4">
-                  {threeDsStatus === 'failed' && lastChallengeData && (
+                  {threeDsStatus === 'failed' && (
                     <button
-                      onClick={retryChallenge}
-                      disabled={isThreeDsLoading}
+                      onClick={retry3DSFromBeginning}
+                      disabled={isLoading}
                       className="rounded-lg bg-yellow-600 px-6 py-2 text-sm font-medium text-white shadow transition-all duration-200 hover:bg-yellow-700 disabled:cursor-not-allowed disabled:bg-gray-400"
                     >
-                      {isThreeDsLoading ? (
+                      {isLoading ? (
                         <span className="flex items-center justify-center">
                           <svg className="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24">
                             <circle
@@ -1270,10 +1262,10 @@ function App() {
                               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                             />
                           </svg>
-                          Retrying 3DS...
+                          Retrying from beginning...
                         </span>
                       ) : (
-                        '🔄 Retry 3DS Challenge'
+                        '🔄 Retry 3DS from Beginning'
                       )}
                     </button>
                   )}
