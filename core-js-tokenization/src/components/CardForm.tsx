@@ -168,7 +168,7 @@ export function CardForm({ onTokenized }: CardFormProps) {
   });
 
   const { tokenizeCard, isLoading, error, clearError, isInitialized } = useCardTokenization({
-    environment: 'development',
+    environment: 'production',
     apiService: mockApiService,
     autoInitialize: true,
   });
