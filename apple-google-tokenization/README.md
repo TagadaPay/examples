@@ -6,16 +6,6 @@ Complete demonstration of `@tagadapay/core-js` v2.0.0 with Apple Pay, Google Pay
 
 - 🍎 **Apple Pay Integration** - Native Apple Pay button with secure payment processing
 - 🟢 **Google Pay Integration** - Google Pay API integration with tokenization
-- ✅ **Card Tokenization** - Secure client-side tokenization with BasisTheory
-- ✅ **TagadaToken** - Automatic creation of TagadaPay's standard token format
-- ✅ **Payment Instruments** - Create payment instruments via API
-- ✅ **3DS Authentication** - Complete 3DS flow with session creation and challenge handling
-- ✅ **SCA Detection** - Automatic detection of Strong Customer Authentication requirements
-- ✅ **Payment Processing** - Process payments with optional 3DS
-- ✅ **Multiple Payment Methods** - Support for digital wallets and traditional cards
-- ✅ **History & Quick-Fill** - LocalStorage for tokens and store IDs
-- ✅ **Retry Flow** - Retry failed 3DS from beginning
-- ✅ **Client/Server Separation** - Clear architecture ready for production
 
 ## Quick Start
 
@@ -64,77 +54,6 @@ ngrok http 5173
 - Apple Pay button will be functional on the secure domain
 - Test the complete payment flow
 
-### Example ngrok Output
-```bash
-ngrok by @inconshreveable
-
-Session Status                online
-Account                       your-account (Plan: Free)
-Version                       2.3.40
-Region                        United States (us)
-Web Interface                 http://127.0.0.1:4040
-Forwarding                    http://abc123.ngrok.io -> http://localhost:5173
-Forwarding                    https://abc123.ngrok.io -> http://localhost:5173
-
-Connections                   ttl     opn     rt1     rt5     p50     p90
-                              0       0       0.00    0.00    0.00    0.00
-```
-
-**Use the HTTPS URL**: `https://abc123.ngrok.io`
-
-### Alternative: Local HTTPS Setup
-
-If you prefer not to use ngrok, you can set up local HTTPS:
-
-```bash
-# Install mkcert for local SSL certificates
-brew install mkcert
-mkcert -install
-
-# Create certificate for localhost
-mkcert localhost 127.0.0.1 ::1
-
-# Update vite.config.ts to use HTTPS
-```
-
-**vite.config.ts:**
-```typescript
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import fs from 'fs'
-
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    https: {
-      key: fs.readFileSync('./localhost-key.pem'),
-      cert: fs.readFileSync('./localhost.pem'),
-    },
-    port: 5173,
-  },
-})
-```
-
-Then access: `https://localhost:5173`
-
-## Payment Methods Supported
-
-### 🍎 Apple Pay
-- **Requirements**: 
-  - Safari browser on macOS/iOS with Apple Pay enabled
-  - **HTTPS domain** (use ngrok for local testing - see setup above)
-  - Valid Apple Pay merchant ID
-- **Setup**: Configure merchant ID in the merchant configuration section
-- **Production**: Requires Apple Developer account and merchant validation
-
-### 🟢 Google Pay
-- **Requirements**: Chrome browser with Google Pay enabled
-- **Setup**: Configure merchant ID and name in the merchant configuration section
-- **Production**: Requires Google Pay merchant account
-
-### 💳 Traditional Cards
-- **Note**: Included for comparison with digital wallets
-- **Focus**: This example primarily demonstrates Apple Pay and Google Pay
 
 ## Usage
 
@@ -184,6 +103,89 @@ const handleGooglePayAuthorized = async (paymentData) => {
 };
 ```
 
+**Google Pay Configuration:**
+
+```typescript
+// Configure Google Pay payment request
+const paymentRequest = {
+  apiVersion: 2,
+  apiVersionMinor: 0,
+  allowedPaymentMethods: [
+    {
+      type: 'CARD',
+      parameters: {
+        allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+        allowedCardNetworks: ['AMEX', 'DISCOVER', 'MASTERCARD', 'VISA'],
+      },
+      tokenizationSpecification: {
+        type: 'PAYMENT_GATEWAY',
+        parameters: {
+          gateway: 'basistheory',
+          gatewayMerchantId: '0b283fa3-44a1-4535-adff-e99ad0a58a47',
+        },
+      },
+    },
+  ],
+  merchantInfo: {
+    merchantId: 'merchant.com.example',
+    merchantName: 'Example Merchant',
+  },
+  transactionInfo: {
+    totalPriceStatus: 'FINAL',
+    totalPrice: '29.99',
+    currencyCode: 'USD',
+  },
+};
+
+// Use with @google-pay/button-react
+<GooglePayButtonReact
+  environment="TEST"
+  paymentRequest={paymentRequest}
+  onPaymentAuthorized={handleGooglePayAuthorized}
+/>
+```
+
+**Advanced Google Pay Express Checkout:**
+
+For a complete implementation with shipping options, address handling, tax calculation, and dynamic pricing updates, see the comprehensive example:
+
+📁 **`src/components/GooglePayExpressCheckout.tsx`**
+
+This advanced example includes:
+- ✅ **Dynamic Shipping Calculation**: Real-time shipping options based on address
+- ✅ **Tax Calculation**: Automatic tax computation by state/region
+- ✅ **Address Handling**: Full billing and shipping address collection
+- ✅ **Order Summary Updates**: Live price updates as user selects options
+- ✅ **Shipping Options**: Multiple shipping methods with pricing
+- ✅ **Email Collection**: Customer email capture during checkout
+- ✅ **Error Handling**: Comprehensive error management for all scenarios
+- ✅ **Loading States**: Proper UI feedback during calculations
+- ✅ **Mock Services**: Complete shipping and tax calculation examples
+
+```typescript
+// Advanced usage with full express checkout features
+<GooglePayExpressCheckout
+  merchantId="merchant.com.example"
+  merchantName="Example Store"
+  initialAmount={2999} // $29.99 in cents
+  currency="USD"
+  onSuccess={(result) => {
+    // result includes: tagadaToken, rawToken, paymentData, orderSummary
+    console.log('Payment successful:', result);
+  }}
+  onError={(error) => {
+    console.error('Payment failed:', error);
+  }}
+/>
+```
+
+**Key Features Demonstrated:**
+- **`onPaymentDataChanged`**: Handles shipping address and option changes
+- **`callbackIntents`**: Enables dynamic updates during checkout flow
+- **`shippingOptionParameters`**: Provides multiple shipping methods
+- **`displayItems`**: Shows itemized pricing breakdown
+- **Mock Services**: Examples of shipping and tax calculation APIs
+
 ### 3. Create Payment Instrument
 
 ```typescript
@@ -198,7 +200,7 @@ const result = await createPaymentInstrument({
 
 **When to use:**
 - ✅ **Required**: If using TagadaPay's 3DS implementation
-- ❌ **Skip**: If your processor has native 3DS (Apple Pay & Google Pay work without it)
+- ❌ **Skip**: If your processor has native 3DS (example stripe),
 
 ```typescript
 // Only needed for TagadaPay 3DS implementation
@@ -234,6 +236,7 @@ const result = await processPayment({
 🟢 CLIENT
 ├── ApplePayButton          (Apple Pay integration)
 ├── GooglePayButton         (Google Pay integration)
+├── GooglePayExpressCheckout (Advanced Google Pay with shipping/tax)
 ├── CardForm               (Traditional card input)
 ├── useCardTokenization    (BasisTheory tokenization)
 ├── useThreeds             (3DS session creation & challenge)
@@ -251,59 +254,6 @@ const result = await processPayment({
 └── pollPaymentStatus()
 ```
 
-### Console Output
-
-The demo uses emoji prefixes to show where code executes:
-
-```
-🟢 CLIENT: Creating 3DS session with BasisTheory SDK...
-✅ BasisTheory session created
-🔴 BACKEND: Persisting session to database...
-✅ Session persisted: threeds_xyz
-🔴 BACKEND: Processing payment...
-🟢 CLIENT: Starting 3DS challenge (modal will appear)...
-✅ 3DS challenge completed
-🔴 BACKEND: Polling payment status...
-✅ Payment complete: succeeded
-```
-
-## Complete Payment Flow
-
-### Step-by-Step
-
-```
-1. User selects digital wallet payment method (Apple Pay or Google Pay)
-   ↓
-2. 🟢 CLIENT: Process digital wallet payment
-   ↓ Apple Pay: Extract payment data from Apple Pay session
-   ↓ Google Pay: Extract token from Google Pay response
-   ↓ Returns: Payment token for backend processing
-   ↓
-3. 🔴 BACKEND: Convert to TagadaToken
-   ↓ Process digital wallet token into standardized format
-   ↓
-4. 🔴 BACKEND: Create payment instrument
-   ↓ POST /api/public/v1/payment-instruments/create-from-token
-   ↓ Returns: { paymentInstrument, customer }
-   ↓
-5. 🟢 CLIENT: Create 3DS session with BasisTheory (optional)
-   ↓
-6. 🔴 BACKEND: Persist 3DS session to database
-   ↓ POST /api/public/v1/threeds/create-session
-   ↓ Returns: { id: "threeds_xyz", externalSessionId: "..." }
-   ↓
-7. 🔴 BACKEND: Process payment
-   ↓ POST /api/public/v1/payments/process
-   ↓
-8a. If 3DS required:
-    ↓ 🟢 CLIENT: Display 3DS challenge modal
-    ↓ User completes authentication
-    ↓ 🔴 BACKEND: Poll payment status
-    ↓ Returns: { payment: { status: "succeeded" } }
-    ↓
-8b. If 3DS not required:
-    ↓ Returns: { payment: { status: "succeeded" } }
-```
 
 ### Key Components
 
@@ -344,90 +294,6 @@ if (rawToken.metadata?.auth?.scaRequired) {
 }
 ```
 
-## Digital Wallet Benefits
-
-### Apple Pay & Google Pay Advantages
-
-1. **✅ Enhanced Security**: Tokenized payments with biometric authentication
-2. **✅ Faster Checkout**: No manual card entry required
-3. **✅ Better UX**: Native payment experience users trust
-4. **✅ Reduced Fraud**: Built-in fraud protection from Apple/Google
-5. **✅ Higher Conversion**: Streamlined payment flow increases completion rates
-
-### Integration Benefits
-
-1. **✅ Unified API**: All payment methods work with the same TagadaPay flow
-2. **✅ Consistent Tokens**: Apple Pay, Google Pay, and cards all produce TagadaTokens
-3. **✅ Same Backend**: No changes needed to your payment processing backend
-4. **✅ Type Safety**: Full TypeScript support across all payment methods
-5. **✅ Error Handling**: Consistent error handling and loading states
-
-## Production Checklist
-
-### Apple Pay Setup
-- [ ] Apple Developer account configured
-- [ ] Merchant ID registered with Apple
-- [ ] Domain verification completed
-- [ ] Merchant validation endpoint implemented on your server
-
-### Google Pay Setup
-- [ ] Google Pay merchant account created
-- [ ] Production merchant ID configured
-- [ ] Payment processor integration verified
-- [ ] Google Pay brand guidelines followed
-
-### TagadaPay Configuration
-- [ ] Production API keys obtained
-- [ ] Store ID configured
-- [ ] Backend endpoints secured
-- [ ] 3DS flow tested in production environment
-
-## Test Cards & Scenarios
-
-### Apple Pay Testing
-```bash
-# Apple Pay Test Environment
-- Use Safari on macOS/iOS
-- Ensure Apple Pay is set up in System Preferences/Settings
-- Use test cards added to Apple Wallet
-- Access via HTTPS domain (ngrok tunnel)
-
-# Expected Behavior:
-✅ Apple Pay button appears on HTTPS domains
-❌ Apple Pay button hidden on HTTP domains
-✅ Payment sheet opens when clicked
-✅ Touch ID/Face ID authentication works
-```
-
-### Google Pay Testing
-```bash
-# Google Pay Test Environment  
-- Use Chrome browser
-- Sign in to Google account
-- Add test payment methods to Google Pay
-- Works on both HTTP and HTTPS
-
-# Expected Behavior:
-✅ Google Pay button appears when API loads
-✅ Payment sheet opens with saved cards
-✅ Test tokenization flow works
-```
-
-### Traditional Card Testing
-For testing traditional card flows, use these test cards:
-
-```
-# Cards requiring 3DS
-4000 0027 6000 3184  (Visa - 3DS required)
-5555 5557 5555 4444  (Mastercard - 3DS required)
-
-# Cards not requiring 3DS  
-4242 4242 4242 4242  (Visa - no 3DS)
-5555 5555 5555 4444  (Mastercard - no 3DS)
-
-# Any future expiry date and CVC
-```
-
 ## Troubleshooting
 
 ### Apple Pay Issues
@@ -436,7 +302,6 @@ For testing traditional card flows, use these test cards:
 ```bash
 # Check:
 ✅ Using HTTPS domain (not localhost HTTP)
-✅ Safari browser (Chrome won't show Apple Pay)
 ✅ macOS/iOS device with Apple Pay enabled
 ✅ Valid merchant ID configured
 ```
@@ -455,13 +320,9 @@ For testing traditional card flows, use these test cards:
 # In development:
 - This is expected (demo doesn't implement real merchant validation)
 - Check console logs for validation URL
-- In production: implement server-side merchant validation endpoint
-
-# Console output should show:
-🍎 Apple Pay: Merchant validation required
-🔴 BACKEND: In production, validate merchant on your server
-Merchant ID: merchant.com.example
-Validation URL: https://apple-pay-gateway.apple.com/paymentservices/...
+- In production: 
+  1. Verify domain in TagadaPay dashboard
+  2. Implement server-side merchant validation endpoint
 ```
 
 ### Google Pay Issues
@@ -510,8 +371,6 @@ src/
 ├── components/
 │   ├── ApplePayButton.tsx     # Apple Pay integration
 │   ├── GooglePayButton.tsx    # Google Pay integration
-│   ├── CardForm.tsx          # Traditional card form
-│   └── HistorySidebar.tsx    # Token/store history
 ├── hooks/
 │   └── usePaymentFlow.ts     # Payment orchestration
 ├── api/
@@ -519,6 +378,5 @@ src/
 ├── utils/
 │   └── localStorage.ts       # History persistence
 └── App.tsx                   # Main demo UI
-```
-
-This demonstrates the full power of the `@tagadapay/core-js` SDK with multiple payment methods! 🎉
+```1
+x
