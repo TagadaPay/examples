@@ -55,6 +55,28 @@ ngrok http 5173
 - Test the complete payment flow
 
 
+## Configuration Management
+
+This example demonstrates proper configuration management using `@tagadapay/core-js` utilities:
+
+### Environment-Based Configuration
+
+```typescript
+import { getGoogleTenantId } from '@tagadapay/core-js/core';
+
+// Automatically uses the correct tenant ID for your environment
+const tenantId = getGoogleTenantId('development'); // Test environment
+const tenantId = getGoogleTenantId('production');  // Production environment
+const tenantId = getGoogleTenantId('local');       // Local development
+```
+
+### Benefits of Using Configuration Utilities
+
+- ✅ **Environment Safety**: Prevents accidental production key usage in development
+- ✅ **Centralized Config**: Single source of truth for all environments
+- ✅ **Type Safety**: Full TypeScript support with IntelliSense
+- ✅ **Consistency**: Same configuration pattern across all TagadaPay integrations
+
 ## Usage
 
 ### 1. Configure Payment Methods
@@ -106,6 +128,11 @@ const handleGooglePayAuthorized = async (paymentData) => {
 **Google Pay Configuration:**
 
 ```typescript
+import { getGoogleTenantId } from '@tagadapay/core-js/core';
+
+// Get tenant ID for current environment
+const tenantId = getGoogleTenantId('development'); // or 'production', 'local'
+
 // Configure Google Pay payment request
 const paymentRequest = {
   apiVersion: 2,
@@ -121,7 +148,7 @@ const paymentRequest = {
         type: 'PAYMENT_GATEWAY',
         parameters: {
           gateway: 'basistheory',
-          gatewayMerchantId: '0b283fa3-44a1-4535-adff-e99ad0a58a47',
+          gatewayMerchantId: tenantId, // Dynamic tenant ID from core-js
         },
       },
     },
@@ -257,6 +284,30 @@ const result = await processPayment({
 
 ### Key Components
 
+**Google Pay Integration:**
+
+```typescript
+// Uses dynamic tenant ID configuration
+import { getGoogleTenantId } from '@tagadapay/core-js/core';
+
+const GooglePayButton = () => {
+  const tenantId = getGoogleTenantId('development');
+  
+  // Payment request automatically uses correct tenant ID
+  const paymentRequest = {
+    // ... configuration
+    allowedPaymentMethods: [{
+      tokenizationSpecification: {
+        parameters: {
+          gateway: 'basistheory',
+          gatewayMerchantId: tenantId, // Environment-specific
+        },
+      },
+    }],
+  };
+};
+```
+
 **usePaymentFlow Hook:**
 
 ```typescript
@@ -370,7 +421,8 @@ localStorage.setItem('tagada-debug', 'true');
 src/
 ├── components/
 │   ├── ApplePayButton.tsx     # Apple Pay integration
-│   ├── GooglePayButton.tsx    # Google Pay integration
+│   ├── GooglePayButton.tsx    # Google Pay with dynamic tenant ID
+│   └── ServerConfig.tsx       # API configuration UI
 ├── hooks/
 │   └── usePaymentFlow.ts     # Payment orchestration
 ├── api/
@@ -378,5 +430,11 @@ src/
 ├── utils/
 │   └── localStorage.ts       # History persistence
 └── App.tsx                   # Main demo UI
-```1
-x
+```
+
+## What's New in This Version
+
+- 🆕 **Dynamic Tenant ID**: Google Pay now uses `getGoogleTenantId()` for environment-specific configuration
+- 🆕 **Improved Configuration**: Centralized tenant ID management through `@tagadapay/core-js`
+- 🆕 **Environment Safety**: Automatic selection of correct tenant ID based on environment
+- 🆕 **Better Developer Experience**: No more hardcoded tenant IDs in your code
