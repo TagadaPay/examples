@@ -1,6 +1,5 @@
 import { useCardTokenization } from '@tagadapay/core-js/react';
-
-// Google Pay types are handled by global declarations
+import { getGoogleTenantId  } from '@tagadapay/core-js/core';
 
 interface GooglePayButtonProps {
   onSuccess: (tagadaToken: string, rawToken: Record<string, unknown>, paymentData: Record<string, unknown>) => void;
@@ -36,7 +35,7 @@ export function GooglePayButton({ onSuccess, onError, disabled }: GooglePayButto
               type: 'PAYMENT_GATEWAY',
               parameters: {
                 gateway: 'basistheory',
-                gatewayMerchantId: '0b283fa3-44a1-4535-adff-e99ad0a58a47',
+                gatewayMerchantId: getGoogleTenantId('development'),
               },
             },
           },

@@ -12,8 +12,8 @@ importers:
         specifier: ^2.57.4
         version: 2.81.0
       '@tagadapay/core-js':
-        specifier: ^2.2.0
-        version: 2.2.0(react@18.3.1)
+        specifier: ^2.3.1
+        version: 2.3.1(react@18.3.1)
       lucide-react:
         specifier: ^0.553.0
         version: 0.553.0(react@18.3.1)
@@ -529,8 +529,8 @@ packages:
     resolution: {integrity: sha512-FkiqUYCzsT92V/mfvoFueszkQrPqSTHgXhN9ADqeMpY5j0tUqeAZu8g2ptLYiDmx1pBbh4xoiqxWAf3UDIv4Bw==}
     engines: {node: '>=20.0.0'}
 
-  '@tagadapay/core-js@2.2.0':
-    resolution: {integrity: sha512-IDW/wdUjhWYWEojxo+w2Trb6pZyZ7QITcEFndX9weO5zvZSK8wJIkOzEGoKejg6yOuML3JsTb+JlGnzv5HHW8A==}
+  '@tagadapay/core-js@2.3.1':
+    resolution: {integrity: sha512-ho3cmJzs4d4Hzdgu3cA1PG8RvJWuiIht26LJQywy82R9c57eMlfD0pJwGjcLuDAsEC1f7cXISIF6UAr2BChRDQ==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
     peerDependenciesMeta:
@@ -1980,7 +1980,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@tagadapay/core-js@2.2.0(react@18.3.1)':
+  '@tagadapay/core-js@2.3.1(react@18.3.1)':
     dependencies:
       '@basis-theory/basis-theory-js': 4.30.0
       '@basis-theory/web-threeds': 1.3.5
