@@ -3,7 +3,8 @@ import { ApplePayButton } from './components/ApplePayButton';
 import { GooglePayButton } from './components/GooglePayButton';
 import { ErrorDisplay } from './components/ErrorDisplay';
 import { TestingNotes } from './components/TestingNotes';
-import type { ApplePayTokenResponse } from '../../../tagadapay-app/packages/core-js/src/core/types';
+import type { ApplePayTokenResponse } from '@tagadapay/core-js';
+import { createPaymentInstrument } from './utils/api';
 
 interface PaymentToken {
   type: 'applePay' | 'googlePay';
@@ -39,6 +40,20 @@ function App() {
   const [isCreatingInstrument, setIsCreatingInstrument] = useState(false);
   const [storeId, setStoreId] = useState('store_test_123');
   const [apiToken, setApiToken] = useState('');
+  const [apiBaseUrl, setApiBaseUrl] = useState('https://app.tagadapay.dev');
+
+  const getEnvironmentInfo = () => {
+    switch (apiBaseUrl) {
+      case 'https://app.tagadapay.com':
+        return { name: 'Production', color: 'text-green-600', icon: '🟢' };
+      case 'https://app.tagadapay.dev':
+        return { name: 'Development', color: 'text-yellow-600', icon: '🟡' };
+      case 'http://localhost:3000':
+        return { name: 'Local Development', color: 'text-blue-600', icon: '🔵' };
+      default:
+        return { name: 'Custom', color: 'text-gray-600', icon: '⚪' };
+    }
+  };
 
   const handleApplePaySuccess = (_tokenId: string, tokenResponse: ApplePayTokenResponse, paymentData: Record<string, unknown>) => {
     setTokenResult({
@@ -71,7 +86,7 @@ function App() {
     setIsProcessing(true);
   };
 
-  const createPaymentInstrument = async () => {
+  const handleCreatePaymentInstrument = async () => {
     if (!tokenResult || !apiToken.trim() || !storeId.trim()) {
       setError('Missing token, API token, or Store ID');
       return;
@@ -81,30 +96,14 @@ function App() {
     setError('');
 
     try {
-      // Mock API call - replace with actual TagadaPay API
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API delay
+      // Real API call to TagadaPay
+      const result = await createPaymentInstrument(tokenResult, {
+        apiToken: apiToken.trim(),
+        storeId: storeId.trim(),
+        apiBaseUrl: apiBaseUrl
+      });
       
-      // Mock successful response
-      const mockResult: PaymentInstrumentResult = {
-        paymentInstrument: {
-          id: 'pi_' + Math.random().toString(36).substr(2, 9),
-          type: tokenResult.type === 'applePay' ? 'apple_pay' : 'google_pay',
-          card: {
-            last4: '4242',
-            brand: tokenResult.type === 'applePay' ? 'visa' : 'mastercard',
-            expMonth: 12,
-            expYear: 2025,
-          },
-        },
-        customer: {
-          id: 'cust_' + Math.random().toString(36).substr(2, 9),
-          email: 'test@example.com',
-          firstName: 'Test',
-          lastName: 'User',
-        },
-      };
-      
-      setPaymentInstrumentResult(mockResult);
+      setPaymentInstrumentResult(result);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create payment instrument';
       setError(errorMessage);
@@ -143,7 +142,21 @@ function App() {
         {/* Server Configuration */}
         <div className="mb-8 rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
           <h2 className="mb-4 text-xl font-bold text-gray-900">🔧 Server Configuration</h2>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Environment
+              </label>
+              <select
+                value={apiBaseUrl}
+                onChange={(e) => setApiBaseUrl(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="https://app.tagadapay.com">🟢 Production</option>
+                <option value="https://app.tagadapay.dev">🟡 Development</option>
+                <option value="http://localhost:3000">🔵 Local Development</option>
+              </select>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Store ID
@@ -287,6 +300,12 @@ function App() {
                     <h4 className="mb-2 text-sm font-semibold text-gray-800">Configuration</h4>
                     <div className="space-y-1 text-xs text-gray-600">
                       <p>
+                        <strong>Environment:</strong> 
+                        <span className={`ml-1 ${getEnvironmentInfo().color}`}>
+                          {getEnvironmentInfo().icon} {getEnvironmentInfo().name}
+                        </span>
+                      </p>
+                      <p>
                         <strong>Store ID:</strong> {storeId || 'Not set'}
                       </p>
                       <p>
@@ -300,7 +319,7 @@ function App() {
 
                   {/* Create Button */}
                   <button
-                    onClick={createPaymentInstrument}
+                    onClick={handleCreatePaymentInstrument}
                     disabled={isCreatingInstrument || !apiToken.trim() || !storeId.trim()}
                     className="w-full rounded-lg bg-orange-600 px-4 py-3 text-sm font-medium text-white shadow transition-all duration-200 hover:bg-orange-700 disabled:cursor-not-allowed disabled:bg-gray-300"
                   >

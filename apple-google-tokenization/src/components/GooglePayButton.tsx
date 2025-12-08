@@ -21,7 +21,8 @@ export function GooglePayButton({ onSuccess, onError, disabled }: GooglePayButto
         environment: 'TEST',
       });
 
-      const paymentDataRequest = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const paymentDataRequest: any = {
         apiVersion: 2,
         apiVersionMinor: 0,
         allowedPaymentMethods: [
@@ -35,7 +36,7 @@ export function GooglePayButton({ onSuccess, onError, disabled }: GooglePayButto
               type: 'PAYMENT_GATEWAY',
               parameters: {
                 gateway: 'basistheory',
-                gatewayMerchantId: getGoogleTenantId('development'),
+                gatewayMerchantId: getGoogleTenantId('local'),
               },
             },
           },
@@ -53,18 +54,9 @@ export function GooglePayButton({ onSuccess, onError, disabled }: GooglePayButto
         },
       };
 
-      const isReadyToPay = await paymentsClient.isReadyToPay({
-        apiVersion: 2,
-        apiVersionMinor: 0,
-        allowedPaymentMethods: paymentDataRequest.allowedPaymentMethods,
-      });
-
-      if (!isReadyToPay.result) {
-        throw new Error('Google Pay is not available on this device/browser');
-      }
-
       const paymentData = await paymentsClient.loadPaymentData(paymentDataRequest);
 
+      console.log('Payment Data:', paymentData);
       // Extract Google Pay token from payment data
       const googlePayTokenString = paymentData.paymentMethodData.tokenizationData.token;
       const googlePayToken = JSON.parse(googlePayTokenString);

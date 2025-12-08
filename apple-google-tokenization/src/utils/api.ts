@@ -20,8 +20,7 @@ interface CreatePaymentInstrumentParams {
  */
 export async function createPaymentInstrument(
   token: PaymentToken,
-  config: ServerConfig,
-  apiBaseUrl = 'https://app.tagadapay.com'
+  config: ServerConfig & { apiBaseUrl?: string }
 ): Promise<PaymentInstrumentResult> {
   // Validate inputs
   if (!token || !config.apiToken.trim() || !config.storeId.trim()) {
@@ -53,7 +52,10 @@ export async function createPaymentInstrument(
     },
   };
 
+  console.log({ params })
+
   // Make real API call to TagadaPay
+  const apiBaseUrl = config.apiBaseUrl || 'https://app.tagadapay.com';
   const response = await fetch(`${apiBaseUrl}/api/public/v1/payment-instruments/create-from-token`, {
     method: 'POST',
     headers: {
