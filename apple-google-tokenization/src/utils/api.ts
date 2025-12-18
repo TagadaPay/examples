@@ -1,5 +1,4 @@
 import type { PaymentToken, PaymentInstrumentResult, ServerConfig } from '../types';
-import type { ApplePayTokenResponse } from '@tagadapay/core-js';
 
 /**
  * Create payment instrument parameters for TagadaPay API
@@ -28,14 +27,8 @@ export async function createPaymentInstrument(
   }
 
   // Extract the tagada token based on payment type
-  let tagadaToken: string;
-  if (token.type === 'applePay') {
-    // For Apple Pay, use the token ID from the response
-    tagadaToken = (token.token as ApplePayTokenResponse).id;
-  } else {
-    // For Google Pay, use the tagadaToken directly
-    tagadaToken = token.tagadaToken || '';
-  }
+  const tagadaToken: string = token.tagadaToken || '';
+
 
   if (!tagadaToken) {
     throw new Error('No valid token found for payment instrument creation');
@@ -51,8 +44,6 @@ export async function createPaymentInstrument(
       lastName: 'User',
     },
   };
-
-  console.log({ params })
 
   // Make real API call to TagadaPay
   const apiBaseUrl = config.apiBaseUrl || 'https://app.tagadapay.com';
