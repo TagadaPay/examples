@@ -1,0 +1,65 @@
+README.md
+  0b3caedcde67a9bc 1,3,7-24
+headless-react/.gitignore
+  0b3caedcde67a9bc 1-5
+headless-react/tsconfig.node.json
+  0b3caedcde67a9bc 1-21
+headless-react/eslint.config.js
+  0b3caedcde67a9bc 1-28
+headless-react/src/components/ConfirmationStep.tsx
+  0b3caedcde67a9bc 1-159
+headless-react/README.md
+  0b3caedcde67a9bc 1-120
+headless-react/src/main.tsx
+  0b3caedcde67a9bc 1-10
+headless-react/tsconfig.json
+  0b3caedcde67a9bc 1-7
+headless-react/tsconfig.app.json
+  0b3caedcde67a9bc 1-23
+headless-react/package.json
+  0b3caedcde67a9bc 1-33
+headless-react/tailwind.config.js
+  0b3caedcde67a9bc 1-69
+headless-react/index.html
+  0b3caedcde67a9bc 1-16
+headless-react/src/index.css
+  0b3caedcde67a9bc 1-62
+headless-react/src/App.tsx
+  0b3caedcde67a9bc 1-146
+headless-react/src/components/ConfigPanel.tsx
+  0b3caedcde67a9bc 1-105
+headless-react/postcss.config.js
+  0b3caedcde67a9bc 1-6
+headless-react/src/components/StepIndicator.tsx
+  0b3caedcde67a9bc 1-56
+headless-react/src/components/ProductStep.tsx
+  0b3caedcde67a9bc 1-97
+headless-react/vite.config.ts
+  0b3caedcde67a9bc 1-6
+headless-react/src/components/CheckoutStep.tsx
+  0b3caedcde67a9bc 1-343
+headless-react/src/vite-env.d.ts
+  0b3caedcde67a9bc 1
+headless-react/src/components/PaymentStep.tsx
+  0b3caedcde67a9bc 1-269
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "e86b5006540575f676305866a10c2af3c19111de",
+  "prompts": {
+    "0b3caedcde67a9bc": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "997e1c2c-3bcf-4d8d-bd56-0def123e0ae2",
+        "model": "claude-4.6-opus-high-thinking"
+      },
+      "human_author": "Loïc DELOBEL",
+      "messages": [],
+      "total_additions": 1604,
+      "total_deletions": 3,
+      "accepted_lines": 1603,
+      "overriden_lines": 0
+    }
+  }
+}
