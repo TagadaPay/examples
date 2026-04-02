@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@tagadapay/headless-sdk':
-        specifier: ^1.0.0
-        version: 1.0.0(react@19.2.4)
+        specifier: ^1.1.0
+        version: 1.1.0(react@19.2.4)
       react:
         specifier: ^19.1.1
         version: 19.2.4
@@ -516,8 +516,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@tagadapay/headless-sdk@1.0.0':
-    resolution: {integrity: sha512-VewGLqrYU+mWwdygTrBf1G5ZweDbnHv3S3qZDmoetb1OMylZ+btSRh09tVrGxWY1HBdP4MILQWv3aB9wZdJUpQ==}
+  '@tagadapay/headless-sdk@1.1.0':
+    resolution: {integrity: sha512-zthoTqcvOp3sfFPGgvP3+BETEAfGQhebzQ3KMj72eKTl5fVTOa3VIFx5/mTZE/T8KkjjeU5AeuqSMNrfPWe1ew==}
     peerDependencies:
       '@tagadapay/core-js': ^2.0.0
       react: ^18.0.0 || ^19.0.0
@@ -1704,7 +1704,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.60.1':
     optional: true
 
-  '@tagadapay/headless-sdk@1.0.0(react@19.2.4)':
+  '@tagadapay/headless-sdk@1.1.0(react@19.2.4)':
     optionalDependencies:
       react: 19.2.4
 

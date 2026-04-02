@@ -6,12 +6,13 @@ This directory contains examples demonstrating TagadaPay SDK functionality.
 
 ### [`headless-react/`](./headless-react/)
 
-Full checkout experience using **`@tagadapay/headless-sdk/react`** hooks:
+A store simulator powered by **`@tagadapay/headless-sdk/react`** hooks:
 
-1. **Product** — Display product, track views with `useAnalytics`
-2. **Checkout** — Session management, promo codes, shipping with `useCheckout`
-3. **Payment** — Card tokenization & processing with `usePayment`
-4. **Confirmation** — Purchase tracking & post-purchase upsells with `useOffers`
+1. **Products** — Browse real products with `useCatalog`
+2. **Cart** — Local cart with quantity management
+3. **Checkout** — Auto-create session, customer info, shipping with `useCheckout`
+4. **Payment** — Card tokenization & processing with `usePayment`
+5. **Confirmation** — Purchase tracking & post-purchase upsells with `useOffers`
 
 **Quick Start:**
 
