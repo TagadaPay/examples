@@ -1,8 +1,27 @@
-# TagadaPay Core-JS Tokenization Examples
+# TagadaPay SDK Examples
 
-This directory contains examples demonstrating the `@tagadapay/core-js` SDK functionality.
+This directory contains examples demonstrating TagadaPay SDK functionality.
 
 ## Examples
+
+### [`headless-react/`](./headless-react/)
+
+Full checkout experience using **`@tagadapay/headless-sdk/react`** hooks:
+
+1. **Product** — Display product, track views with `useAnalytics`
+2. **Checkout** — Session management, promo codes, shipping with `useCheckout`
+3. **Payment** — Card tokenization & processing with `usePayment`
+4. **Confirmation** — Purchase tracking & post-purchase upsells with `useOffers`
+
+**Quick Start:**
+
+```bash
+cd headless-react
+pnpm install
+pnpm dev
+```
+
+---
 
 ### [`core-js-tokenization/`](./core-js-tokenization/)
 
