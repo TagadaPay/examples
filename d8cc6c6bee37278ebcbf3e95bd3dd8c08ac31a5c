@@ -1,0 +1,41 @@
+headless-react/src/components/PaymentStep.tsx
+  0b3caedcde67a9bc 4,6,11-14,16-18,24-25,28-29,31-34,37-43,45-46,48,51-52,56-74,76-77,81-83,86-90,92,95-101,103-114,118-119,121-140,143,145,148-152,156,159-163,168-170,174-205,209-211
+headless-react/src/components/CartDrawer.tsx
+  0b3caedcde67a9bc 1-163
+headless-react/src/components/StepIndicator.tsx
+  0b3caedcde67a9bc 1-2,6-7,10,12-13,16-17,19-24,27-29,36-37,45-46
+headless-react/src/components/CheckoutStep.tsx
+  0b3caedcde67a9bc 3,5,7,12-24,31-33,35,37-47,49-53,56-58,60-62,64-65,67-85,89-94,96-99,104-105,107-110,117-127,130-139,142,144-145,147-154,157-160,162-166,168-176,178-180,182-184,188-201,205-208,212-213,215,218-219,222-226,229-231,233,236,238-273,275,277-279,281-296,299
+headless-react/src/App.tsx
+  0b3caedcde67a9bc 3,6-7,17-28,37,39-40,43,47-89,91-95,102-104,108-109,130,137,146,150-157,159-166,169,171-173,178,180-181,188,196,200
+headless-react/src/components/ProductGrid.tsx
+  0b3caedcde67a9bc 1-181
+README.md
+  0b3caedcde67a9bc 9,11-15
+headless-react/src/components/ConfirmationStep.tsx
+  0b3caedcde67a9bc 3,5,10-13,16-18,21-26,29-31,34-36,40-50,52-57,59,63-71,74-77
+headless-react/src/components/ConfigPanel.tsx
+  0b3caedcde67a9bc 4,11,13-14,16-17,22,24-26,30-52,55-61
+headless-react/README.md
+  0b3caedcde67a9bc 3,5,7-22,32,36-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "d8cc6c6bee37278ebcbf3e95bd3dd8c08ac31a5c",
+  "prompts": {
+    "0b3caedcde67a9bc": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "997e1c2c-3bcf-4d8d-bd56-0def123e0ae2",
+        "model": "claude-4.6-opus-high-thinking"
+      },
+      "human_author": "Loïc DELOBEL",
+      "messages": [],
+      "total_additions": 1063,
+      "total_deletions": 1029,
+      "accepted_lines": 992,
+      "overriden_lines": 0
+    }
+  }
+}
