@@ -11,7 +11,6 @@ import { ConfirmationStep } from './components/ConfirmationStep';
 export interface AppConfig {
   storeId: string;
   environment: Environment;
-  apiKey: string;
   checkoutToken: string;
 }
 
@@ -22,7 +21,6 @@ function App() {
   const [config, setConfig] = useState<AppConfig>({
     storeId: '',
     environment: 'production',
-    apiKey: '',
     checkoutToken: '',
   });
 
@@ -85,7 +83,6 @@ function App() {
           <TagadaHeadlessProvider
             storeId={config.storeId}
             environment={config.environment}
-            apiKey={config.apiKey || undefined}
           >
             <div className="mt-8 space-y-8 animate-slide-up">
               <StepIndicator steps={[...STEPS]} current={currentStep} />

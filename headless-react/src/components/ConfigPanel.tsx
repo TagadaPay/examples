@@ -88,16 +88,6 @@ export function ConfigPanel({ config, onChange, isOpen, onToggle }: Props) {
             </p>
           </div>
 
-          <div className="sm:col-span-2">
-            <label className="mb-1.5 block text-xs font-medium text-white/40">API Key (optional)</label>
-            <input
-              type="password"
-              value={config.apiKey}
-              onChange={(e) => update({ apiKey: e.target.value })}
-              className="input-dark"
-              placeholder="tgd_pk_..."
-            />
-          </div>
         </div>
       )}
     </div>
