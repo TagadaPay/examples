@@ -1,0 +1,25 @@
+headless-react/src/App.tsx
+  0b3caedcde67a9bc 1,32-56,59-66,68-78,145-146,151,155,184-202
+headless-react/scripts/seed.ts
+  0b3caedcde67a9bc 122,146,170
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "393a124c0c3df32b15d5f55a59da0627b0836db0",
+  "prompts": {
+    "0b3caedcde67a9bc": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "997e1c2c-3bcf-4d8d-bd56-0def123e0ae2",
+        "model": "claude-4.6-opus-high"
+      },
+      "human_author": "Loïc DELOBEL",
+      "messages": [],
+      "total_additions": 79,
+      "total_deletions": 11,
+      "accepted_lines": 78,
+      "overriden_lines": 0
+    }
+  }
+}
