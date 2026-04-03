@@ -55,7 +55,20 @@ pnpm dev
 
 Open [localhost:5173](http://localhost:5173) — your store ID is pre-filled from `.env`.
 
-### 4. Test payment
+### 4. Deploy to TagadaPay CDN (optional)
+
+Build and deploy your store to TagadaPay's global edge CDN in one command:
+
+```bash
+pnpm build
+TAGADA_API_KEY=your-api-key pnpm deploy
+```
+
+Your store will be live at `https://headless-react-example--{storeId}.cdn.tagadapay.com/`.
+
+Handles any build size automatically (small builds go inline, larger builds are zipped and uploaded via blob storage).
+
+### 5. Test payment
 
 Use the test card:
 
@@ -72,7 +85,8 @@ CVC:    123
 ```
 headless-react/
 ├── scripts/
-│   └── seed.ts              # One-command demo store setup
+│   ├── seed.ts              # One-command demo store setup
+│   └── deploy.ts            # One-command deploy to TagadaPay CDN
 ├── src/
 │   ├── App.tsx              # Main app — routing, cart state, step flow
 │   ├── index.css            # Tailwind + custom dark theme

@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "deploy": "tsx scripts/deploy.ts"
   },
   "dependencies": {
     "@tagadapay/core-js": "^2.5.4",
