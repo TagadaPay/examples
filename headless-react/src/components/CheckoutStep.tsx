@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useCheckout } from '@tagadapay/headless-sdk/react';
+import { useState, useRef } from 'react';
+import { useCheckout, useGoogleAutocomplete } from '@tagadapay/headless-sdk/react';
 import type { ShippingRate } from '@tagadapay/headless-sdk';
 import { CodePanel } from './CodePanel';
 import { ResourceId, ResourceIdBar } from './ResourceId';
@@ -51,9 +51,47 @@ export function CheckoutStep({ checkoutToken, sessionToken, onBack, onContinue }
   const [promoStatus, setPromoStatus] = useState<'idle' | 'applying' | 'applied' | 'error'>('idle');
   const [rates, setRates] = useState<ShippingRate[]>([]);
   const [selectedRateId, setSelectedRateId] = useState<string | null>(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  const googleApiKey = import.meta.env.VITE_GOOGLE_AUTOCOMPLETE_API_KEY ?? '';
+  const {
+    predictions,
+    isLoading: isAutocompleteLoading,
+    searchPlaces,
+    getPlaceDetails,
+    extractFormattedAddress,
+    clearPredictions,
+  } = useGoogleAutocomplete({ apiKey: googleApiKey, defer: true });
 
   const handleField = (key: keyof FormData, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleAddressInput = (value: string) => {
+    handleField('line1', value);
+    if (value.length >= 3 && googleApiKey) {
+      searchPlaces(value, form.country);
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSelectPrediction = async (placeId: string) => {
+    setShowSuggestions(false);
+    clearPredictions();
+    const details = await getPlaceDetails(placeId);
+    if (!details) return;
+    const addr = extractFormattedAddress(details);
+    setForm((prev) => ({
+      ...prev,
+      line1: addr.address1,
+      city: addr.city,
+      state: addr.state,
+      postalCode: addr.postal,
+      country: addr.country || prev.country,
+    }));
   };
 
   const handleCustomerSubmit = async () => {
@@ -166,9 +204,56 @@ export function CheckoutStep({ checkoutToken, sessionToken, onBack, onContinue }
             </div>
           </div>
 
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-white/50">Address</label>
-            <input type="text" value={form.line1} onChange={(e) => handleField('line1', e.target.value)} placeholder="123 Main St" className={inputClass} />
+          <div className="relative">
+            <label className="mb-1.5 block text-xs font-medium text-white/50">
+              Address
+              {googleApiKey && (
+                <span className="ml-1.5 text-[10px] text-emerald-400/60">Google Autocomplete</span>
+              )}
+            </label>
+            <input
+              type="text"
+              value={form.line1}
+              onChange={(e) => handleAddressInput(e.target.value)}
+              onFocus={() => predictions.length > 0 && setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              placeholder="Start typing an address…"
+              className={inputClass}
+              autoComplete="off"
+            />
+            {showSuggestions && predictions.length > 0 && (
+              <div
+                ref={suggestionsRef}
+                className="absolute left-0 right-0 top-full z-50 mt-1 max-h-48 overflow-y-auto rounded-lg border border-white/10 bg-[#1a1a2e] shadow-xl"
+              >
+                {predictions.map((p) => (
+                  <button
+                    key={p.place_id}
+                    type="button"
+                    className="flex w-full items-start gap-2 px-3 py-2.5 text-left text-sm text-white/80 transition-colors hover:bg-white/5 hover:text-white"
+                    onMouseDown={() => handleSelectPrediction(p.place_id)}
+                  >
+                    <svg className="mt-0.5 h-4 w-4 shrink-0 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                    </svg>
+                    <span>
+                      {p.structured_formatting ? (
+                        <>
+                          <span className="font-medium text-white">{p.structured_formatting.main_text}</span>{' '}
+                          <span className="text-white/40">{p.structured_formatting.secondary_text}</span>
+                        </>
+                      ) : (
+                        p.description
+                      )}
+                    </span>
+                  </button>
+                ))}
+                {isAutocompleteLoading && (
+                  <div className="px-3 py-2 text-xs text-white/30">Searching…</div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">
@@ -339,13 +424,30 @@ await tagada.promotions.create({
         />
         <CodePanel
           title="Frontend — Checkout Flow"
-          hookName="useCheckout()"
-          code={`import { useCheckout } from '@tagadapay/headless-sdk/react';
+          hookName="useCheckout() + useGoogleAutocomplete()"
+          code={`import { useCheckout, useGoogleAutocomplete } from '@tagadapay/headless-sdk/react';
 
 const {
   session, updateCustomer, updateAddress,
   getShippingRates, selectShippingRate, applyPromo,
 } = useCheckout(checkoutToken, sessionToken);
+
+// Google Places autocomplete for the address field
+const {
+  predictions, searchPlaces, getPlaceDetails,
+  extractFormattedAddress, clearPredictions,
+} = useGoogleAutocomplete({
+  apiKey: import.meta.env.VITE_GOOGLE_AUTOCOMPLETE_API_KEY,
+  defer: true, // loads script on first search
+});
+
+// When user types in address field:
+searchPlaces(inputValue, 'US');
+
+// When user picks a suggestion:
+const details = await getPlaceDetails(prediction.place_id);
+const addr = extractFormattedAddress(details);
+// addr → { address1, city, state, postal, country }
 
 // 1. Update customer info
 await updateCustomer({
@@ -353,11 +455,11 @@ await updateCustomer({
   firstName: 'John', lastName: 'Doe',
 });
 
-// 2. Set shipping address
+// 2. Set shipping address (auto-filled from Google)
 await updateAddress({
   shippingAddress: {
-    line1: '123 Main St', city: 'New York',
-    state: 'NY', postalCode: '10001', country: 'US',
+    line1: addr.address1, city: addr.city,
+    state: addr.state, postalCode: addr.postal, country: addr.country,
   },
 });
 

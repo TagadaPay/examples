@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@tagadapay/core-js": "^2.5.4",
-    "@tagadapay/headless-sdk": "^1.2.0",
+    "@tagadapay/headless-sdk": "^1.3.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
