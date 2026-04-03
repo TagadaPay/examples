@@ -119,6 +119,7 @@ async function main() {
       grams: 250,
       active: true,
       default: true,
+      imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop&q=80',
       price: 9900,
       compareAtPrice: 12900,
       prices: [{
@@ -142,6 +143,7 @@ async function main() {
       grams: 120,
       active: true,
       default: true,
+      imageUrl: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=600&h=600&fit=crop&q=80',
       price: 2900,
       compareAtPrice: 3900,
       prices: [{
@@ -165,6 +167,7 @@ async function main() {
       grams: null,
       active: true,
       default: true,
+      imageUrl: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=600&h=600&fit=crop&q=80',
       price: 999,
       compareAtPrice: null,
       prices: [{

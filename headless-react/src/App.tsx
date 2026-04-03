@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { TagadaHeadlessProvider } from '@tagadapay/headless-sdk/react';
 import type { Environment, CatalogVariant } from '@tagadapay/headless-sdk';
 import { GettingStarted } from './components/GettingStarted';
@@ -29,17 +29,53 @@ export interface CartItem {
 const STEPS = ['Products', 'Cart', 'Checkout', 'Payment', 'Confirmation'] as const;
 export type Step = (typeof STEPS)[number];
 
-function App() {
-  const [config, setConfig] = useState<AppConfig>({
-    storeId: import.meta.env.VITE_STORE_ID ?? '',
-    environment: (import.meta.env.VITE_ENVIRONMENT as Environment) ?? 'production',
-  });
+const STORAGE_KEY = 'tagada-demo-state';
 
-  const [currentStep, setCurrentStep] = useState<Step>('Products');
-  const [configOpen, setConfigOpen] = useState(true);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [sessionData, setSessionData] = useState<{ checkoutToken: string; sessionToken: string } | null>(null);
-  const [paymentId, setPaymentId] = useState<string | null>(null);
+interface PersistedState {
+  config: AppConfig;
+  currentStep: Step;
+  cart: CartItem[];
+  sessionData: { checkoutToken: string; sessionToken: string } | null;
+  paymentId: string | null;
+}
+
+function loadPersistedState(): Partial<PersistedState> | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as Partial<PersistedState>;
+  } catch {
+    return null;
+  }
+}
+
+function persistState(state: PersistedState) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch { /* quota exceeded — ignore */ }
+}
+
+function App() {
+  const saved = loadPersistedState();
+
+  const [config, setConfig] = useState<AppConfig>(
+    saved?.config ?? {
+      storeId: import.meta.env.VITE_STORE_ID ?? '',
+      environment: (import.meta.env.VITE_ENVIRONMENT as Environment) ?? 'production',
+    },
+  );
+
+  const [currentStep, setCurrentStep] = useState<Step>(saved?.currentStep ?? 'Products');
+  const [configOpen, setConfigOpen] = useState(!saved?.config?.storeId);
+  const [cart, setCart] = useState<CartItem[]>(saved?.cart ?? []);
+  const [sessionData, setSessionData] = useState<{ checkoutToken: string; sessionToken: string } | null>(
+    saved?.sessionData ?? null,
+  );
+  const [paymentId, setPaymentId] = useState<string | null>(saved?.paymentId ?? null);
+
+  useEffect(() => {
+    persistState({ config, currentStep, cart, sessionData, paymentId });
+  }, [config, currentStep, cart, sessionData, paymentId]);
 
   const isConfigured = config.storeId.trim() !== '';
 
@@ -106,7 +142,17 @@ function App() {
     setPaymentId(null);
   }, []);
 
+  const handleFullReset = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY);
+    setCurrentStep('Products');
+    setCart([]);
+    setSessionData(null);
+    setPaymentId(null);
+    setConfigOpen(true);
+  }, []);
+
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const hasProgress = currentStep !== 'Products' || cart.length > 0 || sessionData !== null;
 
   return (
     <div className="min-h-screen bg-surface-950 font-sans text-white">
@@ -134,6 +180,25 @@ function App() {
             </code>
           </p>
         </header>
+
+        {/* Session controls */}
+        {hasProgress && (
+          <div className="mb-6 flex items-center justify-center gap-3 animate-fade-in">
+            <div className="flex items-center gap-2 rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1.5">
+              <div className="h-1.5 w-1.5 rounded-full bg-emerald-400/70" />
+              <span className="text-[11px] text-white/35">Session restored</span>
+            </div>
+            <button
+              onClick={handleFullReset}
+              className="flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-[11px] text-white/35 transition-colors hover:border-red-500/20 hover:bg-red-500/5 hover:text-red-400"
+            >
+              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" />
+              </svg>
+              Reset demo
+            </button>
+          </div>
+        )}
 
         {/* Getting Started */}
         <GettingStarted
