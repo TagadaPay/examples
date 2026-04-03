@@ -1,0 +1,27 @@
+headless-react/README.md
+  0b3caedcde67a9bc 58-71,88-89
+headless-react/package.json
+  0b3caedcde67a9bc 11-12
+headless-react/scripts/deploy.ts
+  0b3caedcde67a9bc 1-46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "ef62bfaab27d76a5b1a044e08ea0432380971804",
+  "prompts": {
+    "0b3caedcde67a9bc": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "997e1c2c-3bcf-4d8d-bd56-0def123e0ae2",
+        "model": "claude-4.6-opus-high"
+      },
+      "human_author": "Loïc DELOBEL",
+      "messages": [],
+      "total_additions": 538,
+      "total_deletions": 21,
+      "accepted_lines": 65,
+      "overriden_lines": 0
+    }
+  }
+}
