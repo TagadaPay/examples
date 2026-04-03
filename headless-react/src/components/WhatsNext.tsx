@@ -39,7 +39,7 @@ export async function POST(req) {
 }`,
     link: {
       label: 'Webhook docs',
-      url: 'https://docs.tagadapay.com/developer-tools/node-sdk/quick-start',
+      url: 'https://docs.tagadapay.com/developer-tools/node-sdk/webhooks-events',
     },
   },
   {
@@ -52,7 +52,7 @@ export async function POST(req) {
     description: 'Set up automatic transactional emails — order paid, subscription renewed, refund processed, and more.',
     link: {
       label: 'Email template docs',
-      url: 'https://docs.tagadapay.com/features/emails',
+      url: 'https://docs.tagadapay.com/knowledge-center/emails',
     },
   },
   {
