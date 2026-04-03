@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { AppConfig } from '../App';
 import type { Environment } from '@tagadapay/headless-sdk';
+import { CodePanel } from './CodePanel';
 
 interface GettingStartedProps {
   config: AppConfig;
@@ -177,6 +178,27 @@ export function GettingStarted({ config, onChange, isOpen, onToggle }: GettingSt
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Install snippet */}
+          <div className="space-y-2">
+            <CodePanel
+              title="Install the SDKs"
+              hookName="npm"
+              variant="backend"
+              code={`# Frontend — React hooks for checkout UI
+pnpm add @tagadapay/headless-sdk
+
+# Backend — Node.js SDK for store management & webhooks
+pnpm add @tagadapay/node-sdk
+
+# Then wrap your app:
+import { TagadaHeadlessProvider } from '@tagadapay/headless-sdk/react';
+
+<TagadaHeadlessProvider storeId="store_xxx" environment="production">
+  <App />
+</TagadaHeadlessProvider>`}
+            />
           </div>
 
           {/* Source link */}

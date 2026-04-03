@@ -170,14 +170,53 @@ export function ProductGrid({ cart, onAddToCart, onGoToCart, cartCount }: Produc
         ))}
       </div>
 
-      <CodePanel
-        title="View Code"
-        hookName="useCatalog()"
-        code={`import { useCatalog } from '@tagadapay/headless-sdk/react';
+      <div className="space-y-2">
+        <CodePanel
+          title="Backend — Create Store & Products"
+          hookName="node-sdk"
+          variant="backend"
+          code={`import Tagada from '@tagadapay/node-sdk';
+const tagada = new Tagada('tgd_your_api_key');
+
+// 1. Create a store
+const store = await tagada.stores.create({
+  name: 'My Store',
+  baseCurrency: 'USD',
+  presentmentCurrencies: ['USD', 'EUR'],
+  chargeCurrencies: ['USD'],
+});
+
+// 2. Create a product with variants & pricing
+const product = await tagada.products.create({
+  storeId: store.id,
+  name: 'Premium Wireless Headphones',
+  description: 'Noise-cancelling, 40h battery',
+  active: true,
+  variants: [{
+    name: 'Default',
+    sku: 'headphones-001',
+    active: true,
+    default: true,
+    price: 9900,                     // $99.00 in cents
+    compareAtPrice: 12900,           // strikethrough price
+    prices: [{
+      currencyOptions: {
+        USD: { amount: 9900 },
+        EUR: { amount: 8900 },
+      },
+      recurring: false,              // one-time (set true for subscription)
+      default: true,
+    }],
+  }],
+});`}
+        />
+        <CodePanel
+          title="Frontend — Load & Display Products"
+          hookName="useCatalog()"
+          code={`import { useCatalog } from '@tagadapay/headless-sdk/react';
 
 const { products, isLoading, error, loadProducts } = useCatalog();
 
-// Load products on mount
 useEffect(() => {
   loadProducts();
 }, [loadProducts]);
@@ -188,7 +227,8 @@ products.map(product => {
   const price = variant.prices?.find(p => p.default);
   console.log(product.name, price?.amount);
 });`}
-      />
+        />
+      </div>
     </div>
   );
 }

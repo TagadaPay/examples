@@ -148,12 +148,54 @@ export function ConfirmationStep({ paymentId, onReset }: ConfirmationStepProps) 
         </div>
       )}
 
-      <CodePanel
-        title="View Code"
-        hookName="useOffers()"
-        code={`import { useOffers } from '@tagadapay/headless-sdk/react';
+      <div className="space-y-2">
+        <CodePanel
+          title="Backend — Create Upsell Offers"
+          hookName="node-sdk"
+          variant="backend"
+          code={`import Tagada from '@tagadapay/node-sdk';
+const tagada = new Tagada('tgd_your_api_key');
 
-const { listOffers, previewOffer, payPreviewedOffer, isLoading } = useOffers();
+// Upsell offers appear AFTER payment — one-click purchase
+// (customer's card is already on file, no re-entry needed)
+await tagada.offers.create({
+  storeId: store.id,
+  offerTitle: 'Add a Fast Charger — 25% off',
+  enabled: true,
+  type: 'upsell',           // shown post-purchase
+  triggers: [
+    { productId: null, type: 'any' },  // trigger on any purchase
+  ],
+  offers: [{
+    productId: charger.id,
+    variantId: chargerVariant.id,
+    priceId: chargerVariant.prices[0].id,
+    title: 'USB-C Fast Charger',
+    titleTrans: { en: 'Add a Fast Charger — 25% off' },
+  }],
+});
+
+// You can create multiple upsells — they'll show in sequence
+await tagada.offers.create({
+  storeId: store.id,
+  offerTitle: 'Upgrade to Premium Headphones',
+  enabled: true,
+  type: 'upsell',
+  triggers: [{ productId: null, type: 'any' }],
+  offers: [{
+    productId: headphones.id,
+    variantId: headphonesVariant.id,
+    priceId: headphonesVariant.prices[0].id,
+    title: 'Premium Wireless Headphones',
+  }],
+});`}
+        />
+        <CodePanel
+          title="Frontend — Display & Accept Upsells"
+          hookName="useOffers()"
+          code={`import { useOffers } from '@tagadapay/headless-sdk/react';
+
+const { listOffers, previewOffer, payPreviewedOffer } = useOffers();
 
 // 1. List available upsell offers after payment
 const offers = await listOffers({ type: 'upsell' });
@@ -161,12 +203,13 @@ const offers = await listOffers({ type: 'upsell' });
 // 2. Preview an offer (shows price, description)
 await previewOffer({ offerId: offers[0].id });
 
-// 3. Accept the upsell — charges the same card, no re-entry needed
+// 3. One-click accept — charges the same card
 await payPreviewedOffer({
   offerId: offers[0].id,
-  mainOrderId: paymentId,
+  mainOrderId: paymentId,   // from the main order
 });`}
-      />
+        />
+      </div>
 
       <button onClick={onReset} className="btn-primary w-full py-3 text-sm font-semibold">
         Start Over

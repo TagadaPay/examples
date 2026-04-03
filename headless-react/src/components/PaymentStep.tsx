@@ -201,20 +201,98 @@ export function PaymentStep({ checkoutToken, sessionToken, onBack, onComplete }:
         Payments are processed securely by TagadaPay. Card data is tokenized and never stored.
       </p>
 
-      <CodePanel
-        title="View Code"
-        hookName="usePayment()"
-        code={`import { useCheckout, usePayment } from '@tagadapay/headless-sdk/react';
+      {/* Test card hint */}
+      <div className="rounded-xl border border-brand-500/10 bg-brand-500/[0.03] px-4 py-3">
+        <div className="flex items-start gap-2.5">
+          <svg className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+          </svg>
+          <div>
+            <p className="text-xs font-medium text-brand-300">Test Cards for Sandbox</p>
+            <div className="mt-1.5 space-y-1">
+              <div className="flex items-center gap-2 text-[11px] text-white/50">
+                <code className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-brand-300/80">4242 4242 4242 4242</code>
+                <span className="text-white/25">—</span>
+                <span>Visa (always succeeds)</span>
+              </div>
+              <div className="flex items-center gap-2 text-[11px] text-white/50">
+                <code className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-brand-300/80">4000 0000 0000 3220</code>
+                <span className="text-white/25">—</span>
+                <span>3D Secure required</span>
+              </div>
+              <div className="flex items-center gap-2 text-[11px] text-white/50">
+                <code className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-brand-300/80">4000 0000 0000 0002</code>
+                <span className="text-white/25">—</span>
+                <span>Card declined</span>
+              </div>
+              <p className="mt-1 text-[11px] text-white/30">Use any future expiry (e.g. 12/28) and any 3-digit CVC.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <CodePanel
+          title="Backend — Payment Flow & PSP Orchestration"
+          hookName="node-sdk"
+          variant="backend"
+          code={`import Tagada from '@tagadapay/node-sdk';
+const tagada = new Tagada('tgd_your_api_key');
+
+// 1. Create a processor (Stripe, sandbox, etc.)
+const { processor } = await tagada.processors.create({
+  processor: {
+    name: 'Stripe Production',
+    type: 'stripe',          // or 'sandbox' for testing
+    enabled: true,
+    supportedCurrencies: ['USD', 'EUR'],
+    baseCurrency: 'USD',
+    options: {
+      secretKey: 'sk_live_...',
+      publishableKey: 'pk_live_...',
+    },
+  },
+});
+
+// 2. Create a payment flow with routing & fallback
+const flow = await tagada.paymentFlows.create({
+  data: {
+    name: 'Main Flow',
+    strategy: 'simple',        // or 'weighted' for load balancing
+    fallbackMode: true,        // retry on different PSP if first fails
+    maxFallbackRetries: 2,
+    threeDsEnabled: true,
+    stickyProcessorEnabled: true,
+    pickProcessorStrategy: 'weighted',
+    processorConfigs: [
+      { processorId: stripeId,  weight: 70, disabled: false },
+      { processorId: adyenId,   weight: 30, disabled: false },
+    ],
+    fallbackProcessorConfigs: [
+      { processorId: backupId,  weight: 100, disabled: false },
+    ],
+  },
+});
+
+// 3. Assign flow to your store
+await tagada.stores.update(store.id, {
+  selectedPaymentFlowId: flow.id,
+});`}
+        />
+        <CodePanel
+          title="Frontend — Tokenize & Pay"
+          hookName="usePayment()"
+          code={`import { useCheckout, usePayment } from '@tagadapay/headless-sdk/react';
 
 const { session } = useCheckout(checkoutToken, sessionToken);
-const { loadPaymentSetup, tokenizeCard, pay, isProcessing } = usePayment();
+const { loadPaymentSetup, tokenizeCard, pay } = usePayment();
 
-// 1. Load payment setup when session is ready
+// 1. Load payment setup
 useEffect(() => {
   if (session?.id) loadPaymentSetup(session.id);
 }, [session?.id]);
 
-// 2. Tokenize the card (PCI-safe — card data never hits your server)
+// 2. Tokenize card (PCI-safe — never touches your server)
 const { tagadaToken } = await tokenizeCard({
   cardNumber: '4242424242424242',
   expiryDate: '12/28',
@@ -222,16 +300,17 @@ const { tagadaToken } = await tokenizeCard({
   cardholderName: 'John Doe',
 });
 
-// 3. Process the payment
+// 3. Process payment
 const result = await pay({
   checkoutSessionId: session.id,
   tagadaToken,
 });
 
 if (result.payment.status === 'succeeded') {
-  console.log('Payment ID:', result.payment.id);
+  console.log('Paid!', result.payment.id);
 }`}
-      />
+        />
+      </div>
     </div>
   );
 }

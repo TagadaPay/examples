@@ -4,9 +4,10 @@ interface CodePanelProps {
   title: string;
   hookName: string;
   code: string;
+  variant?: 'frontend' | 'backend';
 }
 
-export function CodePanel({ title, hookName, code }: CodePanelProps) {
+export function CodePanel({ title, hookName, code, variant = 'frontend' }: CodePanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -16,6 +17,8 @@ export function CodePanel({ title, hookName, code }: CodePanelProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const isFrontend = variant === 'frontend';
+
   return (
     <div className="rounded-xl border border-white/[0.06] bg-white/[0.015] overflow-hidden">
       <button
@@ -23,11 +26,17 @@ export function CodePanel({ title, hookName, code }: CodePanelProps) {
         className="flex w-full items-center justify-between px-4 py-2.5 transition-colors hover:bg-white/[0.02]"
       >
         <div className="flex items-center gap-2">
-          <svg className="h-3.5 w-3.5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
-          </svg>
+          {isFrontend ? (
+            <svg className="h-3.5 w-3.5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
+            </svg>
+          ) : (
+            <svg className="h-3.5 w-3.5 text-yellow-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 0 1-3-3m3 3a3 3 0 1 0 0 6h13.5a3 3 0 1 0 0-6m-16.5-3a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3m-19.5 0a4.5 4.5 0 0 1 .9-2.7L5.737 5.1a3.375 3.375 0 0 1 2.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 0 1 .9 2.7m0 0a3 3 0 0 1-3 3m0 3h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Zm-3 6h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Z" />
+            </svg>
+          )}
           <span className="text-xs font-medium text-white/50">{title}</span>
-          <code className="rounded bg-brand-500/10 px-1.5 py-0.5 font-mono text-[10px] text-brand-300">{hookName}</code>
+          <code className={`rounded px-1.5 py-0.5 font-mono text-[10px] ${isFrontend ? 'bg-brand-500/10 text-brand-300' : 'bg-yellow-500/10 text-yellow-300/80'}`}>{hookName}</code>
         </div>
         <svg className={`h-3.5 w-3.5 text-white/30 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />

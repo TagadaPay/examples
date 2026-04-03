@@ -292,36 +292,65 @@ export function CheckoutStep({ checkoutToken, sessionToken, onBack, onContinue }
         </div>
       )}
 
-      <CodePanel
-        title="View Code"
-        hookName="useCheckout()"
-        code={`import { useCheckout } from '@tagadapay/headless-sdk/react';
+      <div className="space-y-2">
+        <CodePanel
+          title="Backend — Create Order Bumps & Promotions"
+          hookName="node-sdk"
+          variant="backend"
+          code={`import Tagada from '@tagadapay/node-sdk';
+const tagada = new Tagada('tgd_your_api_key');
+
+// Order bumps appear on the checkout page ("Add this too?")
+await tagada.offers.create({
+  storeId: store.id,
+  offerTitle: 'Add Extended Warranty',
+  enabled: true,
+  type: 'orderbump',     // shown during checkout
+  triggers: [{ productId: null, type: 'any' }],
+  offers: [{
+    productId: warrantyProduct.id,
+    variantId: warrantyVariant.id,
+    priceId: warrantyVariant.prices[0].id,
+    title: '2-Year Extended Warranty — $19',
+  }],
+  orderBumpOffers: [{
+    productId: warrantyProduct.id,
+    variantId: warrantyVariant.id,
+    title: 'Add Extended Warranty',
+  }],
+});
+
+// Create a promo code for discounts
+await tagada.promotions.create({
+  storeId: store.id,
+  name: '10% Off Everything',
+  code: 'SAVE10',
+  type: 'percentage',
+  value: 10,
+  enabled: true,
+});`}
+        />
+        <CodePanel
+          title="Frontend — Checkout Flow"
+          hookName="useCheckout()"
+          code={`import { useCheckout } from '@tagadapay/headless-sdk/react';
 
 const {
-  session,
-  updateCustomer,
-  updateAddress,
-  getShippingRates,
-  selectShippingRate,
-  applyPromo,
-  isLoading,
+  session, updateCustomer, updateAddress,
+  getShippingRates, selectShippingRate, applyPromo,
 } = useCheckout(checkoutToken, sessionToken);
 
 // 1. Update customer info
 await updateCustomer({
   email: 'john@example.com',
-  firstName: 'John',
-  lastName: 'Doe',
+  firstName: 'John', lastName: 'Doe',
 });
 
 // 2. Set shipping address
 await updateAddress({
   shippingAddress: {
-    line1: '123 Main St',
-    city: 'New York',
-    state: 'NY',
-    postalCode: '10001',
-    country: 'US',
+    line1: '123 Main St', city: 'New York',
+    state: 'NY', postalCode: '10001', country: 'US',
   },
 });
 
@@ -329,9 +358,10 @@ await updateAddress({
 const rates = await getShippingRates();
 await selectShippingRate(rates[0].id);
 
-// 4. (Optional) Apply promo code
+// 4. Apply promo code
 await applyPromo('SAVE10');`}
-      />
+        />
+      </div>
     </div>
   );
 }

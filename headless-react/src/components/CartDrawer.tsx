@@ -157,14 +157,60 @@ export function CartDrawer({ cart, onUpdateQuantity, onRemove, onBack, onSession
         )}
       </button>
 
-      <CodePanel
-        title="View Code"
-        hookName="useHeadlessClient()"
-        code={`import { useHeadlessClient } from '@tagadapay/headless-sdk/react';
+      <div className="space-y-2">
+        <CodePanel
+          title="Backend — Create a Checkout Funnel"
+          hookName="node-sdk"
+          variant="backend"
+          code={`import Tagada from '@tagadapay/node-sdk';
+const tagada = new Tagada('tgd_your_api_key');
+
+// A funnel defines the checkout flow: which steps,
+// which payment flow, and what happens after payment.
+const funnel = await tagada.funnels.create({
+  storeId: store.id,
+  config: {
+    id: 'my-checkout',
+    name: 'Main Checkout',
+    version: '1.0.0',
+    nodes: [
+      {
+        id: 'step_checkout',
+        name: 'Checkout',
+        type: 'checkout',
+        kind: 'step',
+        isEntry: true,
+        position: { x: 0, y: 0 },
+        config: {
+          path: '/checkout',
+          stepConfig: {
+            payment: { paymentFlowId: flow.id },
+          },
+        },
+      },
+      {
+        id: 'step_thankyou',
+        name: 'Thank You',
+        type: 'thankyou',
+        kind: 'step',
+        position: { x: 300, y: 0 },
+        config: { path: '/thankyou' },
+      },
+    ],
+    edges: [
+      { id: 'e1', source: 'step_checkout', target: 'step_thankyou' },
+    ],
+  },
+  isDefault: true,
+});`}
+        />
+        <CodePanel
+          title="Frontend — Create Checkout Session"
+          hookName="useHeadlessClient()"
+          code={`import { useHeadlessClient } from '@tagadapay/headless-sdk/react';
 
 const client = useHeadlessClient();
 
-// Create a checkout session from cart items
 const lineItems = cart.map(item => ({
   variantId: item.variantId,
   quantity: item.quantity,
@@ -175,7 +221,8 @@ const { checkoutToken, sessionToken } = await client.checkout.createSession({
   items: lineItems,
   currency: 'USD',
 });`}
-      />
+        />
+      </div>
     </div>
   );
 }
