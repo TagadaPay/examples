@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useCheckout, usePayment } from '@tagadapay/headless-sdk/react';
+import { CodePanel } from './CodePanel';
 
 interface PaymentStepProps {
   checkoutToken: string;
@@ -199,6 +200,38 @@ export function PaymentStep({ checkoutToken, sessionToken, onBack, onComplete }:
       <p className="text-center text-xs text-white/20">
         Payments are processed securely by TagadaPay. Card data is tokenized and never stored.
       </p>
+
+      <CodePanel
+        title="View Code"
+        hookName="usePayment()"
+        code={`import { useCheckout, usePayment } from '@tagadapay/headless-sdk/react';
+
+const { session } = useCheckout(checkoutToken, sessionToken);
+const { loadPaymentSetup, tokenizeCard, pay, isProcessing } = usePayment();
+
+// 1. Load payment setup when session is ready
+useEffect(() => {
+  if (session?.id) loadPaymentSetup(session.id);
+}, [session?.id]);
+
+// 2. Tokenize the card (PCI-safe — card data never hits your server)
+const { tagadaToken } = await tokenizeCard({
+  cardNumber: '4242424242424242',
+  expiryDate: '12/28',
+  cvc: '123',
+  cardholderName: 'John Doe',
+});
+
+// 3. Process the payment
+const result = await pay({
+  checkoutSessionId: session.id,
+  tagadaToken,
+});
+
+if (result.payment.status === 'succeeded') {
+  console.log('Payment ID:', result.payment.id);
+}`}
+      />
     </div>
   );
 }

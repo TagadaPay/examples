@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useCatalog } from '@tagadapay/headless-sdk/react';
 import type { CatalogVariant, CatalogProduct } from '@tagadapay/headless-sdk';
 import type { CartItem } from '../App';
+import { CodePanel } from './CodePanel';
 
 interface ProductGridProps {
   cart: CartItem[];
@@ -168,6 +169,26 @@ export function ProductGrid({ cart, onAddToCart, onGoToCart, cartCount }: Produc
           />
         ))}
       </div>
+
+      <CodePanel
+        title="View Code"
+        hookName="useCatalog()"
+        code={`import { useCatalog } from '@tagadapay/headless-sdk/react';
+
+const { products, isLoading, error, loadProducts } = useCatalog();
+
+// Load products on mount
+useEffect(() => {
+  loadProducts();
+}, [loadProducts]);
+
+// Each product has variants with prices
+products.map(product => {
+  const variant = product.variants[0];
+  const price = variant.prices?.find(p => p.default);
+  console.log(product.name, price?.amount);
+});`}
+      />
     </div>
   );
 }

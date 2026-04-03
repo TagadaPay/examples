@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCheckout } from '@tagadapay/headless-sdk/react';
 import type { ShippingRate } from '@tagadapay/headless-sdk';
+import { CodePanel } from './CodePanel';
 
 interface CheckoutStepProps {
   checkoutToken: string;
@@ -290,6 +291,47 @@ export function CheckoutStep({ checkoutToken, sessionToken, onBack, onContinue }
           </div>
         </div>
       )}
+
+      <CodePanel
+        title="View Code"
+        hookName="useCheckout()"
+        code={`import { useCheckout } from '@tagadapay/headless-sdk/react';
+
+const {
+  session,
+  updateCustomer,
+  updateAddress,
+  getShippingRates,
+  selectShippingRate,
+  applyPromo,
+  isLoading,
+} = useCheckout(checkoutToken, sessionToken);
+
+// 1. Update customer info
+await updateCustomer({
+  email: 'john@example.com',
+  firstName: 'John',
+  lastName: 'Doe',
+});
+
+// 2. Set shipping address
+await updateAddress({
+  shippingAddress: {
+    line1: '123 Main St',
+    city: 'New York',
+    state: 'NY',
+    postalCode: '10001',
+    country: 'US',
+  },
+});
+
+// 3. Get & select shipping rates
+const rates = await getShippingRates();
+await selectShippingRate(rates[0].id);
+
+// 4. (Optional) Apply promo code
+await applyPromo('SAVE10');`}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useHeadlessClient } from '@tagadapay/headless-sdk/react';
 import type { CartItem } from '../App';
+import { CodePanel } from './CodePanel';
 
 interface CartDrawerProps {
   cart: CartItem[];
@@ -155,6 +156,26 @@ export function CartDrawer({ cart, onUpdateQuantity, onRemove, onBack, onSession
           'Proceed to Checkout'
         )}
       </button>
+
+      <CodePanel
+        title="View Code"
+        hookName="useHeadlessClient()"
+        code={`import { useHeadlessClient } from '@tagadapay/headless-sdk/react';
+
+const client = useHeadlessClient();
+
+// Create a checkout session from cart items
+const lineItems = cart.map(item => ({
+  variantId: item.variantId,
+  quantity: item.quantity,
+  ...(item.priceId ? { priceId: item.priceId } : {}),
+}));
+
+const { checkoutToken, sessionToken } = await client.checkout.createSession({
+  items: lineItems,
+  currency: 'USD',
+});`}
+      />
     </div>
   );
 }

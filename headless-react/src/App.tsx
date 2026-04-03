@@ -1,13 +1,14 @@
 import { useState, useCallback } from 'react';
 import { TagadaHeadlessProvider } from '@tagadapay/headless-sdk/react';
 import type { Environment, CatalogVariant } from '@tagadapay/headless-sdk';
-import { ConfigPanel } from './components/ConfigPanel';
+import { GettingStarted } from './components/GettingStarted';
 import { StepIndicator } from './components/StepIndicator';
 import { ProductGrid } from './components/ProductGrid';
 import { CartDrawer } from './components/CartDrawer';
 import { CheckoutStep } from './components/CheckoutStep';
 import { PaymentStep } from './components/PaymentStep';
 import { ConfirmationStep } from './components/ConfirmationStep';
+import { WhatsNext } from './components/WhatsNext';
 
 export interface AppConfig {
   storeId: string;
@@ -119,23 +120,23 @@ function App() {
         <header className="mb-10 text-center animate-fade-in">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-500/20 bg-brand-500/10 px-4 py-1.5">
             <div className="h-2 w-2 rounded-full bg-brand-400 animate-pulse-soft" />
-            <span className="text-xs font-medium text-brand-300">Headless SDK</span>
+            <span className="text-xs font-medium text-brand-300">Interactive Tutorial</span>
           </div>
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
             <span className="bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
-              TagadaPay React Checkout
+              Build a Checkout with TagadaPay
             </span>
           </h1>
           <p className="mt-3 text-sm text-white/40 max-w-lg mx-auto">
-            Browse products, build a cart, and pay — all powered by{' '}
+            Set up a store, browse products, pay — and learn the SDK hooks at every step. Powered by{' '}
             <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-xs text-brand-300">
               @tagadapay/headless-sdk/react
             </code>
           </p>
         </header>
 
-        {/* Config */}
-        <ConfigPanel
+        {/* Getting Started */}
+        <GettingStarted
           config={config}
           onChange={setConfig}
           isOpen={configOpen}
@@ -201,6 +202,11 @@ function App() {
             </p>
           </div>
         )}
+
+        {/* What's Next */}
+        <div className="mt-12">
+          <WhatsNext />
+        </div>
 
         <footer className="mt-16 border-t border-white/[0.06] pt-6 text-center">
           <p className="text-xs text-white/25">

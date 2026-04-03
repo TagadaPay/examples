@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useOffers } from '@tagadapay/headless-sdk/react';
 import type { Offer } from '@tagadapay/headless-sdk';
+import { CodePanel } from './CodePanel';
 
 interface ConfirmationStepProps {
   paymentId: string | null;
@@ -108,17 +109,25 @@ export function ConfirmationStep({ paymentId, onReset }: ConfirmationStepProps) 
         </div>
       )}
 
-      {/* SDK Hooks used */}
-      <div className="card-dark px-5 py-4">
-        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/30">SDK Hooks Used</h3>
-        <div className="flex flex-wrap gap-2">
-          {['useCatalog', 'useCheckout', 'usePayment', 'useOffers'].map((hook) => (
-            <span key={hook} className="rounded-full border border-brand-500/20 bg-brand-500/10 px-3 py-1 font-mono text-xs text-brand-300">
-              {hook}()
-            </span>
-          ))}
-        </div>
-      </div>
+      <CodePanel
+        title="View Code"
+        hookName="useOffers()"
+        code={`import { useOffers } from '@tagadapay/headless-sdk/react';
+
+const { listOffers, previewOffer, payPreviewedOffer, isLoading } = useOffers();
+
+// 1. List available upsell offers after payment
+const offers = await listOffers({ type: 'upsell' });
+
+// 2. Preview an offer (shows price, description)
+await previewOffer({ offerId: offers[0].id });
+
+// 3. Accept the upsell — charges the same card, no re-entry needed
+await payPreviewedOffer({
+  offerId: offers[0].id,
+  mainOrderId: paymentId,
+});`}
+      />
 
       <button onClick={onReset} className="btn-primary w-full py-3 text-sm font-semibold">
         Start Over
