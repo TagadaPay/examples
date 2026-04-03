@@ -1,39 +1,165 @@
-# Headless React Checkout
+# TagadaPay Headless React Checkout
 
-A complete store simulator demonstrating **@tagadapay/headless-sdk/react** — browse real products, build a cart, and pay.
+> Build a complete checkout from scratch using React hooks. No iframe, no redirect — you own every pixel.
 
-## Flow
+```
+┌─────────────┐    ┌──────────┐    ┌──────────┐    ┌─────────┐    ┌──────────────┐
+│  Products   │ →  │   Cart   │ →  │ Checkout │ →  │ Payment │ →  │ Confirmation │
+│ useCatalog  │    │  local   │    │useCheckout│   │usePayment│   │  useOffers   │
+└─────────────┘    └──────────┘    └──────────┘    └─────────┘    └──────────────┘
+```
 
-1. **Enter Store ID** — configure your store and environment
-2. **Browse Products** — products are fetched via `useCatalog()`
-3. **Build a Cart** — add items, adjust quantities
-4. **Checkout** — session is auto-created with `createSession()`, then fill customer/shipping info
-5. **Pay** — tokenize card and process payment
-6. **Confirmation** — success screen with post-purchase offers
+This example app is a **store simulator** that demonstrates every React hook in `@tagadapay/headless-sdk`:
 
-## SDK Hooks Used
+| Step | Hook | What it does |
+|------|------|-------------|
+| **Products** | `useCatalog()` | Fetches real products from your store |
+| **Cart** | `useHeadlessClient()` | Creates a checkout session from local cart items |
+| **Checkout** | `useCheckout()` | Updates customer, address, promo codes, shipping |
+| **Payment** | `usePayment()` | Tokenizes cards and processes payments |
+| **Confirmation** | `useOffers()` | Lists and accepts post-purchase upsell offers |
 
-| Hook | Purpose |
-|------|---------|
-| `useCatalog()` | Fetch product catalog |
-| `useCheckout()` | Create session, update customer/address, shipping rates, promo codes |
-| `usePayment()` | Setup payment, tokenize card, process payment |
-| `useAnalytics()` | Track page views, add-to-cart, checkout, purchase events |
-| `useOffers()` | Load and display post-purchase upsell offers |
+---
 
 ## Quick Start
 
+### 1. Install
+
 ```bash
-cd headless-react
 pnpm install
+```
+
+### 2. Seed a demo store (optional)
+
+Run the seed script to create a fully configured store with products, offers, a payment processor, and a checkout funnel — all in one command:
+
+```bash
+pnpm seed <YOUR_API_KEY>
+```
+
+Get your API key at [app.tagadapay.com](https://app.tagadapay.com) → Settings → Access Tokens.
+
+The script creates:
+- **Sandbox processor** (test mode — no real charges)
+- **Payment flow** (simple routing)
+- **3 products**: Wireless Headphones ($99), USB-C Charger ($29), Cloud Storage ($9.99/mo)
+- **2 upsell offers** triggered after any purchase
+- **Checkout funnel** (checkout → thank you)
+- **`.env` file** with your store ID pre-loaded
+
+### 3. Start
+
+```bash
 pnpm dev
 ```
 
-Open `http://localhost:5173`, enter a valid Store ID, and start shopping.
+Open [localhost:5173](http://localhost:5173) — your store ID is pre-filled from `.env`.
 
-## Stack
+### 4. Test payment
 
-- React 18 + TypeScript
-- Vite
-- Tailwind CSS
-- @tagadapay/headless-sdk 1.1.0
+Use the test card:
+
+```
+Card:   4242 4242 4242 4242
+Expiry: 12/28
+CVC:    123
+```
+
+---
+
+## Project Structure
+
+```
+headless-react/
+├── scripts/
+│   └── seed.ts              # One-command demo store setup
+├── src/
+│   ├── App.tsx              # Main app — routing, cart state, step flow
+│   ├── index.css            # Tailwind + custom dark theme
+│   └── components/
+│       ├── ConfigPanel.tsx   # Store ID + environment selector
+│       ├── StepIndicator.tsx # Visual step progress bar
+│       ├── ProductGrid.tsx   # Product cards with useCatalog()
+│       ├── CartDrawer.tsx    # Cart management + session creation
+│       ├── CheckoutStep.tsx  # Customer info, address, shipping, promo
+│       ├── PaymentStep.tsx   # Card form + tokenization + payment
+│       └── ConfirmationStep.tsx # Success + upsell offers
+└── package.json
+```
+
+---
+
+## How It Works
+
+### Initialization
+
+Wrap your app with `TagadaHeadlessProvider`:
+
+```tsx
+import { TagadaHeadlessProvider } from '@tagadapay/headless-sdk/react';
+
+<TagadaHeadlessProvider storeId="store_xxx" environment="production">
+  <App />
+</TagadaHeadlessProvider>
+```
+
+### Catalog → Cart → Checkout flow
+
+```tsx
+// 1. Load products
+const { products, loadProducts } = useCatalog();
+
+// 2. Create a checkout session from cart items
+const client = useHeadlessClient();
+const session = await client.checkout.createSession({
+  items: [{ variantId: 'variant_xxx', quantity: 1 }],
+  currency: 'USD',
+});
+
+// 3. Update customer and address
+const { updateCustomer, updateAddress, getShippingRates } = useCheckout(
+  session.checkoutToken,
+  session.sessionToken,
+);
+await updateCustomer({ email, firstName, lastName });
+await updateAddress({ shippingAddress: { line1, city, state, postalCode, country } });
+
+// 4. Tokenize card and pay
+const { tokenizeCard, pay } = usePayment();
+const { tagadaToken } = await tokenizeCard({ cardNumber, expiryDate, cvc, cardholderName });
+const result = await pay({ checkoutSessionId: session.id, tagadaToken });
+
+// 5. Show post-purchase offers
+const { listOffers, payPreviewedOffer } = useOffers();
+const offers = await listOffers({ type: 'upsell' });
+```
+
+---
+
+## Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `VITE_STORE_ID` | Your TagadaPay store ID | — |
+| `VITE_ENVIRONMENT` | `production` or `development` | `production` |
+
+These are auto-generated by `pnpm seed`.
+
+---
+
+## SDK Packages
+
+| Package | Purpose |
+|---------|---------|
+| [`@tagadapay/headless-sdk`](https://www.npmjs.com/package/@tagadapay/headless-sdk) | Client-side checkout, payment, offers, catalog |
+| [`@tagadapay/core-js`](https://www.npmjs.com/package/@tagadapay/core-js) | Card tokenization (peer dependency) |
+| [`@tagadapay/node-sdk`](https://www.npmjs.com/package/@tagadapay/node-sdk) | Server-side store/product/funnel management (seed script) |
+
+---
+
+## Tech Stack
+
+- **React 19** + TypeScript
+- **Vite 7** — dev server and build
+- **Tailwind CSS 3** — dark theme UI
+- **pnpm** — package manager

@@ -1,46 +1,27 @@
 # TagadaPay SDK Examples
 
-This directory contains examples demonstrating TagadaPay SDK functionality.
+Working examples for every TagadaPay client SDK. Each example is a standalone app you can run in under a minute.
 
 ## Examples
 
 ### [`headless-react/`](./headless-react/)
 
-A store simulator powered by **`@tagadapay/headless-sdk/react`** hooks:
-
-1. **Products** — Browse real products with `useCatalog`
-2. **Cart** — Local cart with quantity management
-3. **Checkout** — Auto-create session, customer info, shipping with `useCheckout`
-4. **Payment** — Card tokenization & processing with `usePayment`
-5. **Confirmation** — Purchase tracking & post-purchase upsells with `useOffers`
-
-**Quick Start:**
+**Full checkout built with React hooks** — browse products, build a cart, pay, and handle upsell offers.
 
 ```bash
 cd headless-react
 pnpm install
+pnpm seed <API_KEY>   # Creates store + products + offers + processor in one command
 pnpm dev
 ```
+
+Hooks demonstrated: `useCatalog`, `useCheckout`, `usePayment`, `useOffers`, `useHeadlessClient`
 
 ---
 
 ### [`core-js-tokenization/`](./core-js-tokenization/)
 
-Complete 3-step payment flow demonstration:
-
-1. **🎯 Card Tokenization** - Secure tokenization using Secure Vault
-2. **🚀 Payment Instrument Creation** - Create payment instruments via API
-3. **💳 Payment Processing** - Process demo payments end-to-end
-
-**Features:**
-
-- Professional React + TypeScript + Tailwind CSS interface
-- Real-time form validation and 3D card preview
-- Complete API integration with TagadaPay endpoints
-- Test card support (4242 4242 4242 4242)
-- Comprehensive error handling and loading states
-
-**Quick Start:**
+**Card tokenization flow** — tokenize a card, create a payment instrument, and process a payment.
 
 ```bash
 cd core-js-tokenization
@@ -48,19 +29,14 @@ npm install
 npm run dev
 ```
 
-**Build for Production:**
-
-```bash
-npm run build
-npm run preview
-```
+---
 
 ## Requirements
 
 - Node.js 18+
-- TagadaPay API token with `org:admin` role
-- Modern browser with JavaScript enabled
+- [TagadaPay account](https://app.tagadapay.com) + API key (Settings → Access Tokens)
 
 ## Documentation
 
-See the individual example READMEs for detailed setup and usage instructions.
+- [Node SDK Quick Start](https://docs.tagadapay.com/developer-tools/node-sdk/quick-start)
+- [API Reference](https://docs.tagadapay.com/api-reference/introduction)

@@ -30,8 +30,8 @@ export type Step = (typeof STEPS)[number];
 
 function App() {
   const [config, setConfig] = useState<AppConfig>({
-    storeId: '',
-    environment: 'production',
+    storeId: import.meta.env.VITE_STORE_ID ?? '',
+    environment: (import.meta.env.VITE_ENVIRONMENT as Environment) ?? 'production',
   });
 
   const [currentStep, setCurrentStep] = useState<Step>('Products');

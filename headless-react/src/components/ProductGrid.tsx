@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useCatalog, useAnalytics } from '@tagadapay/headless-sdk/react';
+import { useCatalog } from '@tagadapay/headless-sdk/react';
 import type { CatalogVariant, CatalogProduct } from '@tagadapay/headless-sdk';
 import type { CartItem } from '../App';
 
@@ -100,18 +100,10 @@ function ProductCard({
 
 export function ProductGrid({ cart, onAddToCart, onGoToCart, cartCount }: ProductGridProps) {
   const { products, isLoading, error, loadProducts } = useCatalog();
-  const { trackPageView, trackViewContent } = useAnalytics();
 
   useEffect(() => {
     loadProducts();
-    trackPageView('products');
-  }, [loadProducts, trackPageView]);
-
-  useEffect(() => {
-    if (products.length > 0) {
-      trackViewContent({ value: products.length });
-    }
-  }, [products, trackViewContent]);
+  }, [loadProducts]);
 
   if (isLoading) {
     return (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAnalytics, useOffers } from '@tagadapay/headless-sdk/react';
+import { useOffers } from '@tagadapay/headless-sdk/react';
 import type { Offer } from '@tagadapay/headless-sdk';
 
 interface ConfirmationStepProps {
@@ -8,14 +8,35 @@ interface ConfirmationStepProps {
 }
 
 export function ConfirmationStep({ paymentId, onReset }: ConfirmationStepProps) {
-  const { trackPageView } = useAnalytics();
-  const { listOffers, acceptOffer } = useOffers();
+  const { listOffers, previewOffer, payPreviewedOffer, isLoading } = useOffers();
   const [offers, setOffers] = useState<Offer[]>([]);
+  const [acceptingId, setAcceptingId] = useState<string | null>(null);
+  const [acceptedIds, setAcceptedIds] = useState<Set<string>>(new Set());
+  const [offerError, setOfferError] = useState<string | null>(null);
 
   useEffect(() => {
-    trackPageView('confirmation');
-    listOffers({ type: 'upsell' }).then(setOffers).catch(() => {});
-  }, [trackPageView, listOffers]);
+    listOffers({ type: 'upsell' })
+      .then(setOffers)
+      .catch(() => {});
+  }, [listOffers]);
+
+  const handleAcceptOffer = async (offer: Offer) => {
+    if (!paymentId) return;
+    setAcceptingId(offer.id);
+    setOfferError(null);
+    try {
+      await previewOffer({ offerId: offer.id });
+      await payPreviewedOffer({
+        offerId: offer.id,
+        mainOrderId: paymentId,
+      });
+      setAcceptedIds((prev) => new Set(prev).add(offer.id));
+    } catch (err) {
+      setOfferError(err instanceof Error ? err.message : 'Failed to accept offer');
+    } finally {
+      setAcceptingId(null);
+    }
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -41,22 +62,49 @@ export function ConfirmationStep({ paymentId, onReset }: ConfirmationStepProps) 
       {offers.length > 0 && (
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-white/70">Special Offers For You</h3>
-          {offers.map((offer) => (
-            <div key={offer.id} className="card-dark flex items-center gap-4 px-5 py-4">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-white/90">{offer.title}</p>
-                {offer.description && (
-                  <p className="mt-0.5 text-xs text-white/40">{offer.description}</p>
+          {offerError && (
+            <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-3">
+              <p className="text-xs text-red-400">{offerError}</p>
+            </div>
+          )}
+          {offers.map((offer) => {
+            const accepted = acceptedIds.has(offer.id);
+            const accepting = acceptingId === offer.id;
+            return (
+              <div key={offer.id} className="card-dark flex items-center gap-4 px-5 py-4">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-white/90">{offer.title}</p>
+                  {offer.description && (
+                    <p className="mt-0.5 text-xs text-white/40">{offer.description}</p>
+                  )}
+                  {offer.pricing && (
+                    <p className="mt-1 text-xs font-semibold text-brand-300">
+                      {new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: offer.pricing.currency,
+                      }).format(offer.pricing.amount / 100)}
+                    </p>
+                  )}
+                </div>
+                {accepted ? (
+                  <span className="flex items-center gap-1 rounded-lg bg-green-500/20 px-4 py-2 text-xs font-medium text-green-300">
+                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                    Added
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => handleAcceptOffer(offer)}
+                    disabled={accepting || isLoading}
+                    className="rounded-lg bg-brand-500/20 px-4 py-2 text-xs font-medium text-brand-300 transition hover:bg-brand-500/30 disabled:opacity-50"
+                  >
+                    {accepting ? 'Adding...' : 'Accept'}
+                  </button>
                 )}
               </div>
-              <button
-                onClick={() => acceptOffer({ offerId: offer.id, checkoutSessionId: '' })}
-                className="rounded-lg bg-brand-500/20 px-4 py-2 text-xs font-medium text-brand-300 transition hover:bg-brand-500/30"
-              >
-                Accept
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -64,7 +112,7 @@ export function ConfirmationStep({ paymentId, onReset }: ConfirmationStepProps) 
       <div className="card-dark px-5 py-4">
         <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/30">SDK Hooks Used</h3>
         <div className="flex flex-wrap gap-2">
-          {['useCatalog', 'useCheckout', 'usePayment', 'useAnalytics', 'useOffers'].map((hook) => (
+          {['useCatalog', 'useCheckout', 'usePayment', 'useOffers'].map((hook) => (
             <span key={hook} className="rounded-full border border-brand-500/20 bg-brand-500/10 px-3 py-1 font-mono text-xs text-brand-300">
               {hook}()
             </span>

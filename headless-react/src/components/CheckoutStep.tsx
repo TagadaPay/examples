@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useCheckout, useAnalytics } from '@tagadapay/headless-sdk/react';
+import { useState } from 'react';
+import { useCheckout } from '@tagadapay/headless-sdk/react';
 import type { ShippingRate } from '@tagadapay/headless-sdk';
 
 interface CheckoutStepProps {
@@ -32,8 +32,6 @@ export function CheckoutStep({ checkoutToken, sessionToken, onBack, onContinue }
     isLoading,
   } = useCheckout(checkoutToken, sessionToken);
 
-  const { trackPageView, trackStep } = useAnalytics();
-
   const [form, setForm] = useState<FormData>({
     email: '',
     firstName: '',
@@ -51,11 +49,6 @@ export function CheckoutStep({ checkoutToken, sessionToken, onBack, onContinue }
   const [promoStatus, setPromoStatus] = useState<'idle' | 'applying' | 'applied' | 'error'>('idle');
   const [rates, setRates] = useState<ShippingRate[]>([]);
   const [selectedRateId, setSelectedRateId] = useState<string | null>(null);
-
-  useEffect(() => {
-    trackPageView('checkout');
-    trackStep({ stepName: 'checkout_info' });
-  }, [trackPageView, trackStep]);
 
   const handleField = (key: keyof FormData, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));

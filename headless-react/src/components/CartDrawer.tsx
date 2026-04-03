@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useHeadlessClient, useAnalytics } from '@tagadapay/headless-sdk/react';
+import { useHeadlessClient } from '@tagadapay/headless-sdk/react';
 import type { CartItem } from '../App';
 
 interface CartDrawerProps {
@@ -20,7 +20,6 @@ function formatPrice(cents: number, currency: string): string {
 
 export function CartDrawer({ cart, onUpdateQuantity, onRemove, onBack, onSessionCreated }: CartDrawerProps) {
   const client = useHeadlessClient();
-  const { trackInitiateCheckout } = useAnalytics();
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,8 +35,6 @@ export function CartDrawer({ cart, onUpdateQuantity, onRemove, onBack, onSession
         quantity: item.quantity,
         ...(item.priceId ? { priceId: item.priceId } : {}),
       }));
-
-      trackInitiateCheckout({ value: total, currency });
 
       const result = await client.checkout.createSession({
         items: lineItems,

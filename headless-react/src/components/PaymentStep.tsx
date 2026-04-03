@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useCheckout, usePayment, useAnalytics } from '@tagadapay/headless-sdk/react';
+import { useCheckout, usePayment } from '@tagadapay/headless-sdk/react';
 
 interface PaymentStepProps {
   checkoutToken: string;
@@ -11,7 +11,6 @@ interface PaymentStepProps {
 export function PaymentStep({ checkoutToken, sessionToken, onBack, onComplete }: PaymentStepProps) {
   const { session } = useCheckout(checkoutToken, sessionToken);
   const { loadPaymentSetup, tokenizeCard, pay, isProcessing } = usePayment();
-  const { trackAddPaymentInfo, trackPurchase, trackStep } = useAnalytics();
 
   const [card, setCard] = useState({ number: '', exp: '', cvc: '', name: '' });
   const [error, setError] = useState<string | null>(null);
@@ -21,8 +20,7 @@ export function PaymentStep({ checkoutToken, sessionToken, onBack, onComplete }:
     if (session?.id) {
       loadPaymentSetup(session.id);
     }
-    trackStep({ stepName: 'payment' });
-  }, [loadPaymentSetup, session?.id, trackStep]);
+  }, [loadPaymentSetup, session?.id]);
 
   const handlePay = async () => {
     if (!session?.id) return;
@@ -35,11 +33,8 @@ export function PaymentStep({ checkoutToken, sessionToken, onBack, onComplete }:
 
     try {
       setStatus('tokenizing');
-      trackAddPaymentInfo({ paymentMethod: 'card' });
 
-      const [expMonth, expYear] = card.exp.replace(/\s/g, '').split('/');
-      const fullYear = expYear?.length === 2 ? `20${expYear}` : expYear;
-      const expiryDate = `${expMonth}/${fullYear}`;
+      const expiryDate = card.exp.replace(/\s/g, '');
 
       const { tagadaToken } = await tokenizeCard({
         cardNumber: card.number.replace(/\s/g, ''),
@@ -59,11 +54,6 @@ export function PaymentStep({ checkoutToken, sessionToken, onBack, onComplete }:
 
       if (paymentStatus === 'succeeded') {
         setStatus('success');
-        trackPurchase({
-          orderId: paymentId,
-          amount: session.totals?.total ?? 0,
-          currency: session.totals?.currency ?? 'USD',
-        });
         setTimeout(() => onComplete(paymentId), 800);
       } else if (paymentStatus === 'requires_action') {
         setError('3D Secure authentication required. This demo does not handle 3DS redirects.');
