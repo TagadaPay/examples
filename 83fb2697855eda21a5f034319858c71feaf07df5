@@ -1,0 +1,35 @@
+headless-react/src/components/ResourceId.tsx
+  0b3caedcde67a9bc 1-41
+headless-react/src/components/PaymentStep.tsx
+  0b3caedcde67a9bc 4,88-92
+headless-react/src/components/ProductGrid.tsx
+  0b3caedcde67a9bc 6,13,104,152-157
+headless-react/src/components/CartDrawer.tsx
+  0b3caedcde67a9bc 5,73-79
+headless-react/src/components/CheckoutStep.tsx
+  0b3caedcde67a9bc 5,116-121
+headless-react/src/components/ConfirmationStep.tsx
+  0b3caedcde67a9bc 5,53-58
+headless-react/src/App.tsx
+  0b3caedcde67a9bc 157
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "83fb2697855eda21a5f034319858c71feaf07df5",
+  "prompts": {
+    "0b3caedcde67a9bc": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "997e1c2c-3bcf-4d8d-bd56-0def123e0ae2",
+        "model": "claude-4.6-opus-high"
+      },
+      "human_author": "Loïc DELOBEL",
+      "messages": [],
+      "total_additions": 79,
+      "total_deletions": 1,
+      "accepted_lines": 79,
+      "overriden_lines": 0
+    }
+  }
+}
