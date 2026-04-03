@@ -1,0 +1,35 @@
+headless-react/src/components/PaymentStep.tsx
+  0b3caedcde67a9bc 204-232,234-285,288,290,295,303,310,312-313
+headless-react/src/components/CartDrawer.tsx
+  0b3caedcde67a9bc 160-166,168-210,224-225
+headless-react/src/components/CodePanel.tsx
+  0b3caedcde67a9bc 7,10,20-21,29-37,39
+headless-react/src/components/ConfirmationStep.tsx
+  0b3caedcde67a9bc 151-157,159-176,178-196,198,206,209,211-212
+headless-react/src/components/ProductGrid.tsx
+  0b3caedcde67a9bc 173-179,181-216,230-231
+headless-react/src/components/CheckoutStep.tsx
+  0b3caedcde67a9bc 295-301,303-336,339-340,346,352-353,361,363-364
+headless-react/src/components/GettingStarted.tsx
+  0b3caedcde67a9bc 4,183-203
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "060ccf25af17e9c13346398849da6c3650e7da97",
+  "prompts": {
+    "0b3caedcde67a9bc": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "997e1c2c-3bcf-4d8d-bd56-0def123e0ae2",
+        "model": "claude-4.6-opus-high"
+      },
+      "human_author": "Loïc DELOBEL",
+      "messages": [],
+      "total_additions": 325,
+      "total_deletions": 55,
+      "accepted_lines": 325,
+      "overriden_lines": 0
+    }
+  }
+}
