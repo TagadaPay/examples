@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useHeadlessClient } from '@tagadapay/headless-sdk/react';
 import type { CartItem } from '../App';
 import { CodePanel } from './CodePanel';
+import { ResourceId, ResourceIdBar } from './ResourceId';
 
 interface CartDrawerProps {
   cart: CartItem[];
@@ -69,6 +70,13 @@ export function CartDrawer({ cart, onUpdateQuantity, onRemove, onBack, onSession
 
   return (
     <div className="space-y-4 animate-fade-in">
+      <ResourceIdBar>
+        {cart.map((item, i) => (
+          <ResourceId key={item.variantId} label={`item${i + 1} variantId`} value={item.variantId} />
+        ))}
+        {cart[0]?.priceId && <ResourceId label="priceId" value={cart[0].priceId} />}
+      </ResourceIdBar>
+
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-white/90">Your Cart</h2>
         <button onClick={onBack} className="text-xs text-brand-400 hover:text-brand-300 transition-colors">

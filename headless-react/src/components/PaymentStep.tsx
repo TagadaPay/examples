@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useCheckout, usePayment } from '@tagadapay/headless-sdk/react';
 import { CodePanel } from './CodePanel';
+import { ResourceId, ResourceIdBar } from './ResourceId';
 
 interface PaymentStepProps {
   checkoutToken: string;
@@ -84,6 +85,11 @@ export function PaymentStep({ checkoutToken, sessionToken, onBack, onComplete }:
 
   return (
     <div className="space-y-4 animate-fade-in">
+      <ResourceIdBar>
+        <ResourceId label="checkoutToken" value={checkoutToken} />
+        {session?.id && <ResourceId label="sessionId" value={session.id} />}
+      </ResourceIdBar>
+
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-white/90">Payment</h2>
         <button onClick={onBack} className="text-xs text-brand-400 hover:text-brand-300 transition-colors">

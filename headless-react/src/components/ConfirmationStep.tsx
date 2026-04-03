@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useOffers } from '@tagadapay/headless-sdk/react';
 import type { Offer } from '@tagadapay/headless-sdk';
 import { CodePanel } from './CodePanel';
+import { ResourceId, ResourceIdBar } from './ResourceId';
 
 interface ConfirmationStepProps {
   paymentId: string | null;
@@ -49,6 +50,12 @@ export function ConfirmationStep({ paymentId, onReset }: ConfirmationStepProps) 
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <ResourceIdBar>
+        <ResourceId label="paymentId" value={paymentId} />
+        {offers[0]?.id && <ResourceId label="offerId" value={offers[0].id} />}
+        {offers[1]?.id && <ResourceId label="offerId" value={offers[1].id} />}
+      </ResourceIdBar>
+
       {/* Success card */}
       <div className="card-dark px-5 py-10 text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10 border border-green-500/20">

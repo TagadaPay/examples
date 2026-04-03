@@ -3,12 +3,14 @@ import { useCatalog } from '@tagadapay/headless-sdk/react';
 import type { CatalogVariant, CatalogProduct } from '@tagadapay/headless-sdk';
 import type { CartItem } from '../App';
 import { CodePanel } from './CodePanel';
+import { ResourceId, ResourceIdBar } from './ResourceId';
 
 interface ProductGridProps {
   cart: CartItem[];
   onAddToCart: (variant: CatalogVariant, productName: string) => void;
   onGoToCart: () => void;
   cartCount: number;
+  storeId: string;
 }
 
 function formatPrice(cents: number, currency: string): string {
@@ -99,7 +101,7 @@ function ProductCard({
   );
 }
 
-export function ProductGrid({ cart, onAddToCart, onGoToCart, cartCount }: ProductGridProps) {
+export function ProductGrid({ cart, onAddToCart, onGoToCart, cartCount, storeId }: ProductGridProps) {
   const { products, isLoading, error, loadProducts } = useCatalog();
 
   useEffect(() => {
@@ -147,6 +149,12 @@ export function ProductGrid({ cart, onAddToCart, onGoToCart, cartCount }: Produc
 
   return (
     <div className="space-y-4">
+      <ResourceIdBar>
+        <ResourceId label="storeId" value={storeId} />
+        {products[0]?.id && <ResourceId label="productId" value={products[0].id} />}
+        {products[0]?.variants?.[0]?.id && <ResourceId label="variantId" value={products[0].variants[0].id} />}
+      </ResourceIdBar>
+
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-white/90">{products.length} Products</h2>
         {cartCount > 0 && (

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCheckout } from '@tagadapay/headless-sdk/react';
 import type { ShippingRate } from '@tagadapay/headless-sdk';
 import { CodePanel } from './CodePanel';
+import { ResourceId, ResourceIdBar } from './ResourceId';
 
 interface CheckoutStepProps {
   checkoutToken: string;
@@ -112,6 +113,12 @@ export function CheckoutStep({ checkoutToken, sessionToken, onBack, onContinue }
 
   return (
     <div className="space-y-4 animate-fade-in">
+      <ResourceIdBar>
+        <ResourceId label="checkoutToken" value={checkoutToken} />
+        {session?.id && <ResourceId label="sessionId" value={session.id} />}
+        {(session as any)?.customerId && <ResourceId label="customerId" value={(session as any).customerId} />}
+      </ResourceIdBar>
+
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-white/90">
           {step === 'customer' ? 'Your Information' : 'Shipping Method'}

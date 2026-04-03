@@ -154,6 +154,7 @@ function App() {
                   onAddToCart={addToCart}
                   onGoToCart={() => goTo('Cart')}
                   cartCount={cartCount}
+                  storeId={config.storeId}
                 />
               )}
 
