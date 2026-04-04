@@ -17,16 +17,30 @@ pnpm dev
 
 Hooks demonstrated: `useCatalog`, `useCheckout`, `usePayment`, `useOffers`, `useHeadlessClient`
 
+Deploy to TagadaPay CDN: `pnpm build && TAGADA_API_KEY=xxx pnpm deploy`
+
 ---
 
 ### [`core-js-tokenization/`](./core-js-tokenization/)
 
-**Card tokenization flow** — tokenize a card, create a payment instrument, and process a payment.
+**Card tokenization flow** — tokenize a card, create a payment instrument, and process a payment using `@tagadapay/core-js`.
 
 ```bash
 cd core-js-tokenization
-npm install
-npm run dev
+pnpm install
+pnpm dev
+```
+
+---
+
+### [`apple-google-tokenization/`](./apple-google-tokenization/)
+
+**Apple Pay & Google Pay** — tokenize wallets via `@tagadapay/core-js` and process payments.
+
+```bash
+cd apple-google-tokenization
+pnpm install
+pnpm dev
 ```
 
 ---
@@ -38,5 +52,6 @@ npm run dev
 
 ## Documentation
 
+- [Headless SDK Guide](https://docs.tagadapay.com/developer-tools/headless-sdk/introduction)
 - [Node SDK Quick Start](https://docs.tagadapay.com/developer-tools/node-sdk/quick-start)
 - [API Reference](https://docs.tagadapay.com/api-reference/introduction)
