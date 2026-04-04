@@ -1,0 +1,23 @@
+headless-react/src/components/CheckoutStep.tsx
+  0b3caedcde67a9bc 105-109,121-130,335-337,476,486-490,492
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "80cef4ebc040701eb42260a696126130764c5a5d",
+  "prompts": {
+    "0b3caedcde67a9bc": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "997e1c2c-3bcf-4d8d-bd56-0def123e0ae2",
+        "model": "claude-4.6-opus-high"
+      },
+      "human_author": "Loïc DELOBEL",
+      "messages": [],
+      "total_additions": 62,
+      "total_deletions": 23,
+      "accepted_lines": 47,
+      "overriden_lines": 0
+    }
+  }
+}
