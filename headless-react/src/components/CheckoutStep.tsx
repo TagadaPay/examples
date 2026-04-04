@@ -102,18 +102,32 @@ export function CheckoutStep({ checkoutToken, sessionToken, onBack, onContinue }
         firstName: form.firstName,
         lastName: form.lastName,
       });
-      await updateAddress({
-        shippingAddress: {
-          line1: form.line1,
-          city: form.city,
-          state: form.state,
-          postalCode: form.postalCode,
-          country: form.country,
-        },
-      });
-      const fetchedRates = await getShippingRates();
-      setRates(fetchedRates);
-      setStep('shipping');
+
+      const hasAddress = form.line1 || form.city || form.postalCode;
+
+      if (hasAddress) {
+        // Shipped product: set shipping address, then fetch rates
+        await updateAddress({
+          shippingAddress: {
+            line1: form.line1,
+            city: form.city,
+            state: form.state,
+            postalCode: form.postalCode,
+            country: form.country,
+          },
+        });
+        const fetchedRates = await getShippingRates();
+        setRates(fetchedRates);
+        setStep('shipping');
+      } else {
+        // Digital product: billing only (just country for tax), skip shipping
+        await updateAddress({
+          billingAddress: {
+            country: form.country,
+          },
+        });
+        onContinue();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update information');
     }
@@ -316,7 +330,11 @@ export function CheckoutStep({ checkoutToken, sessionToken, onBack, onContinue }
             disabled={isLoading || !form.email || !form.firstName || !form.lastName}
             className="btn-primary w-full py-3 text-sm font-semibold disabled:opacity-50"
           >
-            {isLoading ? 'Saving...' : 'Continue to Shipping'}
+            {isLoading
+              ? 'Saving...'
+              : (form.line1 || form.city || form.postalCode)
+                ? 'Continue to Shipping'
+                : 'Continue to Payment'}
           </button>
         </div>
       )}
@@ -455,19 +473,23 @@ await updateCustomer({
   firstName: 'John', lastName: 'Doe',
 });
 
-// 2. Set shipping address (auto-filled from Google)
+// 2a. SHIPPED product — set shipping address, get rates
 await updateAddress({
   shippingAddress: {
     line1: addr.address1, city: addr.city,
     state: addr.state, postalCode: addr.postal, country: addr.country,
   },
 });
-
-// 3. Get & select shipping rates
 const rates = await getShippingRates();
 await selectShippingRate(rates[0].id);
 
-// 4. Apply promo code
+// 2b. DIGITAL product — billing only, skip shipping
+await updateAddress({
+  billingAddress: { country: 'FR' },
+});
+// → Go straight to payment step
+
+// 3. Apply promo code
 await applyPromo('SAVE10');`}
         />
       </div>
