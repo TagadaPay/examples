@@ -12,11 +12,25 @@ interface PaymentStepProps {
 
 export function PaymentStep({ checkoutToken, sessionToken, onBack, onComplete }: PaymentStepProps) {
   const { session } = useCheckout(checkoutToken, sessionToken);
-  const { loadPaymentSetup, tokenizeCard, pay, isProcessing } = usePayment();
+  const {
+    loadPaymentSetup,
+    tokenizeCard,
+    processPayment,
+    isProcessing,
+  } = usePayment({
+    onPaymentSuccess: (result) => {
+      setStatus('success');
+      setTimeout(() => onComplete(result.payment.id), 800);
+    },
+    onPaymentFailed: (result) => {
+      setError(result.error);
+      setStatus('idle');
+    },
+  });
 
   const [card, setCard] = useState({ number: '', exp: '', cvc: '', name: '' });
   const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<'idle' | 'tokenizing' | 'paying' | 'success'>('idle');
+  const [status, setStatus] = useState<'idle' | 'tokenizing' | 'paying' | 'redirecting' | 'success'>('idle');
 
   useEffect(() => {
     if (session?.id) {
@@ -46,23 +60,32 @@ export function PaymentStep({ checkoutToken, sessionToken, onBack, onComplete }:
       });
 
       setStatus('paying');
-      const result = await pay({
+
+      const result = await processPayment({
         checkoutSessionId: session.id,
         tagadaToken,
       });
 
-      const paymentStatus = result.payment.status;
-      const paymentId = result.payment.id;
+      switch (result.status) {
+        case 'succeeded':
+          setStatus('success');
+          setTimeout(() => onComplete(result.payment.id), 800);
+          break;
 
-      if (paymentStatus === 'succeeded') {
-        setStatus('success');
-        setTimeout(() => onComplete(paymentId), 800);
-      } else if (paymentStatus === 'requires_action') {
-        setError('3D Secure authentication required. This demo does not handle 3DS redirects.');
-        setStatus('idle');
-      } else {
-        setError(`Payment status: ${paymentStatus}`);
-        setStatus('idle');
+        case 'requires_redirect':
+          setStatus('redirecting');
+          // processPayment already handles the redirect in React
+          break;
+
+        case 'failed':
+          setError(result.error);
+          setStatus('idle');
+          break;
+
+        case 'pending':
+          setError('Payment is still processing. Please wait...');
+          setStatus('idle');
+          break;
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Payment failed');
@@ -170,7 +193,7 @@ export function PaymentStep({ checkoutToken, sessionToken, onBack, onComplete }:
 
         <button
           onClick={handlePay}
-          disabled={isProcessing || status === 'tokenizing' || status === 'paying' || status === 'success'}
+          disabled={isProcessing || status === 'tokenizing' || status === 'paying' || status === 'redirecting' || status === 'success'}
           className="btn-primary w-full py-3 text-sm font-semibold disabled:opacity-50"
         >
           {status === 'tokenizing' && (
@@ -189,6 +212,15 @@ export function PaymentStep({ checkoutToken, sessionToken, onBack, onComplete }:
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
               Processing payment...
+            </span>
+          )}
+          {status === 'redirecting' && (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              Redirecting to your bank...
             </span>
           )}
           {status === 'success' && (
@@ -291,7 +323,10 @@ await tagada.stores.update(store.id, {
           code={`import { useCheckout, usePayment } from '@tagadapay/headless-sdk/react';
 
 const { session } = useCheckout(checkoutToken, sessionToken);
-const { loadPaymentSetup, tokenizeCard, pay } = usePayment();
+const { loadPaymentSetup, tokenizeCard, processPayment } = usePayment({
+  onPaymentSuccess: (result) => router.push('/confirmation'),
+  onPaymentFailed: (result) => toast.error(result.error),
+});
 
 // 1. Load payment setup
 useEffect(() => {
@@ -306,15 +341,17 @@ const { tagadaToken } = await tokenizeCard({
   cardholderName: 'John Doe',
 });
 
-// 3. Process payment
-const result = await pay({
+// 3. Process payment — handles 3DS, redirects, polling automatically
+const result = await processPayment({
   checkoutSessionId: session.id,
   tagadaToken,
 });
 
-if (result.payment.status === 'succeeded') {
+// result.status: 'succeeded' | 'requires_redirect' | 'failed' | 'pending'
+if (result.status === 'succeeded') {
   console.log('Paid!', result.payment.id);
-}`}
+}
+// If 3DS is needed, browser auto-redirects and resumes on return`}
         />
       </div>
     </div>
