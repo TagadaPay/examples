@@ -1,0 +1,23 @@
+headless-react/src/components/PaymentStep.tsx
+  0b3caedcde67a9bc 15-29,33,63-64,69-88,196,217-223,326-329,344-345,350-351,353-354
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "2c04c2357706898fb078257aa5bef64f58eb0997",
+  "prompts": {
+    "0b3caedcde67a9bc": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "997e1c2c-3bcf-4d8d-bd56-0def123e0ae2",
+        "model": "claude-4.6-opus-high"
+      },
+      "human_author": "Loïc DELOBEL",
+      "messages": [],
+      "total_additions": 58,
+      "total_deletions": 21,
+      "accepted_lines": 79,
+      "overriden_lines": 0
+    }
+  }
+}
