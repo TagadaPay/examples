@@ -1,0 +1,29 @@
+README.md
+  0b3caedcde67a9bc 20-21,26,30-43,55
+apple-google-tokenization/package.json
+  0b3caedcde67a9bc 2,16
+core-js-tokenization/package.json
+  0b3caedcde67a9bc 15
+headless-react/package.json
+  0b3caedcde67a9bc 16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "3f2b8356ef849cffd9f3f981adee78111c6cb74c",
+  "prompts": {
+    "0b3caedcde67a9bc": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "997e1c2c-3bcf-4d8d-bd56-0def123e0ae2",
+        "model": "claude-4.6-opus-high"
+      },
+      "human_author": "Loïc DELOBEL",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 2,
+      "accepted_lines": 22,
+      "overriden_lines": 0
+    }
+  }
+}
