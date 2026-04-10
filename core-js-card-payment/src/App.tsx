@@ -2,7 +2,8 @@ import { CardPaymentPage } from '@/pages/CardPaymentPage';
 import { TestReturnPage } from '@/pages/TestReturnPage';
 
 const params = new URLSearchParams(window.location.search);
-const isReturnPage = params.has('payment_return');
+const isReturnPath = window.location.pathname === '/return';
+const isReturnPage = isReturnPath || params.has('payment_return');
 const returnPaymentId = params.get('paymentId');
 
 export default function App() {

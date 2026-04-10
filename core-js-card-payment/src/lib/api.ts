@@ -72,6 +72,21 @@ export interface PaymentInstrumentResult {
   };
 }
 
+/**
+ * Shape returned by POST /api/public/v1/payments/process and
+ * POST /api/public/v1/payments/continue.
+ *
+ * The key field to check after processing is `payment.requireAction`:
+ *   - null / "none"         → payment is complete
+ *   - "radar"               → Airwallex Radar device fingerprint required
+ *   - "redirect"            → 3DS bank challenge required (use requireActionData
+ *                             for the challenge URL and resumeToken)
+ *   - "processor_auth"      → processor-specific auth redirect (same structure as
+ *                             redirect; URL is in requireActionData.metadata.redirect.redirectUrl)
+ *
+ * Use `requireActionData.metadata.type` as the primary discriminator; it is
+ * more specific than the top-level `requireAction` string.
+ */
 export interface PaymentResult {
   payment: {
     id: string;

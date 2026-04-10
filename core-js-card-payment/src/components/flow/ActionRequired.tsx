@@ -74,6 +74,8 @@ function ThreeDSPanel({ redirectUrl, paymentId }: { redirectUrl: string; payment
           Your bank requires you to verify this payment. You'll be redirected to complete
           authentication and automatically returned here once complete.
         </p>
+        {/* In a production app you would call window.location.href = redirectUrl automatically
+            here (e.g. via a useEffect) instead of waiting for the user to click a button. */}
         <button
           onClick={() => { window.location.href = redirectUrl; }}
           className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-amber-600 active:scale-[0.98]"
@@ -82,6 +84,10 @@ function ThreeDSPanel({ redirectUrl, paymentId }: { redirectUrl: string; payment
           Authenticate Payment
           <ExternalLink size={13} />
         </button>
+        <p className="text-center text-[10px] text-slate-400">
+          In a production app the redirect happens automatically.
+          This button is shown here so the flow is visible and inspectable.
+        </p>
         <div className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-slate-400">Payment ID</span>

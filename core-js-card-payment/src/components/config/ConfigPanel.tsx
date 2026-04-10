@@ -3,7 +3,7 @@ import { Key, Store, Users, RefreshCw, MapPin, ChevronDown } from 'lucide-react'
 import { useConfigStore, ENVIRONMENTS, type EnvironmentId, type AddressFields } from '@/lib/config-store';
 import { apiRequest } from '@/lib/api';
 
-const ENV_IDS: EnvironmentId[] = ['production', 'development'];
+const ENV_IDS: EnvironmentId[] = ['production', 'development', 'local'];
 
 interface StoreItem {
   id: string;
@@ -140,88 +140,88 @@ export function ConfigPanel() {
         </div>
 
         {/* Customer */}
-        <div className="card px-4 py-4">
-          <p className="label mb-3"><Users size={10} className="mr-1 inline" />Customer</p>
-          <div className="space-y-2">
-            <div>
-              <label className="label">Email</label>
-              <input
-                type="email"
-                value={config.customerEmail}
-                onChange={(e) => config.setCustomerEmail(e.target.value)}
-                className="input-field text-xs"
-                placeholder="test@example.com"
+        <div className="card overflow-hidden">
+          <div className="px-4 pt-4">
+            <p className="label mb-3"><Users size={10} className="mr-1 inline" />Customer</p>
+            <div className="space-y-2">
+              <div>
+                <label className="label">Email</label>
+                <input
+                  type="email"
+                  value={config.customerEmail}
+                  onChange={(e) => config.setCustomerEmail(e.target.value)}
+                  className="input-field text-xs"
+                  placeholder="test@example.com"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="label">First Name</label>
+                  <input
+                    type="text"
+                    value={config.customerFirstName}
+                    onChange={(e) => config.setCustomerFirstName(e.target.value)}
+                    className="input-field text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="label">Last Name</label>
+                  <input
+                    type="text"
+                    value={config.customerLastName}
+                    onChange={(e) => config.setCustomerLastName(e.target.value)}
+                    className="input-field text-xs"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Address collapsible */}
+          <div className="mt-3">
+            <button
+              onClick={() => setAddressOpen((v) => !v)}
+              className="flex w-full items-center justify-between px-4 py-2.5 text-left transition-colors hover:bg-slate-50"
+            >
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+                <MapPin size={10} className="text-slate-400" />
+                Address
+                <span className="rounded-full bg-amber-100 px-1.5 py-px text-[9px] font-medium text-amber-700">
+                  required for Airwallex
+                </span>
+              </span>
+              <ChevronDown
+                size={12}
+                className={`text-slate-400 transition-transform duration-200 ${addressOpen ? 'rotate-180' : ''}`}
               />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="label">First Name</label>
-                <input
-                  type="text"
-                  value={config.customerFirstName}
-                  onChange={(e) => config.setCustomerFirstName(e.target.value)}
-                  className="input-field text-xs"
+            </button>
+            {addressOpen && (
+              <div className="border-t border-slate-100 px-4 pb-4 pt-3">
+                <div className="mb-3 flex gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
+                  {(['shipping', 'billing'] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setAddressTab(tab)}
+                      className={`flex flex-1 items-center justify-center rounded-lg px-3 py-1.5 text-xs font-semibold capitalize transition-all ${
+                        addressTab === tab
+                          ? 'bg-white text-slate-900 shadow-sm'
+                          : 'text-slate-500 hover:text-slate-700'
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+                <AddressForm
+                  value={addressTab === 'shipping' ? config.shippingAddress : config.billingAddress}
+                  onChange={addressTab === 'shipping' ? config.setShippingAddress : config.setBillingAddress}
                 />
               </div>
-              <div>
-                <label className="label">Last Name</label>
-                <input
-                  type="text"
-                  value={config.customerLastName}
-                  onChange={(e) => config.setCustomerLastName(e.target.value)}
-                  className="input-field text-xs"
-                />
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
       </div>
-
-      {/* Shipping / Billing Address */}
-      <div className="card overflow-hidden">
-        <button
-          onClick={() => setAddressOpen((v) => !v)}
-          className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-slate-50"
-        >
-          <span className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-            <MapPin size={11} className="text-slate-400" />
-            Shipping &amp; Billing Address
-            <span className="rounded-full bg-amber-100 px-1.5 py-px text-[9px] font-medium text-amber-700">
-              required for Airwallex
-            </span>
-          </span>
-          <ChevronDown
-            size={13}
-            className={`text-slate-400 transition-transform duration-200 ${addressOpen ? 'rotate-180' : ''}`}
-          />
-        </button>
-
-        {addressOpen && (
-          <div className="border-t border-slate-100 px-4 pb-4 pt-3">
-            <div className="mb-3 flex gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
-              {(['shipping', 'billing'] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setAddressTab(tab)}
-                  className={`flex flex-1 items-center justify-center rounded-lg px-3 py-1.5 text-xs font-semibold capitalize transition-all ${
-                    addressTab === tab
-                      ? 'bg-white text-slate-900 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-700'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-            <AddressForm
-              value={addressTab === 'shipping' ? config.shippingAddress : config.billingAddress}
-              onChange={addressTab === 'shipping' ? config.setShippingAddress : config.setBillingAddress}
-            />
-          </div>
-        )}
-      </div>
-
     </div>
   );
 }

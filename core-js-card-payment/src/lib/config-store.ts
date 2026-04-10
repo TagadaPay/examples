@@ -1,14 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type EnvironmentId = 'production' | 'development';
+export type EnvironmentId = 'production' | 'development' | 'local';
 
 export interface EnvironmentConfig {
   id: EnvironmentId;
   label: string;
   description: string;
   apiBaseUrl: string;
-  sdkEnvironment: 'production' | 'development';
+  sdkEnvironment: 'production' | 'development' | 'local';
   color: string;
 }
 
@@ -28,6 +28,14 @@ export const ENVIRONMENTS: Record<EnvironmentId, EnvironmentConfig> = {
     apiBaseUrl: 'https://app.tagadapay.dev',
     sdkEnvironment: 'development',
     color: '#f59e0b',
+  },
+  local: {
+    id: 'local',
+    label: 'Local',
+    description: 'app.localhost',
+    apiBaseUrl: 'http://app.localhost:3000',
+    sdkEnvironment: 'local',
+    color: '#22c55e',
   },
 };
 
@@ -68,7 +76,7 @@ interface ConfigState {
   billingAddress: AddressFields;
 
   getApiBaseUrl: () => string;
-  getSdkEnvironment: () => 'production' | 'development';
+  getSdkEnvironment: () => 'production' | 'development' | 'local';
   setEnvironment: (id: EnvironmentId) => void;
   setApiToken: (token: string) => void;
   setStoreId: (id: string) => void;
