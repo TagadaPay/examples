@@ -81,9 +81,56 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
 
   // Shipping
   const [rates, setRates] = useState<ShippingRate[]>([]);
-  const [selectedRateId, setSelectedRateId] = useState<string | null>(null);
   const [ratesLoading, setRatesLoading] = useState(false);
   const ratesAbortRef = useRef(0);
+
+  // The selected rate is whatever the SERVER says is selected on the
+  // session — we don't shadow it with local state. That way refreshing
+  // the page restores the previously-picked rate, and clicking a radio
+  // immediately recomputes totals because the order summary reads from
+  // `session.totals` which the SDK refreshes inside `selectShippingRate`.
+  const selectedRateId = session?.selectedShippingRateId ?? null;
+
+  // One-shot hydration of form fields from the (server-side) session.
+  // `useCheckout` reloads the session on mount from the URL tokens, so
+  // every persisted value (email, name, address) is already present —
+  // we just have to copy it into the form on the FIRST render where
+  // `session.id` is defined. Subsequent edits stay in local state until
+  // the user submits.
+  const hasHydratedRef = useRef(false);
+  useEffect(() => {
+    if (hasHydratedRef.current || !session?.id) return;
+    hasHydratedRef.current = true;
+
+    const c = session.customer;
+    if (c?.email) setEmail(c.email);
+    if (c?.firstName) setFirstName(c.firstName);
+    if (c?.lastName) setLastName(c.lastName);
+
+    const a = session.shippingAddress;
+    if (a?.line1) setLine1(a.line1);
+    if (a?.line2) setLine2(a.line2);
+    if (a?.city) setCity(a.city);
+    if (a?.state) setRegion(a.state);
+    if (a?.postalCode) setPostalCode(a.postalCode);
+    if (a?.country) setCountry(a.country);
+  }, [session?.id, session?.customer, session?.shippingAddress]);
+
+  // Stable refs for the SDK callbacks. `useCheckout` re-creates
+  // `updateAddress` / `getShippingRates` / `selectShippingRate` whenever
+  // `session` changes (which happens *inside* those calls because they
+  // trigger `loadSession()`). Using refs in the auto-fetch effect below
+  // prevents the deps from oscillating with every session refresh —
+  // otherwise the in-flight rates fetch is aborted before it can clear
+  // `ratesLoading`, leaving the UI stuck on "Calculating shipping rates…".
+  const updateAddressRef = useRef(updateAddress);
+  const getShippingRatesRef = useRef(getShippingRates);
+  const selectShippingRateRef = useRef(selectShippingRate);
+  useEffect(() => {
+    updateAddressRef.current = updateAddress;
+    getShippingRatesRef.current = getShippingRates;
+    selectShippingRateRef.current = selectShippingRate;
+  }, [updateAddress, getShippingRates, selectShippingRate]);
 
   // Submission
   const [error, setError] = useState<string | null>(null);
@@ -94,11 +141,15 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
     if (session?.id) loadPaymentSetup(session.id);
   }, [loadPaymentSetup, session?.id]);
 
-  // Auto-fetch shipping rates whenever the address looks complete
+  // Auto-fetch shipping rates whenever the address looks complete.
+  // Once rates load, if the session has no rate selected yet (first
+  // visit) we pick the cheapest one and call `selectShippingRate` so
+  // the order summary's shipping line + total reflect it immediately.
+  // We read `selectedShippingRateId` off the session (set by the SDK
+  // after `selectShippingRate`) — never mirror it into local state.
   useEffect(() => {
     if (!postalCode || !line1 || !city || !country) {
       setRates([]);
-      setSelectedRateId(null);
       return;
     }
 
@@ -106,26 +157,43 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
     const handle = window.setTimeout(async () => {
       setRatesLoading(true);
       try {
-        await updateAddress({
+        await updateAddressRef.current({
           shippingAddress: { line1, line2: line2 || undefined, city, state: region, postalCode, country },
           billingAddress:  { line1, line2: line2 || undefined, city, state: region, postalCode, country },
         });
-        const fetched = await getShippingRates();
+        const fetched = await getShippingRatesRef.current();
         if (myToken !== ratesAbortRef.current) return;
         setRates(fetched);
-        if (fetched.length > 0) setSelectedRateId((prev) => prev ?? fetched[0].id);
+
+        // Auto-select the cheapest rate if nothing is selected yet on
+        // the server session. On a refresh the user keeps whatever they
+        // previously picked because we only fall through to auto-select
+        // when `selectedShippingRateId` is empty.
+        const alreadySelected = session?.selectedShippingRateId;
+        if (!alreadySelected && fetched.length > 0) {
+          const cheapest = [...fetched].sort((a, b) => a.amount - b.amount)[0];
+          await selectShippingRateRef.current(cheapest.id);
+        }
       } catch {
         if (myToken === ratesAbortRef.current) {
           setRates([]);
-          setSelectedRateId(null);
         }
       } finally {
-        if (myToken === ratesAbortRef.current) setRatesLoading(false);
+        // Always clear loading on the *latest* effect run. We deliberately
+        // do NOT gate this on the abort token: if the deps change while a
+        // fetch is in-flight, the *new* effect run is what owns the loading
+        // state from now on, and it will set `ratesLoading=true` again
+        // before its own fetch — so dropping the guard here can never leak
+        // a stale `false`. Leaving the guard caused a deadlock when
+        // `updateAddress` triggered a session refresh that re-rendered the
+        // component and aborted the very promise that was supposed to
+        // clear the spinner.
+        setRatesLoading(false);
       }
     }, 500);
 
     return () => window.clearTimeout(handle);
-  }, [line1, line2, city, region, postalCode, country, updateAddress, getShippingRates]);
+  }, [line1, line2, city, region, postalCode, country]);
 
   // Google Places autocomplete — optional (degrade gracefully if no key).
   const {
@@ -208,9 +276,14 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
         billingAddress:  { line1, line2: line2 || undefined, city, state: region, postalCode, country },
       });
 
-      if (rates.length > 0) {
-        const rateId = selectedRateId ?? rates[0].id;
-        await selectShippingRate(rateId);
+      // The selected shipping rate is already persisted on the session
+      // (radio click + auto-select on first load both call the SDK).
+      // We only need a fallback if the server somehow lost the selection
+      // — e.g. address change invalidated the previous rate. In that
+      // case we pick the cheapest still-available rate before paying.
+      if (rates.length > 0 && !selectedRateId) {
+        const cheapest = [...rates].sort((a, b) => a.amount - b.amount)[0];
+        await selectShippingRate(cheapest.id);
       }
 
       setStage('tokenizing');
@@ -423,7 +496,13 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
                         type="radio"
                         name="shipping"
                         checked={selectedRateId === rate.id}
-                        onChange={() => setSelectedRateId(rate.id)}
+                        // Push the selection to the server immediately so
+                        // the order summary's shipping line + total recompute
+                        // on click. `useCheckout` reloads the session under
+                        // the hood, which propagates to `selectedRateId`
+                        // (read off `session.selectedShippingRateId`) and
+                        // to `session.totals.shipping` / `.total`.
+                        onChange={() => { void selectShippingRate(rate.id); }}
                         className="h-4 w-4 accent-ink-900"
                       />
                       <span className="flex-1">

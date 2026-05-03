@@ -12,15 +12,15 @@
     "deploy": "tsx scripts/deploy.ts"
   },
   "dependencies": {
-    "@tagadapay/core-js": "^2.5.4",
-    "@tagadapay/headless-sdk": "^1.4.0",
+    "@tagadapay/core-js": "^3.0.0",
+    "@tagadapay/headless-sdk": "^1.5.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^6.27.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
-    "@tagadapay/node-sdk": "^1.0.0",
+    "@tagadapay/node-sdk": "^1.1.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^5.0.0",

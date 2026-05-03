@@ -8,8 +8,9 @@
  *   3. Store (USD/EUR)
  *   4. Six demo apparel products
  *   5. Two post-purchase upsell offers
- *   6. Checkout funnel (checkout → thank-you)
- *   7. .env file pointing the demo at the new store
+ *   6. Two shipping rates (Free Standard + Express)
+ *   7. Checkout funnel (checkout → thank-you)
+ *   8. .env file pointing the demo at the new store
  *
  * Usage:
  *   pnpm seed <YOUR_API_KEY>
@@ -287,7 +288,32 @@ async function main() {
     sub('✓  Upsell: Wool Beanie');
   }
 
-  // 6. Funnel
+  // 6. Shipping rates — without these, checkout shows "Calculating shipping
+  //    rates…" forever because the address always matches zero rates.
+  log('🚚 ', 'Creating shipping rates…');
+  await tagada.shippingRates.create({
+    storeId: store.id,
+    shippingRateName: 'Free Standard',
+    description: 'Delivered in 5–7 business days.',
+    isFree: true,
+    isPickupPoint: false,
+    amount: { USD: { amount: 0 }, EUR: { amount: 0 } },
+    highlighted: true,
+    estimatedDeliveryTime: 7,
+  });
+  sub('✓  Free Standard (5–7 days)');
+  await tagada.shippingRates.create({
+    storeId: store.id,
+    shippingRateName: 'Express',
+    description: '2-day delivery.',
+    isFree: false,
+    isPickupPoint: false,
+    amount: { USD: { amount: 1500 }, EUR: { amount: 1400 } },
+    estimatedDeliveryTime: 2,
+  });
+  sub('✓  Express ($15 / €14)');
+
+  // 7. Funnel
   log('🛒 ', 'Creating checkout funnel…');
   const funnel = await tagada.funnels.create({
     storeId: store.id,
