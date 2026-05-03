@@ -12,8 +12,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0(react@19.2.5)
       '@tagadapay/headless-sdk':
-        specifier: ^1.5.0
-        version: 1.5.0(@tagadapay/core-js@3.0.0(react@19.2.5))(react@19.2.5)
+        specifier: ^1.5.1
+        version: 1.5.1(@tagadapay/core-js@3.0.0(react@19.2.5))(react@19.2.5)
       react:
         specifier: ^19.1.1
         version: 19.2.5
@@ -552,8 +552,8 @@ packages:
       react:
         optional: true
 
-  '@tagadapay/headless-sdk@1.5.0':
-    resolution: {integrity: sha512-tcwhm76tieI+eLRlAfdEVx7z3Hu351KzqybtvI0EGBDdSBtO+DfbUiAwjuMtVNwUL8rbl0ol2f6KQKtpfEjmGg==}
+  '@tagadapay/headless-sdk@1.5.1':
+    resolution: {integrity: sha512-V8qiLcsZIG+Nw1K619u3U/TYSYY575mkOoHgZridXysnb0pUYDn9+7al77XAElJ6STnjtxaCWlPx7Vl4zRvltQ==}
     peerDependencies:
       '@stripe/stripe-js': ^7.0.0 || ^8.0.0
       '@tagadapay/core-js': ^3.0.0
@@ -1939,7 +1939,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@tagadapay/headless-sdk@1.5.0(@tagadapay/core-js@3.0.0(react@19.2.5))(react@19.2.5)':
+  '@tagadapay/headless-sdk@1.5.1(@tagadapay/core-js@3.0.0(react@19.2.5))(react@19.2.5)':
     optionalDependencies:
       '@tagadapay/core-js': 3.0.0(react@19.2.5)
       react: 19.2.5

@@ -41,8 +41,7 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
   const {
     session,
     isLoading: isCheckoutLoading,
-    updateCustomer,
-    updateAddress,
+    updateCustomerAndAddress,
     getShippingRates,
     selectShippingRate,
     applyPromo,
@@ -96,18 +95,23 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
   // every persisted value (email, name, address) is already present —
   // we just have to copy it into the form on the FIRST render where
   // `session.id` is defined. Subsequent edits stay in local state until
-  // the user submits.
+  // the user blurs / submits.
+  //
+  // First name and last name fall back to `shippingAddress.firstName`
+  // / `lastName` because the backend sometimes nulls `customer.firstName`
+  // on partial address saves (it sets the customer name from the
+  // address payload), and we always send those fields on the address.
   const hasHydratedRef = useRef(false);
   useEffect(() => {
     if (hasHydratedRef.current || !session?.id) return;
     hasHydratedRef.current = true;
 
     const c = session.customer;
-    if (c?.email) setEmail(c.email);
-    if (c?.firstName) setFirstName(c.firstName);
-    if (c?.lastName) setLastName(c.lastName);
-
     const a = session.shippingAddress;
+    if (c?.email) setEmail(c.email);
+    if (c?.firstName ?? a?.firstName) setFirstName((c?.firstName ?? a?.firstName) as string);
+    if (c?.lastName ?? a?.lastName) setLastName((c?.lastName ?? a?.lastName) as string);
+
     if (a?.line1) setLine1(a.line1);
     if (a?.line2) setLine2(a.line2);
     if (a?.city) setCity(a.city);
@@ -116,21 +120,21 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
     if (a?.country) setCountry(a.country);
   }, [session?.id, session?.customer, session?.shippingAddress]);
 
-  // Stable refs for the SDK callbacks. `useCheckout` re-creates
-  // `updateAddress` / `getShippingRates` / `selectShippingRate` whenever
-  // `session` changes (which happens *inside* those calls because they
-  // trigger `loadSession()`). Using refs in the auto-fetch effect below
-  // prevents the deps from oscillating with every session refresh —
-  // otherwise the in-flight rates fetch is aborted before it can clear
-  // `ratesLoading`, leaving the UI stuck on "Calculating shipping rates…".
-  const updateAddressRef = useRef(updateAddress);
+  // Stable refs for the SDK callbacks. `useCheckout` re-creates them
+  // whenever `session` changes (which happens *inside* those calls
+  // because they trigger `loadSession()`). Using refs in the auto-fetch
+  // effect below prevents the deps from oscillating with every session
+  // refresh — otherwise the in-flight rates fetch is aborted before it
+  // can clear `ratesLoading`, leaving the UI stuck on
+  // "Calculating shipping rates…".
+  const updateCustomerAndAddressRef = useRef(updateCustomerAndAddress);
   const getShippingRatesRef = useRef(getShippingRates);
   const selectShippingRateRef = useRef(selectShippingRate);
   useEffect(() => {
-    updateAddressRef.current = updateAddress;
+    updateCustomerAndAddressRef.current = updateCustomerAndAddress;
     getShippingRatesRef.current = getShippingRates;
     selectShippingRateRef.current = selectShippingRate;
-  }, [updateAddress, getShippingRates, selectShippingRate]);
+  }, [updateCustomerAndAddress, getShippingRates, selectShippingRate]);
 
   // Submission
   const [error, setError] = useState<string | null>(null);
@@ -141,26 +145,40 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
     if (session?.id) loadPaymentSetup(session.id);
   }, [loadPaymentSetup, session?.id]);
 
-  // Auto-fetch shipping rates whenever the address looks complete.
-  // Once rates load, if the session has no rate selected yet (first
-  // visit) we pick the cheapest one and call `selectShippingRate` so
-  // the order summary's shipping line + total reflect it immediately.
-  // We read `selectedShippingRateId` off the session (set by the SDK
-  // after `selectShippingRate`) — never mirror it into local state.
+  // Auto-save the whole form on every meaningful change, then refetch
+  // shipping rates if the address is complete enough. We bundle
+  // customer + address into a single `updateCustomerAndAddress` call —
+  // the backend's partial-save endpoint sets
+  // `customer.firstName = shippingAddress.firstName ?? null`, so
+  // sending the address without the name silently nukes the customer
+  // record. Always include the latest first/last name on every save.
   useEffect(() => {
-    if (!postalCode || !line1 || !city || !country) {
+    const addressIsComplete = postalCode && line1 && city && country;
+    if (!email && !firstName && !lastName && !addressIsComplete) {
       setRates([]);
       return;
     }
 
     const myToken = ++ratesAbortRef.current;
     const handle = window.setTimeout(async () => {
-      setRatesLoading(true);
+      setRatesLoading(addressIsComplete ? true : false);
       try {
-        await updateAddressRef.current({
-          shippingAddress: { line1, line2: line2 || undefined, city, state: region, postalCode, country },
-          billingAddress:  { line1, line2: line2 || undefined, city, state: region, postalCode, country },
+        await updateCustomerAndAddressRef.current({
+          customer: { email, firstName, lastName },
+          shippingAddress: {
+            firstName, lastName,
+            line1, line2: line2 || undefined,
+            city, state: region, postalCode, country,
+          },
+          billingAddress: {
+            firstName, lastName,
+            line1, line2: line2 || undefined,
+            city, state: region, postalCode, country,
+          },
         });
+
+        if (!addressIsComplete) return;
+
         const fetched = await getShippingRatesRef.current();
         if (myToken !== ratesAbortRef.current) return;
         setRates(fetched);
@@ -193,7 +211,13 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
     }, 500);
 
     return () => window.clearTimeout(handle);
-  }, [line1, line2, city, region, postalCode, country]);
+    // `session?.selectedShippingRateId` is read inside the timeout for
+    // the auto-select fallback, but we deliberately skip it from deps —
+    // including it would re-run the effect every time the user picks a
+    // rate, which would re-fire the (debounced) update + rate fetch
+    // and clobber the just-applied selection.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [email, firstName, lastName, line1, line2, city, region, postalCode, country]);
 
   // Google Places autocomplete — optional (degrade gracefully if no key).
   const {
@@ -267,13 +291,19 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
 
     try {
       setStage('updating');
-      await updateCustomer({ email, firstName, lastName });
-
-      // updateAddress was already called by the auto-rate effect, but call it
-      // again to be safe with the latest values.
-      await updateAddress({
-        shippingAddress: { line1, line2: line2 || undefined, city, state: region, postalCode, country },
-        billingAddress:  { line1, line2: line2 || undefined, city, state: region, postalCode, country },
+      // Final flush: bundle customer + address in one call. The auto-effect
+      // already saves on debounce, so this is mostly a safety net to capture
+      // the very last keystroke before the user clicks Place Order.
+      await updateCustomerAndAddress({
+        customer: { email, firstName, lastName },
+        shippingAddress: {
+          firstName, lastName,
+          line1, line2: line2 || undefined, city, state: region, postalCode, country,
+        },
+        billingAddress: {
+          firstName, lastName,
+          line1, line2: line2 || undefined, city, state: region, postalCode, country,
+        },
       });
 
       // The selected shipping rate is already persisted on the session
