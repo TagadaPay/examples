@@ -1,0 +1,25 @@
+headless-react-store/package.json
+  5410d46b09908af2 16
+headless-react-store/src/pages/Checkout.tsx
+  5410d46b09908af2 44,98-103,110,112-113,123-130,134,137,148-154,156-157,164,166-177,179-181,214-220,294-306
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "118cd8d10ad7dff710bdb1d111128b93d3b19e80",
+  "prompts": {
+    "5410d46b09908af2": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "965caf66-645e-4ecf-8689-a1c57ff6fa0a",
+        "model": "claude-opus-4-7-thinking-xhigh"
+      },
+      "human_author": "Loïc DELOBEL",
+      "messages": [],
+      "total_additions": 143,
+      "total_deletions": 42,
+      "accepted_lines": 66,
+      "overriden_lines": 0
+    }
+  }
+}
