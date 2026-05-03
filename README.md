@@ -4,9 +4,26 @@ Working examples for every TagadaPay client SDK. Each example is a standalone ap
 
 ## Examples
 
+### [`headless-react-store/`](./headless-react-store/)
+
+**A real-looking storefront** you can fork and rebrand — multi-page boutique with localStorage cart and a single-page professional checkout. No tutorial overlays, no code panels: just a production-ready template.
+
+```bash
+cd headless-react-store
+pnpm install
+pnpm seed <API_KEY>   # Creates store + 6 products + upsells + funnel
+pnpm dev
+```
+
+Pages: home / product / cart / checkout / thank-you. Apparel-themed seed by default — edit `scripts/seed.ts` to swap in your own catalog.
+
+Deploy to TagadaPay CDN: `pnpm build && TAGADA_API_KEY=xxx pnpm deploy`
+
+---
+
 ### [`headless-react/`](./headless-react/)
 
-**Full checkout built with React hooks** — browse products, build a cart, pay, and handle upsell offers.
+**Interactive playground / tutorial** — every Headless SDK hook explained step-by-step with side-by-side code panels. The fastest way to *learn* the SDK before forking the storefront template above.
 
 ```bash
 cd headless-react
