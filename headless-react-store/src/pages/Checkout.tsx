@@ -317,7 +317,11 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
       }
 
       setStage('tokenizing');
-      const expiryDate = card.exp.replace(/\s/g, '').replace(/\//g, '');
+      // BasisTheory's validateExpiryDate (in @tagadapay/core-js) requires
+      // the literal `MM/YY` form — its regex is /^(0[1-9]|1[0-2])\/\d{2}$/,
+      // so `1228` is rejected with a "Failed to tokenize card" error.
+      // Keep the slash, just normalize whitespace.
+      const expiryDate = card.exp.replace(/\s/g, '');
       const { tagadaToken } = await tokenizeCard({
         cardNumber: card.number.replace(/\s/g, ''),
         expiryDate,
