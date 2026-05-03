@@ -1,129 +1,146 @@
 # TagadaPay SDK Examples
 
-Five working apps that show every TagadaPay client SDK in action.
-Clone, run, fork — each example boots in under a minute.
+Hey! Welcome. This repo is the fastest way to see TagadaPay in action.
+
+Five small apps, each one does one thing well, all of them boot in
+under a minute. Pick whichever one looks like what you're trying to
+build, run two commands, and you're in.
 
 ---
 
-## Pick the right example
+## What's in here?
 
-| Example | What you get | Time to first run | SDK |
+Not sure where to start? This table should help.
+
+| If you want to… | Open this | Time | SDK |
 |---|---|---|---|
-| [`headless-react-store/`](./headless-react-store) | A real boutique storefront — fork it and ship | **~60 s** | `headless-sdk` |
-| [`headless-react/`](./headless-react) | Interactive playground that walks you through every hook | **~60 s** | `headless-sdk` |
-| [`core-js-card-payment/`](./core-js-card-payment) | End-to-end card payment with 3DS return handling | **~30 s** | `core-js` |
-| [`core-js-tokenization/`](./core-js-tokenization) | Card tokenization, instrument, 3DS challenge step-by-step | **~30 s** | `core-js` |
-| [`apple-google-tokenization/`](./apple-google-tokenization) | Apple Pay & Google Pay buttons + tokenization | **~5 min** ¹ | `core-js` |
+| Fork a real-looking storefront and rebrand it | [`headless-react-store/`](./headless-react-store) | ~60 s | `headless-sdk` |
+| Learn the React hooks one by one | [`headless-react/`](./headless-react) | ~60 s | `headless-sdk` |
+| Charge a card end-to-end with 3DS | [`core-js-card-payment/`](./core-js-card-payment) | ~30 s | `core-js` |
+| Just tokenize a card (no payment) | [`core-js-tokenization/`](./core-js-tokenization) | ~30 s | `core-js` |
+| Add Apple Pay or Google Pay buttons | [`apple-google-tokenization/`](./apple-google-tokenization) | ~5 min* | `core-js` |
 
-> ¹ Apple Pay needs HTTPS for local testing — ngrok instructions are in the example's README.
+\* Apple Pay needs HTTPS even for testing, so this one needs ngrok.
+The example's README walks you through it.
 
-If you just want to see a real store running, **start with
-[`headless-react-store`](./headless-react-store)**. Live demo:
+**Want to see the storefront in action right now?** Click here:
 [headless-react-store--store_6c28b7398a82.cdn.tagada.io](https://headless-react-store--store_6c28b7398a82.cdn.tagada.io/).
-
-If you're learning the SDK hooks for the first time, start with
-[`headless-react`](./headless-react) — it explains each hook with side-by-side
-code panels.
+That's literally the `headless-react-store/` example, deployed.
 
 ---
 
-## Zero-config setup (recommended)
+## Get going in 30 seconds
 
-The Node SDK ships a one-shot CLI that creates a fresh sandbox account,
-provisions a store with demo products, and writes the API key into
-`.env`. No dashboard signup needed:
+The Node SDK ships a tiny CLI called `tagada-init`. It emails you a
+6-digit code, verifies it, creates a free sandbox account, fills your
+store with demo products, and drops the API key into `.env` for you.
+No dashboard, no signup form, no copy-pasting tokens.
 
 ```bash
-cd headless-react-store          # or any of the React examples
+cd headless-react-store        # or any other example here
 npx -p @tagadapay/node-sdk tagada-init you@example.com
 pnpm install && pnpm dev
 ```
 
-`tagada-init` mails you a 6-digit code, verifies it, and 30 seconds
-later you're shopping at <http://localhost:5173>.
+Open <http://localhost:5173> and you're shopping. That's it.
 
-> **Tagada** is the CRM (your account, your stores, your API keys).
-> **TagadaPay** is one of many payment processors you can plug into it.
-> The CLI provisions the former; the latter is sandbox-configured by
-> default.
+> **Quick naming note.** Things can get confusing because of the two
+> *very* similar names:
+>
+> - **Tagada** is the CRM — your account, your stores, your API keys.
+> - **TagadaPay** is one of many payment processors you can plug into
+>   your Tagada account.
+>
+> `tagada-init` provisions the former and pre-configures a sandbox
+> processor for you, so you can test payments without setting anything
+> up. You can swap in Stripe, Adyen, etc. later from the dashboard.
 
 ---
 
-## Manual setup
+## Already have an account?
 
-Already have a TagadaPay account?
+Cool — skip the CLI, paste in your API key directly:
 
 ```bash
-cd headless-react-store          # or any other example
+cd headless-react-store
 pnpm install
-pnpm seed YOUR_API_KEY           # creates the store + writes .env
+pnpm seed YOUR_API_KEY         # builds the store + writes .env
 pnpm dev
 ```
 
-Get an API key from <https://app.tagada.io> →
-**Settings → Access Tokens** (one-click, free, sandbox by default).
+You can grab a key at <https://app.tagada.io> →
+**Settings → Access Tokens**. Free, one click, sandbox by default.
 
 ---
 
 ## Test card
 
-All examples accept the universal sandbox card:
+Every example accepts the universal sandbox card:
 
 ```
 4242 4242 4242 4242   ·   12/28   ·   123
 ```
 
-For 3DS scenarios, use a card with the BIN `4000 0027 6000 3184` —
-core-js will route it through the BasisTheory 3DS challenge flow.
+If you specifically want to play with the 3DS challenge flow, use a
+card starting with `4000 0027 6000 3184` — `core-js` will trigger the
+authentication dance for you.
 
 ---
 
-## Deploy any example to TagadaPay's edge CDN
+## Want to put it on the internet?
 
-The two React storefronts (`headless-react-store`, `headless-react`)
-ship a deploy script that uploads the Vite build to TagadaPay's global
-CDN in one command:
+The two React storefronts come with a one-command deploy script that
+ships your Vite build to TagadaPay's edge CDN — global, HTTPS, SPA
+routing, the works.
 
 ```bash
 pnpm build
 TAGADA_API_KEY=tgd_xxx pnpm deploy
 ```
 
-Live URL pattern: `https://<example-name>--<storeId>.cdn.tagada.io/`.
-SPA routing, asset caching, and HTTPS are handled automatically.
+You'll get back a URL that looks like
+`https://<example-name>--<storeId>.cdn.tagada.io/`. Share it,
+test on your phone, paste it into Slack — it's live.
+
+If you'd rather host on Vercel or Netlify, that works too: it's a
+plain Vite SPA, so push to GitHub, connect the repo, set
+`VITE_STORE_ID` + `VITE_ENVIRONMENT`, and you're done.
 
 ---
 
-## Requirements
+## Before you start
 
-- Node.js 18+ (we test on 20 / 22)
-- pnpm 8+ (`npm i -g pnpm`)
-- A TagadaPay account — free at <https://app.tagada.io> or via `tagada-init`
+You'll need:
+
+- **Node.js 18+** (we test on 20 and 22)
+- **pnpm 8+** — `npm i -g pnpm` if you don't have it
+- A TagadaPay account — `tagada-init` will create one for free, or grab one at <https://app.tagada.io>
 
 ---
 
-## SDK packages used
+## The SDKs you'll see
 
-| Package | Where it runs | Purpose |
+| Package | Where it runs | What it does |
 |---|---|---|
-| [`@tagadapay/headless-sdk`](https://www.npmjs.com/package/@tagadapay/headless-sdk) | Browser | Catalog, checkout, payments, offers — React hooks + vanilla JS |
-| [`@tagadapay/core-js`](https://www.npmjs.com/package/@tagadapay/core-js) | Browser | Card / Apple Pay / Google Pay tokenization, 3DS challenges |
-| [`@tagadapay/node-sdk`](https://www.npmjs.com/package/@tagadapay/node-sdk) | Server | Onboarding (`tagada-init`), stores / products / funnels, deploy |
+| [`@tagadapay/headless-sdk`](https://www.npmjs.com/package/@tagadapay/headless-sdk) | Browser | Catalog, checkout, payments, upsells — React hooks plus vanilla JS |
+| [`@tagadapay/core-js`](https://www.npmjs.com/package/@tagadapay/core-js) | Browser | Card / Apple Pay / Google Pay tokenization + 3DS challenges |
+| [`@tagadapay/node-sdk`](https://www.npmjs.com/package/@tagadapay/node-sdk) | Server | `tagada-init`, plus stores / products / funnels / deploy |
 
 ---
 
-## Documentation
+## Want to read more?
 
-- **[Build a Store with AI + TagadaPay](https://docs.tagada.io/developer-tools/headless-sdk/build-store-with-ai)** — copy-paste prompts for Claude / Cursor
+- **[Build a Store with AI + TagadaPay](https://docs.tagada.io/developer-tools/headless-sdk/build-store-with-ai)** — paste these prompts into Claude or Cursor
 - [Headless SDK introduction](https://docs.tagada.io/developer-tools/headless-sdk/introduction)
 - [Node SDK quick start](https://docs.tagada.io/developer-tools/node-sdk/quick-start)
 - [API reference](https://docs.tagada.io/api-reference/introduction)
 
 ---
 
-## Contributing
+## Spot something off?
 
-These examples are intentionally short and beginner-friendly. If you spot
-an outdated dependency, broken link, or unclear comment, PRs are welcome.
+These examples are meant to stay tiny and friendly. If a dependency
+drifted, a link's dead, or a comment doesn't make sense — open a PR or
+an issue, we'll get to it. Pull requests welcome from anyone.
 
-License: **MIT** — fork freely, ship boldly.
+Made with care, MIT licensed — fork it, rebrand it, ship it.
