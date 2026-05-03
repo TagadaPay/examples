@@ -28,18 +28,41 @@ that you can hand to a designer or paste into Claude and iterate on.
 
 ## 1 · Set up
 
+**Easiest path — one command, no browser:**
+
 ```bash
+npx -p @tagadapay/node-sdk tagada-init you@example.com
 pnpm install
-pnpm seed YOUR_API_KEY
 pnpm dev
 ```
 
-That's it. The seed script creates a store, six demo products, two upsells,
-a sandbox processor, and a `.env` file pointed at your new store. Open
-[localhost:5173](http://localhost:5173) and you're shopping.
+`tagada-init` mails you a 6-digit code, verifies it, creates a fresh
+sandbox **Tagada** account, provisions a store with six demo products,
+two upsells, a sandbox processor, and a checkout funnel — then writes
+`TAGADA_API_KEY` / `TAGADA_STORE_ID` / `TAGADA_ACCOUNT_ID` to `.env`.
+Open [localhost:5173](http://localhost:5173) and you're shopping.
 
-> Get an API key at [app.tagada.io](https://app.tagada.io/sign-up?source=examples-headless-react-store)
-> → **Settings → Access Tokens**.
+<details>
+<summary>Or use the classic web flow</summary>
+
+If you'd rather sign up via the dashboard:
+
+```bash
+pnpm install
+pnpm seed YOUR_API_KEY     # creates the store + writes .env
+pnpm dev
+```
+
+Get the API key at [app.tagada.io](https://app.tagada.io/sign-up?source=examples-headless-react-store)
+→ **Settings → Access Tokens**.
+
+</details>
+
+> **Tagada** is the CRM (your account, your stores, your API keys).
+> **TagadaPay** is the payment processor — one PSP among many you can
+> plug into your Tagada account. The CLI provisions the former; the
+> latter is sandbox-configured by default and can be swapped for Stripe
+> et al. from the dashboard.
 
 ### Test card
 
