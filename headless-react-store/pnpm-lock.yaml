@@ -28,8 +28,8 @@ importers:
         specifier: ^9.33.0
         version: 9.39.4
       '@tagadapay/node-sdk':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^1.0.0
+        version: 1.0.0
       '@types/react':
         specifier: ^19.1.10
         version: 19.2.14
@@ -563,8 +563,8 @@ packages:
       react:
         optional: true
 
-  '@tagadapay/node-sdk@0.1.0':
-    resolution: {integrity: sha512-QTcRYJzz3X8h53L37VYO1xf8AEeCZSCD+IKWvC8Lo7J4rIU9/XUj6c5DIm1JGuC0HfwsXyaVS0lBn42gG4CM1A==}
+  '@tagadapay/node-sdk@1.0.0':
+    resolution: {integrity: sha512-oUtPlrlZRyK1jAMOv3MhHDwn/i8JG0WKnH+zSvu1DvHthl1gp2aiCbGqLxezdaI21KidQDvwoqYbu8J07i20HQ==}
     engines: {node: '>=18.0.0'}
 
   '@types/babel__core@7.20.5':
@@ -1940,7 +1940,7 @@ snapshots:
       '@tagadapay/core-js': 2.5.4(react@19.2.5)
       react: 19.2.5
 
-  '@tagadapay/node-sdk@0.1.0': {}
+  '@tagadapay/node-sdk@1.0.0': {}
 
   '@types/babel__core@7.20.5':
     dependencies:
