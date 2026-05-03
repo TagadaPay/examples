@@ -216,7 +216,7 @@ TAGADA_API_KEY=tgd_xxx pnpm deploy
 ```
 
 Your store will be live at:
-`https://headless-react-store--{storeId}.cdn.tagadapay.com/`
+`https://headless-react-store--{storeId}.cdn.tagada.io/`
 
 ### To Vercel / Netlify
 

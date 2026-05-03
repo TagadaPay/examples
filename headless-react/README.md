@@ -37,7 +37,7 @@ Run the seed script to create a fully configured store with products, offers, a 
 pnpm seed <YOUR_API_KEY>
 ```
 
-Get your API key at [app.tagadapay.com](https://app.tagadapay.com) → Settings → Access Tokens.
+Get your API key at [app.tagada.io](https://app.tagada.io) → Settings → Access Tokens.
 
 The script creates:
 - **Sandbox processor** (test mode — no real charges)
@@ -64,7 +64,7 @@ pnpm build
 TAGADA_API_KEY=your-api-key pnpm deploy
 ```
 
-Your store will be live at `https://headless-react-example--{storeId}.cdn.tagadapay.com/`.
+Your store will be live at `https://headless-react-example--{storeId}.cdn.tagada.io/`.
 
 Handles any build size automatically (small builds go inline, larger builds are zipped and uploaded via blob storage).
 
