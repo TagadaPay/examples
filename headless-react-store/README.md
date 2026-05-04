@@ -37,10 +37,16 @@ pnpm dev
 ```
 
 `tagada-init` mails you a 6-digit code, verifies it, creates a fresh
-sandbox **Tagada** account, provisions a store with six demo products,
-two upsells, a sandbox processor, and a checkout funnel — then writes
-`TAGADA_API_KEY` / `TAGADA_STORE_ID` / `TAGADA_ACCOUNT_ID` to `.env`.
-Open [localhost:5173](http://localhost:5173) and you're shopping.
+sandbox **Tagada** account, provisions a store with two demo products
+(an *Essential Tee* in 3 colorways and an *Essential Cap*), a checkout
+upsell, a default shipping rate, a sandbox processor, and a checkout
+funnel — then writes `TAGADA_API_KEY` / `TAGADA_STORE_ID` /
+`TAGADA_ACCOUNT_ID` to `.env`. Open
+[localhost:5173](http://localhost:5173) and you're shopping.
+
+> Want a richer 6-product apparel catalog instead of the 2-product
+> default? After `tagada-init`, run `pnpm seed $TAGADA_API_KEY` to
+> extend the demo using `scripts/seed.ts`.
 
 <details>
 <summary>Or use the classic web flow</summary>
