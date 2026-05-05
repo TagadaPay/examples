@@ -54,9 +54,15 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
     processPayment,
     isProcessing,
   } = usePayment({
+    // We route the buyer to /thank-you/:orderId where `:orderId` is the
+    // ORDER id (from `result.order`), NOT the payment id. The thank-you
+    // page passes this same id to `payPreviewedOffer({ mainOrderId })`
+    // when an upsell is accepted, and that endpoint does a server-side
+    // ownership check that only works on a real `order_xxx`.
     onPaymentSuccess: (result) => {
       clear();
-      navigate(`/thank-you/${encodeURIComponent(result.payment.id)}`, { replace: true });
+      const id = result.order?.id ?? result.payment.id;
+      navigate(`/thank-you/${encodeURIComponent(id)}`, { replace: true });
     },
   });
 
