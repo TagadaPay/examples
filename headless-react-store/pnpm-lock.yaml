@@ -12,8 +12,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0(react@19.2.5)
       '@tagadapay/headless-sdk':
-        specifier: ^1.5.4
-        version: 1.5.4(@tagadapay/core-js@3.0.0(react@19.2.5))(react@19.2.5)
+        specifier: ^1.5.5
+        version: 1.5.5(@tagadapay/core-js@3.0.0(react@19.2.5))(react@19.2.5)
       react:
         specifier: ^19.1.1
         version: 19.2.5
@@ -28,8 +28,8 @@ importers:
         specifier: ^9.33.0
         version: 9.39.4
       '@tagadapay/node-sdk':
-        specifier: ^1.1.0
-        version: 1.1.0
+        specifier: ^1.2.1
+        version: 1.2.1
       '@types/react':
         specifier: ^19.1.10
         version: 19.2.14
@@ -552,8 +552,8 @@ packages:
       react:
         optional: true
 
-  '@tagadapay/headless-sdk@1.5.4':
-    resolution: {integrity: sha512-bMVZTWGGFKz30isagq26FTkdSqptkk2N8oYaqfZFE/gI1bBSoLt2pjly/N5dnnySUfgVKJlIW5kBVo4s83N0zQ==}
+  '@tagadapay/headless-sdk@1.5.5':
+    resolution: {integrity: sha512-58g383GKnmLMnDxvI5QBvNhLuIqFaFDT6dId/lPCVYQOlJMEDFoNS8KJthYnk5RntXPo1oNFJa1f3zRdtMXdBQ==}
     peerDependencies:
       '@stripe/stripe-js': ^7.0.0 || ^8.0.0
       '@tagadapay/core-js': ^3.0.0
@@ -566,8 +566,8 @@ packages:
       react:
         optional: true
 
-  '@tagadapay/node-sdk@1.1.0':
-    resolution: {integrity: sha512-D10Xqpd6Lzye6KWyxiQR2q9/WfTUB7R6y6g2Iejk5tJ3dPQNT3f6RHWr6C5k2CR1kOfKueChjYrP0aqj6JT+aA==}
+  '@tagadapay/node-sdk@1.2.1':
+    resolution: {integrity: sha512-AyIkquKMV08JFtRK5o6XKGrRlVVZR9+RIG8RYqAVx1SNOpHJyQpLsDj7f/UhrkDB+IhKfarOW+PAO8s/EeIEJw==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -1939,12 +1939,12 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@tagadapay/headless-sdk@1.5.4(@tagadapay/core-js@3.0.0(react@19.2.5))(react@19.2.5)':
+  '@tagadapay/headless-sdk@1.5.5(@tagadapay/core-js@3.0.0(react@19.2.5))(react@19.2.5)':
     optionalDependencies:
       '@tagadapay/core-js': 3.0.0(react@19.2.5)
       react: 19.2.5
 
-  '@tagadapay/node-sdk@1.1.0': {}
+  '@tagadapay/node-sdk@1.2.1': {}
 
   '@types/babel__core@7.20.5':
     dependencies:

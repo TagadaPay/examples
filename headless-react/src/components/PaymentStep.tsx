@@ -7,7 +7,7 @@ interface PaymentStepProps {
   checkoutToken: string;
   sessionToken: string;
   onBack: () => void;
-  onComplete: (paymentId: string) => void;
+  onComplete: (ids: { paymentId: string; orderId: string | null }) => void;
 }
 
 export function PaymentStep({ checkoutToken, sessionToken, onBack, onComplete }: PaymentStepProps) {
@@ -18,9 +18,16 @@ export function PaymentStep({ checkoutToken, sessionToken, onBack, onComplete }:
     processPayment,
     isProcessing,
   } = usePayment({
+    // Fires for both inline successes AND post-3DS-redirect resumptions.
+    // We thread `order.id` through to `onComplete` so the next step can
+    // chain post-purchase upsells with `mainOrderId` (NOT `payment.id`,
+    // which would silently bypass the auth check on the backend).
     onPaymentSuccess: (result) => {
       setStatus('success');
-      setTimeout(() => onComplete(result.payment.id), 800);
+      setTimeout(
+        () => onComplete({ paymentId: result.payment.id, orderId: result.order?.id ?? null }),
+        800,
+      );
     },
     onPaymentFailed: (result) => {
       setError(result.error);
@@ -69,7 +76,10 @@ export function PaymentStep({ checkoutToken, sessionToken, onBack, onComplete }:
       switch (result.status) {
         case 'succeeded':
           setStatus('success');
-          setTimeout(() => onComplete(result.payment.id), 800);
+          setTimeout(
+            () => onComplete({ paymentId: result.payment.id, orderId: result.order?.id ?? null }),
+            800,
+          );
           break;
 
         case 'requires_redirect':

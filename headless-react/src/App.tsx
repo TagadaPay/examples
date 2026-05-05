@@ -37,6 +37,7 @@ interface PersistedState {
   cart: CartItem[];
   sessionData: { checkoutToken: string; sessionToken: string } | null;
   paymentId: string | null;
+  orderId: string | null;
 }
 
 function loadPersistedState(): Partial<PersistedState> | null {
@@ -72,10 +73,11 @@ function App() {
     saved?.sessionData ?? null,
   );
   const [paymentId, setPaymentId] = useState<string | null>(saved?.paymentId ?? null);
+  const [orderId, setOrderId] = useState<string | null>(saved?.orderId ?? null);
 
   useEffect(() => {
-    persistState({ config, currentStep, cart, sessionData, paymentId });
-  }, [config, currentStep, cart, sessionData, paymentId]);
+    persistState({ config, currentStep, cart, sessionData, paymentId, orderId });
+  }, [config, currentStep, cart, sessionData, paymentId, orderId]);
 
   const isConfigured = config.storeId.trim() !== '';
 
@@ -130,8 +132,9 @@ function App() {
     setCurrentStep('Checkout');
   }, []);
 
-  const handlePaymentComplete = useCallback((id: string) => {
-    setPaymentId(id);
+  const handlePaymentComplete = useCallback((ids: { paymentId: string; orderId: string | null }) => {
+    setPaymentId(ids.paymentId);
+    setOrderId(ids.orderId);
     setCurrentStep('Confirmation');
   }, []);
 
@@ -140,6 +143,7 @@ function App() {
     setCart([]);
     setSessionData(null);
     setPaymentId(null);
+    setOrderId(null);
   }, []);
 
   const handleFullReset = useCallback(() => {
@@ -148,6 +152,7 @@ function App() {
     setCart([]);
     setSessionData(null);
     setPaymentId(null);
+    setOrderId(null);
     setConfigOpen(true);
   }, []);
 
@@ -252,7 +257,7 @@ function App() {
               )}
 
               {currentStep === 'Confirmation' && (
-                <ConfirmationStep paymentId={paymentId} onReset={handleReset} />
+                <ConfirmationStep paymentId={paymentId} orderId={orderId} onReset={handleReset} />
               )}
             </div>
           </TagadaHeadlessProvider>

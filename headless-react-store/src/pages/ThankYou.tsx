@@ -39,9 +39,38 @@ export function ThankYou() {
     setAcceptingId(offer.id);
     setError(null);
     try {
+      // Re-validate pricing right before charging — the offer can change
+      // between list time and click time (currency switch, A/B test, etc.).
       await previewOffer({ offerId: offer.id });
-      await payPreviewedOffer({ offerId: offer.id, mainOrderId: orderId });
-      setAccepted((prev) => new Set(prev).add(offer.id));
+
+      // One-click MIT charge against the stored instrument from the main
+      // order. `pay-preview` does NOT auto-handle 3DS or polling — the
+      // response status is the source of truth. Inspect it.
+      const result = await payPreviewedOffer({ offerId: offer.id, mainOrderId: orderId });
+
+      const status = result.payment?.status;
+      const requireAction = result.payment?.requireAction;
+
+      if (status === 'succeeded') {
+        setAccepted((prev) => new Set(prev).add(offer.id));
+        return;
+      }
+
+      if (requireAction && requireAction !== 'none') {
+        // Card needs SCA / 3DS for this MIT charge. We can't challenge
+        // in-place here without redesigning the post-purchase flow, so
+        // fail gracefully — the original order is unaffected.
+        setError(
+          'This card requires extra authentication and could not be added in one click. Your original order is unchanged.',
+        );
+        return;
+      }
+
+      setError(
+        status === 'declined' || status === 'failed'
+          ? 'Card was declined for this add-on. Your original order is unchanged.'
+          : `Could not add to your order (status: ${status ?? 'unknown'}).`,
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not add to your order');
     } finally {

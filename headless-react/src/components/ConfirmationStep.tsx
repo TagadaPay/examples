@@ -5,11 +5,20 @@ import { CodePanel } from './CodePanel';
 import { ResourceId, ResourceIdBar } from './ResourceId';
 
 interface ConfirmationStepProps {
+  /** ID of the payment that succeeded for the main checkout (`pay_xxx`). Display only. */
   paymentId: string | null;
+  /**
+   * ID of the **order** created by the main checkout (`order_xxx`).
+   * This — not the payment id — is what we pass as `mainOrderId` when
+   * charging an upsell. The backend uses it to (a) authorize the upsell
+   * against the same customer, and (b) tag the upsell order to its
+   * parent for analytics and refund flows.
+   */
+  orderId: string | null;
   onReset: () => void;
 }
 
-export function ConfirmationStep({ paymentId, onReset }: ConfirmationStepProps) {
+export function ConfirmationStep({ paymentId, orderId, onReset }: ConfirmationStepProps) {
   const { listOffers, previewOffer, payPreviewedOffer, isLoading } = useOffers();
   const [offers, setOffers] = useState<Offer[]>([]);
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
@@ -31,16 +40,57 @@ export function ConfirmationStep({ paymentId, onReset }: ConfirmationStepProps) 
   }, [listOffers]);
 
   const handleAcceptOffer = async (offer: Offer) => {
-    if (!paymentId) return;
+    // Without the main order id we can't link the upsell to a parent order.
+    // Surface this clearly instead of silently submitting `paymentId` —
+    // the backend's customer-mismatch guard would silently no-op against
+    // an unknown id and we'd charge an unauthorized card.
+    if (!orderId) {
+      setOfferError(
+        'Missing order id from main checkout — cannot link this upsell. Refresh and re-checkout.',
+      );
+      return;
+    }
     setAcceptingId(offer.id);
     setOfferError(null);
     try {
+      // Step 1: preview re-validates pricing right before charging.
+      // Useful if products were edited between list and click.
       await previewOffer({ offerId: offer.id });
-      await payPreviewedOffer({
+
+      // Step 2: one-click MIT charge against the stored instrument
+      // from the main order. `mainOrderId` MUST be the order id
+      // (`order_xxx`), never the payment id (`pay_xxx`).
+      const result = await payPreviewedOffer({
         offerId: offer.id,
-        mainOrderId: paymentId,
+        mainOrderId: orderId,
       });
-      setAcceptedIds((prev) => new Set(prev).add(offer.id));
+
+      // Step 3: the upsell endpoint does NOT auto-handle 3DS — it
+      // returns the payment object as-is. We must inspect status here.
+      const status = result.payment?.status;
+      const requireAction = result.payment?.requireAction;
+
+      if (status === 'succeeded') {
+        setAcceptedIds((prev) => new Set(prev).add(offer.id));
+        return;
+      }
+
+      if (requireAction && requireAction !== 'none') {
+        // Card needs SCA / 3DS. For an MIT one-click flow we can't
+        // challenge the customer here without redesigning the funnel.
+        // Production stores typically fall back to a customer-present
+        // retry on a dedicated upsell page, or just decline gracefully.
+        setOfferError(
+          'This card needs additional authentication for one-click upsells and could not be charged.',
+        );
+        return;
+      }
+
+      setOfferError(
+        status === 'declined' || status === 'failed'
+          ? 'Card was declined for the upsell. Your original order is unaffected.'
+          : `Upsell payment status: ${status ?? 'unknown'}. Please try again.`,
+      );
     } catch (err) {
       setOfferError(err instanceof Error ? err.message : 'Failed to accept offer');
     } finally {
@@ -51,6 +101,7 @@ export function ConfirmationStep({ paymentId, onReset }: ConfirmationStepProps) 
   return (
     <div className="space-y-6 animate-fade-in">
       <ResourceIdBar>
+        <ResourceId label="orderId" value={orderId} />
         <ResourceId label="paymentId" value={paymentId} />
         {offers[0]?.id && <ResourceId label="offerId" value={offers[0].id} />}
         {offers[1]?.id && <ResourceId label="offerId" value={offers[1].id} />}
@@ -211,10 +262,16 @@ const offers = await listOffers({ type: 'upsell' });
 await previewOffer({ offerId: offers[0].id });
 
 // 3. One-click accept — charges the same card
-await payPreviewedOffer({
+const result = await payPreviewedOffer({
   offerId: offers[0].id,
-  mainOrderId: paymentId,   // from the main order
-});`}
+  mainOrderId: order.id,    // ← order.id from processPayment, NOT payment.id
+});
+
+// Always inspect status — pay-preview does NOT auto-handle 3DS / decline
+if (result.payment?.status !== 'succeeded') {
+  // requireAction = '3ds' / 'redirect' → fallback to a CIT retry page
+  // status = 'declined' / 'failed' → just inform the buyer
+}`}
         />
       </div>
 
