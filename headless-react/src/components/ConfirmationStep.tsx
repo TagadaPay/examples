@@ -4,21 +4,6 @@ import type { Offer } from '@tagadapay/headless-sdk';
 import { CodePanel } from './CodePanel';
 import { ResourceId, ResourceIdBar } from './ResourceId';
 
-// Local override — `OfferPayResult` in @tagadapay/headless-sdk@1.5.4 is
-// stale (declared as `{ success, orderId, checkoutUrl, error }`), but at
-// runtime the SDK passes the backend payload through verbatim, which is
-// `{ preview, checkout, payment, order }`. We type it explicitly here so
-// the example's status / requireAction checks are honest. Drop this cast
-// once the SDK ships the corrected type.
-interface UpsellPayResult {
-  payment?: {
-    id: string;
-    status: 'succeeded' | 'pending' | 'failed' | 'declined' | 'requires_action';
-    requireAction?: 'none' | 'threeds_auth' | 'redirect';
-  };
-  order?: { id: string };
-}
-
 interface ConfirmationStepProps {
   /** ID of the payment that succeeded for the main checkout (`pay_xxx`). Display only. */
   paymentId: string | null;
@@ -75,11 +60,10 @@ export function ConfirmationStep({ paymentId, orderId, onReset }: ConfirmationSt
       // Step 2: one-click MIT charge against the stored instrument
       // from the main order. `mainOrderId` MUST be the order id
       // (`order_xxx`), never the payment id (`pay_xxx`).
-      const raw = await payPreviewedOffer({
+      const result = await payPreviewedOffer({
         offerId: offer.id,
         mainOrderId: orderId,
       });
-      const result = raw as unknown as UpsellPayResult;
 
       // Step 3: the upsell endpoint does NOT auto-handle 3DS — it
       // returns the payment object as-is. We must inspect status here.
