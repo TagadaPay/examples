@@ -23,11 +23,18 @@ export function Cart() {
         ...(l.priceId ? { priceId: l.priceId } : {}),
       }));
 
-      const result = await client.checkout.createSession({ items, currency });
+      // createSessionUrl creates the session and returns a self-hosted
+      // redirect URL of the form `/checkout?checkoutToken=…&sessionToken=…`
+      // — the convention parseTokensFromUrl reads on the next page.
+      const { url } = await client.checkout.createSessionUrl({
+        items,
+        currency,
+        checkoutPath: '/checkout',
+      });
 
-      navigate(
-        `/checkout?checkoutToken=${encodeURIComponent(result.checkoutToken)}&sessionToken=${encodeURIComponent(result.sessionToken)}`,
-      );
+      // SPA navigate keeps client state. Strip origin to use react-router.
+      const path = url.replace(window.location.origin, '');
+      navigate(path);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not start checkout');
     } finally {

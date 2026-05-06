@@ -9,18 +9,28 @@ import { BRAND } from '../lib/config';
  * Confirmation page. We:
  *   1. Show the success message + order id.
  *   2. Pull post-purchase upsell offers (`useOffers().listOffers`).
- *   3. Let the buyer accept any offer in one click — `payPreviewedOffer` charges
- *      the same instrument used for the main order, no card re-entry.
+ *   3. Let the buyer accept any offer in one click — `processOfferPayment`
+ *      charges the stored instrument from the main order and handles 3DS
+ *      / redirects automatically. After a redirect-and-return the
+ *      `onOfferAccepted` / `onOfferDeclined` callback fires.
  */
 export function ThankYou() {
   const { orderId } = useParams<{ orderId: string }>();
-  const { listOffers, previewOffer, payPreviewedOffer, isLoading } = useOffers();
-
-  const [offers, setOffers] = useState<Offer[]>([]);
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
   const [accepted, setAccepted] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [offers, setOffers] = useState<Offer[]>([]);
   const [loaded, setLoaded] = useState(false);
+
+  const { listOffers, previewOffer, processOfferPayment, isLoading } = useOffers({
+    onOfferAccepted: () => {
+      // Resume after 3DS return — we don't know which offer it was, so
+      // refresh the list and rely on the order page for the source of
+      // truth. The accepted state is rebuilt from the order on next load.
+      setError(null);
+    },
+    onOfferDeclined: (res) => setError(res.error),
+  });
 
   useEffect(() => {
     listOffers({ type: 'upsell' })
@@ -43,34 +53,16 @@ export function ThankYou() {
       // between list time and click time (currency switch, A/B test, etc.).
       await previewOffer({ offerId: offer.id });
 
-      // One-click MIT charge against the stored instrument from the main
-      // order. `pay-preview` does NOT auto-handle 3DS or polling — the
-      // response status is the source of truth. Inspect it.
-      const result = await payPreviewedOffer({ offerId: offer.id, mainOrderId: orderId });
+      // One-click MIT charge. processOfferPayment handles 3DS redirects
+      // and polling; if a redirect is needed the browser navigates to
+      // the bank and resumes here on return (callbacks above).
+      const result = await processOfferPayment({ offerId: offer.id, mainOrderId: orderId });
 
-      const status = result.payment?.status;
-      const requireAction = result.payment?.requireAction;
-
-      if (status === 'succeeded') {
+      if (result.status === 'succeeded') {
         setAccepted((prev) => new Set(prev).add(offer.id));
-        return;
       }
-
-      if (requireAction && requireAction !== 'none') {
-        // Card needs SCA / 3DS for this MIT charge. We can't challenge
-        // in-place here without redesigning the post-purchase flow, so
-        // fail gracefully — the original order is unaffected.
-        setError(
-          'This card requires extra authentication and could not be added in one click. Your original order is unchanged.',
-        );
-        return;
-      }
-
-      setError(
-        status === 'declined' || status === 'failed'
-          ? 'Card was declined for this add-on. Your original order is unchanged.'
-          : `Could not add to your order (status: ${status ?? 'unknown'}).`,
-      );
+      // 'requires_redirect' → page is navigating away; nothing to do.
+      // 'failed' → onOfferDeclined fired and set error already.
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not add to your order');
     } finally {

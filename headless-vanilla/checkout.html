@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tagada · Checkout</title>
+    <link rel="stylesheet" href="./assets/style.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "@tagadapay/core-js": "https://cdn.jsdelivr.net/npm/@tagadapay/core-js@3/dist/index.js"
+        }
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@tagadapay/headless-sdk@1/dist/tagada-headless.min.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a href="./index.html"><strong>Tagada Vanilla</strong></a>
+    </header>
+
+    <main class="checkout">
+      <div id="resume-banner" class="banner" hidden></div>
+
+      <section class="form-pane">
+        <h1>Checkout</h1>
+
+        <div id="loading" class="muted">Loading session…</div>
+
+        <form id="checkout-form" hidden>
+          <fieldset>
+            <legend>Contact</legend>
+            <label>Email <input id="email" type="email" autocomplete="email" required /></label>
+            <div class="row">
+              <label>First name <input id="firstName" autocomplete="given-name" required /></label>
+              <label>Last name <input id="lastName" autocomplete="family-name" required /></label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Shipping address</legend>
+            <label>Address <input id="line1" autocomplete="address-line1" required /></label>
+            <label>Apt, suite (optional) <input id="line2" autocomplete="address-line2" /></label>
+            <div class="row">
+              <label>City <input id="city" autocomplete="address-level2" required /></label>
+              <label>Country
+                <select id="country" autocomplete="country">
+                  <option value="US" selected>United States</option>
+                  <option value="CA">Canada</option>
+                  <option value="GB">United Kingdom</option>
+                  <option value="FR">France</option>
+                </select>
+              </label>
+            </div>
+            <div class="row">
+              <label>State <input id="state" autocomplete="address-level1" /></label>
+              <label>ZIP <input id="postalCode" autocomplete="postal-code" required /></label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Payment</legend>
+            <label>Card number <input id="cardNumber" inputmode="numeric" autocomplete="cc-number" placeholder="4242 4242 4242 4242" required /></label>
+            <div class="row">
+              <label>Expiry <input id="cardExp" placeholder="MM/YY" autocomplete="cc-exp" required /></label>
+              <label>CVC <input id="cardCvc" inputmode="numeric" autocomplete="cc-csc" placeholder="123" required /></label>
+            </div>
+            <label>Cardholder name <input id="cardName" autocomplete="cc-name" required /></label>
+          </fieldset>
+
+          <p id="error" class="error" hidden></p>
+          <button id="submit-btn" type="submit" class="btn-primary">Pay</button>
+        </form>
+      </section>
+
+      <aside class="summary-pane">
+        <h2>Order summary</h2>
+        <div id="summary"><p class="muted">—</p></div>
+      </aside>
+    </main>
+
+    <script type="module" src="./assets/checkout.js"></script>
+  </body>
+</html>

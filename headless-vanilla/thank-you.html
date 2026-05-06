@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tagada · Thank you</title>
+    <link rel="stylesheet" href="./assets/style.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "@tagadapay/core-js": "https://cdn.jsdelivr.net/npm/@tagadapay/core-js@3/dist/index.js"
+        }
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@tagadapay/headless-sdk@1/dist/tagada-headless.min.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a href="./index.html"><strong>Tagada Vanilla</strong></a>
+    </header>
+
+    <main class="thank-you">
+      <section class="hero center">
+        <div class="check">✓</div>
+        <h1>Thank you for your order</h1>
+        <p class="muted">A confirmation is on its way to your inbox.</p>
+        <p id="order-id" class="pill"></p>
+      </section>
+
+      <section id="upsells-section" hidden>
+        <h2>One-time offer</h2>
+        <p class="muted small">Add these before your order ships — same card, no checkout to do twice.</p>
+        <p id="upsell-error" class="error" hidden></p>
+        <div id="upsells" class="grid"></div>
+      </section>
+
+      <p class="center">
+        <a class="btn-secondary" href="./index.html">Continue shopping</a>
+      </p>
+    </main>
+
+    <script type="module" src="./assets/thank-you.js"></script>
+  </body>
+</html>

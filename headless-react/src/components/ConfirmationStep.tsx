@@ -19,13 +19,20 @@ interface ConfirmationStepProps {
 }
 
 export function ConfirmationStep({ paymentId, orderId, onReset }: ConfirmationStepProps) {
-  const { listOffers, previewOffer, payPreviewedOffer, isLoading } = useOffers();
   const [offers, setOffers] = useState<Offer[]>([]);
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
   const [acceptedIds, setAcceptedIds] = useState<Set<string>>(new Set());
   const [offerError, setOfferError] = useState<string | null>(null);
-
   const [offersLoaded, setOffersLoaded] = useState(false);
+
+  // useOffers handles 3DS redirects + return-URL polling automatically.
+  // - onOfferAccepted fires both on direct success and after a 3DS-return.
+  // - onOfferDeclined fires on terminal failure.
+  // - The hook redirects to the bank for us when the card needs SCA.
+  const { listOffers, previewOffer, processOfferPayment, isLoading } = useOffers({
+    onOfferAccepted: () => setOfferError(null),
+    onOfferDeclined: (res) => setOfferError(res.error),
+  });
 
   useEffect(() => {
     listOffers({ type: 'upsell' })
@@ -40,10 +47,6 @@ export function ConfirmationStep({ paymentId, orderId, onReset }: ConfirmationSt
   }, [listOffers]);
 
   const handleAcceptOffer = async (offer: Offer) => {
-    // Without the main order id we can't link the upsell to a parent order.
-    // Surface this clearly instead of silently submitting `paymentId` —
-    // the backend's customer-mismatch guard would silently no-op against
-    // an unknown id and we'd charge an unauthorized card.
     if (!orderId) {
       setOfferError(
         'Missing order id from main checkout — cannot link this upsell. Refresh and re-checkout.',
@@ -53,44 +56,22 @@ export function ConfirmationStep({ paymentId, orderId, onReset }: ConfirmationSt
     setAcceptingId(offer.id);
     setOfferError(null);
     try {
-      // Step 1: preview re-validates pricing right before charging.
-      // Useful if products were edited between list and click.
+      // Re-validate pricing right before charging — products can change
+      // between list time and click time (currency switch, A/B test, …).
       await previewOffer({ offerId: offer.id });
 
-      // Step 2: one-click MIT charge against the stored instrument
-      // from the main order. `mainOrderId` MUST be the order id
-      // (`order_xxx`), never the payment id (`pay_xxx`).
-      const result = await payPreviewedOffer({
+      // One-click MIT charge with full lifecycle handling. mainOrderId
+      // MUST be the order id (`order_xxx`), not the payment id.
+      const result = await processOfferPayment({
         offerId: offer.id,
         mainOrderId: orderId,
       });
 
-      // Step 3: the upsell endpoint does NOT auto-handle 3DS — it
-      // returns the payment object as-is. We must inspect status here.
-      const status = result.payment?.status;
-      const requireAction = result.payment?.requireAction;
-
-      if (status === 'succeeded') {
+      if (result.status === 'succeeded') {
         setAcceptedIds((prev) => new Set(prev).add(offer.id));
-        return;
       }
-
-      if (requireAction && requireAction !== 'none') {
-        // Card needs SCA / 3DS. For an MIT one-click flow we can't
-        // challenge the customer here without redesigning the funnel.
-        // Production stores typically fall back to a customer-present
-        // retry on a dedicated upsell page, or just decline gracefully.
-        setOfferError(
-          'This card needs additional authentication for one-click upsells and could not be charged.',
-        );
-        return;
-      }
-
-      setOfferError(
-        status === 'declined' || status === 'failed'
-          ? 'Card was declined for the upsell. Your original order is unaffected.'
-          : `Upsell payment status: ${status ?? 'unknown'}. Please try again.`,
-      );
+      // 'requires_redirect' → page is navigating away.
+      // 'failed' → onOfferDeclined fired and set error already.
     } catch (err) {
       setOfferError(err instanceof Error ? err.message : 'Failed to accept offer');
     } finally {
@@ -253,7 +234,10 @@ await tagada.offers.create({
           hookName="useOffers()"
           code={`import { useOffers } from '@tagadapay/headless-sdk/react';
 
-const { listOffers, previewOffer, payPreviewedOffer } = useOffers();
+const { listOffers, previewOffer, processOfferPayment } = useOffers({
+  onOfferAccepted: () => navigate('/upsell-2'),
+  onOfferDeclined: (res) => toast.error(res.error),
+});
 
 // 1. List available upsell offers after payment
 const offers = await listOffers({ type: 'upsell' });
@@ -261,16 +245,20 @@ const offers = await listOffers({ type: 'upsell' });
 // 2. Preview an offer (shows price, description)
 await previewOffer({ offerId: offers[0].id });
 
-// 3. One-click accept — charges the same card
-const result = await payPreviewedOffer({
+// 3. One-click accept — charges the same card.
+// processOfferPayment handles 3DS challenges, bank redirects, and
+// auto-resumes after the return — your callbacks fire either way.
+const result = await processOfferPayment({
   offerId: offers[0].id,
-  mainOrderId: order.id,    // ← order.id from processPayment, NOT payment.id
+  mainOrderId: order.id,    // ← order.id, NOT payment.id
 });
 
-// Always inspect status — pay-preview does NOT auto-handle 3DS / decline
-if (result.payment?.status !== 'succeeded') {
-  // requireAction = '3ds' / 'redirect' → fallback to a CIT retry page
-  // status = 'declined' / 'failed' → just inform the buyer
+switch (result.status) {
+  case 'succeeded':         // onOfferAccepted already fired
+  case 'requires_redirect': // browser is navigating to the bank
+    break;
+  case 'failed':            // onOfferDeclined already fired
+    break;
 }`}
         />
       </div>
