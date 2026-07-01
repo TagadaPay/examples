@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "seed": "tsx scripts/seed.ts",
+    "apply-tpa": "tsx scripts/apply-tpa.ts",
     "deploy": "tsx scripts/deploy.ts"
   },
   "dependencies": {

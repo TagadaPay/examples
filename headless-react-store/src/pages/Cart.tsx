@@ -1,46 +1,12 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useHeadlessClient } from '@tagadapay/headless-sdk/react';
+import { Link } from 'react-router-dom';
 import { useCart } from '../lib/cart';
+import { useStartCheckout } from '../lib/use-start-checkout';
 import { formatPrice } from '../lib/format';
+import { FreeShippingBar } from '../components/FreeShippingBar';
 
 export function Cart() {
   const { lines, itemCount, subtotalCents, currency, setQuantity, removeLine } = useCart();
-  const client = useHeadlessClient();
-  const navigate = useNavigate();
-
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleCheckout = async () => {
-    if (lines.length === 0) return;
-    setError(null);
-    setSubmitting(true);
-    try {
-      const items = lines.map((l) => ({
-        variantId: l.variantId,
-        quantity: l.quantity,
-        ...(l.priceId ? { priceId: l.priceId } : {}),
-      }));
-
-      // createSessionUrl creates the session and returns a self-hosted
-      // redirect URL of the form `/checkout?checkoutToken=…&sessionToken=…`
-      // — the convention parseTokensFromUrl reads on the next page.
-      const { url } = await client.checkout.createSessionUrl({
-        items,
-        currency,
-        checkoutPath: '/checkout',
-      });
-
-      // SPA navigate keeps client state. Strip origin to use react-router.
-      const path = url.replace(window.location.origin, '');
-      navigate(path);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not start checkout');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const { start: handleCheckout, submitting, error } = useStartCheckout();
 
   if (lines.length === 0) return <EmptyCart />;
 
@@ -114,6 +80,7 @@ export function Cart() {
 
         <aside className="space-y-4 rounded-2xl border border-ink-200 bg-white p-6 lg:sticky lg:top-24 lg:self-start">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-ink-700">Summary</h2>
+          <FreeShippingBar subtotalCents={subtotalCents} currency={currency} />
           <Row label="Subtotal" value={formatPrice(subtotalCents, currency)} />
           <Row label="Shipping" value={<span className="text-ink-500">Calculated at checkout</span>} />
           <Row label="Taxes" value={<span className="text-ink-500">Calculated at checkout</span>} />
@@ -132,8 +99,11 @@ export function Cart() {
             type="button"
             onClick={handleCheckout}
             disabled={submitting}
-            className="inline-flex h-12 w-full items-center justify-center rounded-full bg-ink-900 px-6 text-sm font-medium text-ink-50 transition hover:bg-ink-800 disabled:opacity-60"
+            className="btn-primary h-12 w-full px-6"
           >
+            {submitting && (
+              <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-ink-50/30 border-t-ink-50" />
+            )}
             {submitting ? 'Starting secure checkout…' : 'Checkout'}
           </button>
 
@@ -169,10 +139,7 @@ function EmptyCart() {
       </div>
       <h1 className="mt-6 font-display text-3xl font-medium tracking-tight text-ink-900">Your cart is empty</h1>
       <p className="mt-2 text-ink-500">Browse the collection and find something you'll love.</p>
-      <Link
-        to="/"
-        className="mt-6 inline-flex h-11 items-center rounded-full bg-ink-900 px-5 text-sm font-medium text-ink-50 hover:bg-ink-800"
-      >
+      <Link to="/" className="btn-primary mt-6 h-11 px-5">
         Shop the collection
       </Link>
     </section>

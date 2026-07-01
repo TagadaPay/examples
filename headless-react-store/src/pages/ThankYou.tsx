@@ -73,9 +73,9 @@ export function ThankYou() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-20">
       {/* Hero confirmation */}
-      <div className="rounded-3xl border border-ink-200 bg-white p-10 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
-          <svg className="h-6 w-6 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <div className="animate-fade-in rounded-3xl border border-ink-200 bg-white p-10 text-center shadow-sm">
+        <div className="mx-auto flex h-14 w-14 animate-cart-bump items-center justify-center rounded-full bg-emerald-100 ring-8 ring-emerald-50">
+          <svg className="h-7 w-7 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
           </svg>
         </div>
@@ -121,7 +121,7 @@ export function ThankYou() {
               return (
                 <article
                   key={offer.id}
-                  className="flex flex-col rounded-2xl border border-ink-200 bg-white p-4 transition hover:border-ink-300"
+                  className="flex flex-col rounded-2xl border border-ink-200 bg-white p-4 transition-all duration-200 hover:border-ink-300 hover:shadow-md"
                 >
                   <div className="flex gap-3">
                     <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-ink-100">
@@ -160,8 +160,11 @@ export function ThankYou() {
                         type="button"
                         onClick={() => handleAccept(offer)}
                         disabled={isAccepting || isLoading}
-                        className="inline-flex h-10 w-full items-center justify-center rounded-full bg-ink-900 px-4 text-xs font-medium text-ink-50 transition hover:bg-ink-800 disabled:opacity-60"
+                        className="btn-primary h-10 w-full px-4 text-xs"
                       >
+                        {isAccepting && (
+                          <span className="mr-2 h-3.5 w-3.5 animate-spin rounded-full border-2 border-ink-50/30 border-t-ink-50" />
+                        )}
                         {isAccepting ? 'Adding…' : 'Add to my order'}
                       </button>
                     )}
@@ -174,10 +177,7 @@ export function ThankYou() {
       )}
 
       <div className="mt-10 flex flex-col items-center gap-2">
-        <Link
-          to="/"
-          className="inline-flex h-11 items-center rounded-full border border-ink-300 bg-white px-5 text-sm font-medium text-ink-800 transition hover:bg-ink-100"
-        >
+        <Link to="/" className="btn-outline h-11 px-5">
           Continue shopping
         </Link>
         <p className="text-xs text-ink-400">

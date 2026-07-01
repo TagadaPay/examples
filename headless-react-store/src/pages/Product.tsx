@@ -3,12 +3,14 @@ import { Link, useParams } from 'react-router-dom';
 import { useCatalog } from '@tagadapay/headless-sdk/react';
 import type { CatalogProduct, CatalogVariant } from '@tagadapay/headless-sdk';
 import { useCart } from '../lib/cart';
+import { useCartUI } from '../lib/cart-ui';
 import { formatPrice } from '../lib/format';
 
 export function Product() {
   const { variantId } = useParams<{ variantId: string }>();
   const { products, isLoading, loadProducts } = useCatalog();
   const { addLine } = useCart();
+  const { open: openCart } = useCartUI();
 
   const [added, setAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -73,6 +75,7 @@ export function Product() {
 
         setAdded(true);
         window.setTimeout(() => setAdded(false), 1600);
+        openCart();
       }}
       added={added}
     />
@@ -111,7 +114,7 @@ function ProductDetail({
       </nav>
 
       <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-        <div className="aspect-square overflow-hidden rounded-3xl bg-ink-100 lg:sticky lg:top-24 lg:self-start">
+        <div className="aspect-square overflow-hidden rounded-3xl bg-ink-100 shadow-sm ring-1 ring-ink-900/5 lg:sticky lg:top-24 lg:self-start">
           {variant.imageUrl ? (
             <img src={variant.imageUrl} alt={product.name} className="h-full w-full object-cover" />
           ) : (
@@ -176,15 +179,16 @@ function ProductDetail({
             <button
               type="button"
               onClick={onAdd}
-              className="inline-flex h-12 flex-1 items-center justify-center rounded-full bg-ink-900 px-6 text-sm font-medium text-ink-50 transition hover:bg-ink-800 disabled:opacity-60"
+              className={`btn h-12 flex-1 px-6 shadow-sm hover:shadow-md ${
+                added
+                  ? 'bg-emerald-600 text-white hover:bg-emerald-600'
+                  : 'bg-ink-900 text-ink-50 hover:bg-ink-800'
+              }`}
               disabled={!variant.inStock}
             >
               {!variant.inStock ? 'Sold out' : added ? 'Added to cart ✓' : 'Add to cart'}
             </button>
-            <Link
-              to="/cart"
-              className="inline-flex h-12 items-center justify-center rounded-full border border-ink-300 bg-transparent px-6 text-sm font-medium text-ink-800 transition hover:bg-white"
-            >
+            <Link to="/cart" className="btn-outline h-12 px-6">
               View cart
             </Link>
           </div>
@@ -216,10 +220,7 @@ function NotFound() {
     <div className="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
       <p className="font-display text-3xl text-ink-900">Product not found</p>
       <p className="mt-2 text-ink-500">It may have been removed or never existed.</p>
-      <Link
-        to="/"
-        className="mt-6 inline-flex h-11 items-center rounded-full bg-ink-900 px-5 text-sm font-medium text-ink-50 hover:bg-ink-800"
-      >
+      <Link to="/" className="btn-primary mt-6 h-11 px-5">
         Back to shop
       </Link>
     </div>

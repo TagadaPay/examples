@@ -29,9 +29,62 @@ export function Checkout() {
   const checkoutToken = params.get('checkoutToken');
   const sessionToken = params.get('sessionToken') ?? undefined;
 
+  // Coming back from a 3DS / processor redirect? The buyer was sent to the
+  // `returnUrl` we set at session creation (this page), and the SDK appended
+  // `?paymentAction=requireAction&paymentActionStatus=completed&paymentId=…`.
+  // There's no checkoutToken on this hop, so finalize instead of bouncing to
+  // the cart. `usePayment()` auto-detects these params and resumes the payment.
+  const isRedirectReturn =
+    params.get('paymentAction') === 'requireAction' && !!params.get('paymentId');
+  if (isRedirectReturn) return <CheckoutResume />;
+
   if (!checkoutToken) return <Navigate to="/cart" replace />;
 
   return <CheckoutInner checkoutToken={checkoutToken} sessionToken={sessionToken} />;
+}
+
+/**
+ * Finalizes a payment after the buyer returns from a 3DS / APM redirect.
+ *
+ * `usePayment()` inspects the URL on mount, polls the payment to completion,
+ * and fires `onPaymentSuccess` / `onPaymentFailed`. We just render progress
+ * and let those callbacks drive navigation.
+ */
+function CheckoutResume() {
+  const navigate = useNavigate();
+  const { clear } = useCart();
+  const [failed, setFailed] = useState<string | null>(null);
+
+  usePayment({
+    onPaymentSuccess: (result) => {
+      clear();
+      const id = result.order?.id ?? result.payment.id;
+      navigate(`/thank-you/${encodeURIComponent(id)}`, { replace: true });
+    },
+    onPaymentFailed: (result) => {
+      setFailed(result.error || 'Your payment could not be completed.');
+    },
+  });
+
+  return (
+    <section className="mx-auto flex max-w-md flex-col items-center px-4 py-24 text-center sm:px-6">
+      {failed ? (
+        <>
+          <h1 className="font-display text-2xl font-medium text-ink-900">Payment not completed</h1>
+          <p className="mt-2 text-sm text-ink-500">{failed}</p>
+          <Link to="/cart" className="btn-primary mt-6 h-11 px-5">
+            Back to cart
+          </Link>
+        </>
+      ) : (
+        <>
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-ink-200 border-t-ink-900" />
+          <h1 className="mt-6 font-display text-2xl font-medium text-ink-900">Finalizing your payment…</h1>
+          <p className="mt-2 text-sm text-ink-500">Hang tight, this only takes a moment.</p>
+        </>
+      )}
+    </section>
+  );
 }
 
 function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string; sessionToken?: string }) {
@@ -631,8 +684,11 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
             type="button"
             onClick={handlePlaceOrder}
             disabled={!fieldsFilled || isBusy || isCheckoutLoading || !session?.id}
-            className="inline-flex h-12 w-full items-center justify-center rounded-full bg-ink-900 px-6 text-sm font-medium text-ink-50 transition hover:bg-ink-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="btn-primary h-12 w-full px-6"
           >
+            {isBusy && (
+              <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-ink-50/30 border-t-ink-50" />
+            )}
             {placeOrderLabel}
           </button>
 
@@ -643,7 +699,7 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
 
         {/* ─── Right: order summary ─── */}
         <aside className="lg:sticky lg:top-24 lg:h-fit">
-          <div className="rounded-2xl border border-ink-200 bg-white">
+          <div className="rounded-2xl border border-ink-200 bg-white shadow-sm">
             <div className="flex items-center justify-between border-b border-ink-200 px-5 py-4">
               <p className="text-xs font-semibold uppercase tracking-widest text-ink-700">Order summary</p>
               <Link to="/cart" className="text-xs text-ink-500 underline-offset-2 hover:text-ink-900 hover:underline">
@@ -654,11 +710,13 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
             <ul className="divide-y divide-ink-100">
               {(session?.items ?? []).map((item, i) => (
                 <li key={`${item.variantId}-${i}`} className="flex gap-3 px-5 py-4">
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-ink-100">
-                    {item.imageUrl ? (
-                      <img src={item.imageUrl} alt={item.productName} className="h-full w-full object-cover" />
-                    ) : null}
-                    <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-ink-900 px-1 text-[10px] font-medium text-ink-50">
+                  <div className="relative h-16 w-16 shrink-0">
+                    <div className="h-full w-full overflow-hidden rounded-lg border border-ink-200/70 bg-ink-100">
+                      {item.imageUrl ? (
+                        <img src={item.imageUrl} alt={item.productName} className="h-full w-full object-cover" />
+                      ) : null}
+                    </div>
+                    <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-ink-900 px-1 text-[10px] font-medium text-ink-50 ring-2 ring-white">
                       {item.quantity}
                     </span>
                   </div>
@@ -702,7 +760,7 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
                     type="button"
                     onClick={handleApplyPromo}
                     disabled={!promoCode.trim() || promoStatus === 'applying'}
-                    className="rounded-xl border border-ink-300 bg-white px-4 text-xs font-medium text-ink-800 hover:bg-ink-50 disabled:opacity-40"
+                    className="shrink-0 rounded-xl border border-ink-300 bg-white px-4 text-xs font-medium text-ink-800 transition-all duration-200 hover:bg-ink-50 active:scale-[0.97] disabled:opacity-40"
                   >
                     {promoStatus === 'applying' ? '…' : 'Apply'}
                   </button>
@@ -752,8 +810,7 @@ function CheckoutInner({ checkoutToken, sessionToken }: { checkoutToken: string;
   );
 }
 
-const inputClass =
-  'w-full rounded-xl border border-ink-300 bg-white px-3.5 py-3 text-sm text-ink-900 placeholder-ink-400 outline-none transition focus:border-ink-900 focus:ring-1 focus:ring-ink-900';
+const inputClass = 'input';
 
 function Section({
   title,

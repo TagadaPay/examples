@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { TagadaHeadlessProvider } from '@tagadapay/headless-sdk/react';
 import { ENVIRONMENT, STORE_ID } from './lib/config';
+import { CartUIProvider } from './lib/cart-ui';
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { Product } from './pages/Product';
@@ -15,19 +16,21 @@ import { ThankYou } from './pages/ThankYou';
 export default function App() {
   return (
     <TagadaHeadlessProvider storeId={STORE_ID} environment={ENVIRONMENT}>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/product/:variantId" element={<Product />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/thank-you/:orderId" element={<ThankYou />} />
-            <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <CartUIProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/product/:variantId" element={<Product />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/thank-you/:orderId" element={<ThankYou />} />
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </CartUIProvider>
     </TagadaHeadlessProvider>
   );
 }
@@ -57,7 +60,7 @@ function NotFound() {
     <section className="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
       <p className="font-mono text-xs uppercase tracking-[0.2em] text-ink-400">404</p>
       <h1 className="mt-2 font-display text-4xl font-medium text-ink-900">Page not found</h1>
-      <a href="/" className="mt-6 inline-flex h-11 items-center rounded-full bg-ink-900 px-5 text-sm font-medium text-ink-50 hover:bg-ink-800">
+      <a href="/" className="btn-primary mt-6 h-11 px-5">
         Back to shop
       </a>
     </section>

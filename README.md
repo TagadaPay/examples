@@ -88,6 +88,29 @@ authentication dance for you.
 
 ---
 
+## Take real payments (a TPA)
+
+The sandbox above never touches a bank. To charge real cards you route a
+store through a **TPA** (*TagadaPay Account*, `tpa_xxx`) — a KYB-approved
+legal entity charging through Adyen / Stripe behind Tagada. You don't
+create one; you **apply**, and Tagada provisions it after review.
+
+The `headless-react-store` example does this end to end, from the terminal,
+with the same CRM key you already have:
+
+```bash
+cd headless-react-store
+pnpm apply-tpa $TAGADA_API_KEY               # 1. apply (edit your business details first)
+pnpm apply-tpa $TAGADA_API_KEY --status ent_xxx   # 2. poll until approved
+pnpm apply-tpa $TAGADA_API_KEY --tpas        # 3. list activated TPAs
+pnpm seed $TAGADA_API_KEY --tpa tpa_xxx      # 4. plug it into the store — live
+```
+
+Full walkthrough: [headless-react-store §3b](./headless-react-store#3b--go-live-with-a-real-tagadapay-tpa).
+Field reference: [Apply for TagadaPay Processing](https://docs.tagada.io/developer-tools/node-sdk/processing-applications).
+
+---
+
 ## Want to put it on the internet?
 
 The two React storefronts come with a one-command deploy script that

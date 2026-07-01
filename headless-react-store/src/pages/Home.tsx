@@ -27,24 +27,21 @@ export function Home() {
               the north. Keep the receipts — keep the code.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a
-                href="#shop"
-                className="inline-flex h-12 items-center rounded-full bg-ink-900 px-6 text-sm font-medium text-ink-50 transition hover:bg-ink-800"
-              >
+              <a href="#shop" className="btn-primary h-12 px-6">
                 Shop the collection
               </a>
               <a
                 href="https://docs.tagada.io/developer-tools/headless-sdk/build-store-with-ai"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-12 items-center rounded-full border border-ink-300 bg-transparent px-6 text-sm font-medium text-ink-800 transition hover:bg-white"
+                className="btn-outline h-12 px-6"
               >
                 Fork this template
               </a>
             </div>
           </div>
 
-          <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-ink-200">
+          <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-ink-200 shadow-sm ring-1 ring-ink-900/5">
             <img
               src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&h=1500&fit=crop&q=80"
               alt="Hero"
@@ -104,21 +101,40 @@ export function Home() {
 
       {/* Trust strip */}
       <section className="border-t border-ink-200/60 bg-white">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-12 text-sm sm:grid-cols-3 sm:px-6 lg:px-8">
-          <TrustItem title="Free shipping" body="On orders over $50 in the US." />
-          <TrustItem title="30-day returns" body="No questions asked. Easy returns." />
-          <TrustItem title="Secure payments" body="3DS, PCI-DSS L1, multi-PSP routing." />
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 text-sm sm:grid-cols-3 sm:px-6 lg:px-8">
+          <TrustItem
+            title="Free shipping"
+            body="On orders over $50 in the US."
+            icon="M2.25 6.75h9.75v9.75H2.25zM12 9h4.5l3 3v4.5H12zM6 19.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm10.5 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"
+          />
+          <TrustItem
+            title="30-day returns"
+            body="No questions asked. Easy returns."
+            icon="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"
+          />
+          <TrustItem
+            title="Secure payments"
+            body="3DS, PCI-DSS L1, multi-PSP routing."
+            icon="M12 3 4.5 6v5.25c0 4.28 3.2 8.29 7.5 9.75 4.3-1.46 7.5-5.47 7.5-9.75V6L12 3z"
+          />
         </div>
       </section>
     </>
   );
 }
 
-function TrustItem({ title, body }: { title: string; body: string }) {
+function TrustItem({ title, body, icon }: { title: string; body: string; icon: string }) {
   return (
-    <div>
-      <p className="font-medium text-ink-900">{title}</p>
-      <p className="mt-1 text-ink-500">{body}</p>
+    <div className="flex items-start gap-3">
+      <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink-100 text-ink-700">
+        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+          <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
+        </svg>
+      </span>
+      <div>
+        <p className="font-medium text-ink-900">{title}</p>
+        <p className="mt-1 text-ink-500">{body}</p>
+      </div>
     </div>
   );
 }

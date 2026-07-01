@@ -3,7 +3,7 @@
  * seed.ts — Provision a complete demo store in ~10 seconds.
  *
  * Creates, in order:
- *   1. Sandbox processor (test mode, no real charges)
+ *   1. Processor — a sandbox by default, OR a real TagadaPay TPA with --tpa
  *   2. Payment flow (single-processor, simple routing)
  *   3. Store (USD/EUR)
  *   4. Six demo apparel products
@@ -13,11 +13,14 @@
  *   8. .env file pointing the demo at the new store
  *
  * Usage:
- *   pnpm seed <YOUR_API_KEY>
+ *   pnpm seed <YOUR_API_KEY>                    # sandbox processor (no real charges)
+ *   pnpm seed <YOUR_API_KEY> --tpa <tpa_id>     # route through a real TagadaPay TPA
  *   # or
- *   npx tsx scripts/seed.ts <YOUR_API_KEY>
+ *   npx tsx scripts/seed.ts <YOUR_API_KEY> [--tpa <tpa_id>]
  *
  * Get your API key at https://app.tagada.io → Settings → Access Tokens.
+ * The TPA must belong to the same account as the API key, and be ACTIVATED
+ * (activation auto-creates the `tagadapay-router` processor this looks up).
  *
  * To customise this store for your own brand, edit `PRODUCTS` and
  * `STORE_CONFIG` below — that's it.
@@ -126,10 +129,30 @@ const PRODUCTS: SeedProduct[] = [
 // CLI
 // ─────────────────────────────────────────────────────────────────────────────
 
-const apiKey = process.argv[2];
+// First positional arg is the API key; anything else is a flag.
+const args = process.argv.slice(2);
+const apiKey = args.find((a) => !a.startsWith('--'));
+
+// `--tpa=tpa_xxx` (or `--tpa tpa_xxx`) routes the store through a real
+// TagadaPay TPA instead of the sandbox processor. See "Use a real TagadaPay
+// TPA" in the README.
+const tpaFlagIndex = args.findIndex((a) => a === '--tpa' || a.startsWith('--tpa='));
+const tpaId =
+  tpaFlagIndex === -1
+    ? undefined
+    : args[tpaFlagIndex].includes('=')
+      ? args[tpaFlagIndex].split('=')[1]
+      : args[tpaFlagIndex + 1];
+
 if (!apiKey) {
-  console.error('\n  Usage: pnpm seed <YOUR_API_KEY>\n');
-  console.error('  Get your key at: https://app.tagada.io → Settings → Access Tokens\n');
+  console.error('\n  Usage: pnpm seed <YOUR_API_KEY> [--tpa <tpa_id>]\n');
+  console.error('  Get your key at: https://app.tagada.io → Settings → Access Tokens');
+  console.error('  --tpa <tpa_id>  route payments through a real TagadaPay TPA (default: sandbox)\n');
+  process.exit(1);
+}
+
+if (tpaFlagIndex !== -1 && !tpaId) {
+  console.error('\n  --tpa needs a TPA id, e.g. --tpa tpa_fb15b76112a8\n');
   process.exit(1);
 }
 
@@ -152,32 +175,62 @@ function priceMap(usd: number, eur?: number) {
 async function main() {
   console.log('\n  ──  Seeding TagadaPay demo store  ──\n');
 
-  // 1. Processor
-  log('⚙️ ', 'Creating sandbox processor…');
-  const { processor } = await tagada.processors.create({
-    processor: {
-      name: 'Demo Sandbox',
-      type: 'sandbox',
-      enabled: true,
-      supportedCurrencies: [...STORE_CONFIG.presentmentCurrencies],
-      baseCurrency: STORE_CONFIG.baseCurrency,
-      options: { testMode: true },
-    },
-  });
-  sub(`processor: ${processor.id}`);
+  // 1. Processor — either a real TagadaPay TPA (--tpa) or a sandbox.
+  //
+  //    A TagadaPay TPA (a merchant onboarded on Adyen/Stripe behind Tagada)
+  //    is exposed to the API as a `tagadapay-router` processor. When a TPA is
+  //    activated, Tagada auto-creates that processor for you — you don't create
+  //    it here, you just look it up and route a payment flow through it.
+  let processorId: string;
 
-  // 2. Payment flow
+  if (tpaId) {
+    log('🏦 ', `Resolving TagadaPay TPA ${tpaId}…`);
+    const { processors } = await tagada.processors.list();
+    const router = processors.find(
+      (p) =>
+        p.type === 'tagadapay-router' &&
+        (p.options as { tagadapayAccountId?: string } | undefined)?.tagadapayAccountId === tpaId,
+    );
+    if (!router) {
+      console.error(
+        `\n  ❌  No tagadapay-router processor found for ${tpaId} on this account.\n` +
+          `     Make sure the TPA is ACTIVATED — activation auto-creates the router\n` +
+          `     processor. Then re-run with --tpa ${tpaId}.\n`,
+      );
+      process.exit(1);
+    }
+    processorId = router.id;
+    sub(`processor: ${router.id} (tagadapay-router → ${tpaId})`);
+  } else {
+    log('⚙️ ', 'Creating sandbox processor…');
+    const { processor } = await tagada.processors.create({
+      processor: {
+        name: 'Demo Sandbox',
+        type: 'sandbox',
+        enabled: true,
+        supportedCurrencies: [...STORE_CONFIG.presentmentCurrencies],
+        baseCurrency: STORE_CONFIG.baseCurrency,
+        options: { testMode: true },
+      },
+    });
+    processorId = processor.id;
+    sub(`processor: ${processor.id} (sandbox)`);
+  }
+
+  // 2. Payment flow — routes payments to the processor above. A real TPA
+  //    handles 3DS at the PSP/acquirer level, so we leave threeDsEnabled off
+  //    (that flag toggles Tagada's *standalone* 3DS, which you rarely need).
   log('🔌 ', 'Creating payment flow…');
   const flow = await tagada.paymentFlows.create({
     data: {
-      name: 'Demo Flow',
+      name: tpaId ? 'TPA Flow' : 'Demo Flow',
       strategy: 'simple',
       fallbackMode: false,
       maxFallbackRetries: 0,
       threeDsEnabled: false,
       stickyProcessorEnabled: false,
       pickProcessorStrategy: 'weighted',
-      processorConfigs: [{ processorId: processor.id, weight: 100, disabled: false, nonStickable: false }],
+      processorConfigs: [{ processorId, weight: 100, disabled: false, nonStickable: false }],
       fallbackProcessorConfigs: [],
       abuseDetectionConfig: null,
     },
@@ -369,12 +422,18 @@ async function main() {
   console.log(`  Store ID    ${store.id}`);
   console.log(`  Products    ${created.length}`);
   console.log(`  Upsells     ${[tote, beanie].filter(Boolean).length}`);
-  console.log(`  Processor   sandbox (no real charges)\n`);
+  console.log(
+    `  Processor   ${tpaId ? `TagadaPay TPA ${tpaId} (real charges!)` : 'sandbox (no real charges)'}\n`,
+  );
   console.log('  Next:\n');
   console.log('    pnpm dev     — open the store at http://localhost:5173');
   console.log('    pnpm build   — production build');
   console.log('    pnpm deploy  — push to TagadaPay edge CDN\n');
-  console.log('  Test card    4242 4242 4242 4242 · 12/28 · 123\n');
+  if (tpaId) {
+    console.log('  ⚠️  This store routes to a LIVE TPA — use a real card, and refund test orders.\n');
+  } else {
+    console.log('  Test card    4242 4242 4242 4242 · 12/28 · 123\n');
+  }
 }
 
 main().catch((err) => {
