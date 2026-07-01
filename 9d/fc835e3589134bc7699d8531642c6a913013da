@@ -1,0 +1,96 @@
+headless-react-store/src/pages/ThankYou.tsx
+  s_6ba4630173a270::t_a262c6c01b4a09 180
+  s_6ba4630173a270::t_1b7a595331925c 124
+  s_6ba4630173a270::t_668bf56c5c3a98 163,165-167
+  s_6ba4630173a270::t_30b7b7f3ef8797 76-78
+headless-react-store/src/pages/Cart.tsx
+  s_6ba4630173a270::t_0279225114656b 1,3,5,9
+  s_6ba4630173a270::t_a6ce99a06d9f1a 102,104-106
+  s_6ba4630173a270::t_a0d8031196ea97 83
+  s_6ba4630173a270::t_7ec5bb8a1bc8f8 142
+headless-react-store/src/pages/Checkout.tsx
+  s_6ba4630173a270::t_7aca4ae8adb22b 702
+  s_6ba4630173a270::t_8fb39564127406 763
+  s_6ba4630173a270::t_6d6525d4831fd5 813
+  s_6ba4630173a270::t_844f97ec50a1da 75
+  s_6ba4630173a270::t_8d5e22d3c40c23 687,689-691
+  s_6ba4630173a270::t_9e4ea0f5eab2e6 32-40,46-74,76-87
+  s_6ba4630173a270::t_ff727b24cbc4bb 713-719
+  s_6ba4630173a270::t_733988d1dc4b48 88-89
+headless-react-store/src/pages/Product.tsx
+  s_6ba4630173a270::t_5ae8159e94f866 6,13
+  s_6ba4630173a270::t_bc03f8d3d3386c 78
+  s_6ba4630173a270::t_6687e14cf26c2d 117
+  s_6ba4630173a270::t_abecc096059860 223
+  s_6ba4630173a270::t_98395e2228bac1 182-186,191
+headless-react-store/scripts/seed.ts
+  s_6ba4630173a270::t_be7b4abcc43d0a 178-218,220-222,226,233
+  s_6ba4630173a270::t_4756197d89a222 6,16-17,19,22-23
+  s_6ba4630173a270::t_9f576cfc2b3b12 132-146,148-155
+  s_6ba4630173a270::t_0fdf915ca1b114 425-427,432-436
+headless-react-store/README.md
+  s_6ba4630173a270::t_6ef2be85fded21 117
+  s_6ba4630173a270::t_e1bc49c5ad62c6 107-108
+  s_6ba4630173a270::t_348af64fc779cf 71-72
+  s_6ba4630173a270::t_389c556e09291b 21
+  s_6ba4630173a270::t_0993c504df1505 90-93,96,101-103
+  s_6ba4630173a270::t_c8e6cf76f7f463 197,200-202,204-205,208-241,244-249,279-280
+  s_6ba4630173a270::t_0b9e1d5e3977da 198-199,203,206-207,242-243,250-278,281-295
+headless-react-store/tailwind.config.js
+  s_6ba4630173a270::t_8bf33751484ac0 26-28
+headless-react-store/src/lib/use-start-checkout.ts
+  s_6ba4630173a270::t_a59f56d83dee15 1-58
+README.md
+  s_6ba4630173a270::t_259bab6215ae54 91-113
+headless-react-store/src/lib/cart-ui.tsx
+  s_6ba4630173a270::t_701f396797f3b0 1-32
+headless-react-store/package.json
+  s_6ba4630173a270::t_7497ae93fd8315 12
+headless-react-store/src/components/FreeShippingBar.tsx
+  s_6ba4630173a270::t_f15d0df04f4206 1-41
+headless-react-store/src/index.css
+  s_6ba4630173a270::t_7c69d2ae50e49e 43,46
+  s_6ba4630173a270::t_07c1c0ff4e09ac 10,22-42,44-45,47-63,74-85
+headless-react-store/src/components/ProductCard.tsx
+  s_6ba4630173a270::t_a1a2a1e584b993 60
+  s_6ba4630173a270::t_842601be89b4c9 3-4,15-17,20-21,36-53,73-84,86-96
+  s_6ba4630173a270::t_169eb97f13eba6 85
+headless-react-store/src/pages/Home.tsx
+  s_6ba4630173a270::t_971fee95d82fbe 30,37,44
+  s_6ba4630173a270::t_d0fd6637590b33 104-119,126,128-129,131-137
+  s_6ba4630173a270::t_705acb0bf5b67e 130
+headless-react-store/scripts/apply-tpa.ts
+  s_6ba4630173a270::t_40a3dacec64138 1-193
+headless-react-store/src/App.tsx
+  s_6ba4630173a270::t_31f75feb12e12f 19-33
+  s_6ba4630173a270::t_f7f79eaf191f82 4
+  s_6ba4630173a270::t_58c0c2ba460f89 63
+headless-react-store/src/components/Layout.tsx
+  s_6ba4630173a270::t_8ad7d3957c2b3a 18,25-26
+  s_6ba4630173a270::t_2b658dfc940849 98,105
+  s_6ba4630173a270::t_b8877e1b25b505 70-84,94-97,99,112,115-126,134
+  s_6ba4630173a270::t_e30c5795350815 161-186
+  s_6ba4630173a270::t_c1764223feaed0 4-5
+  s_6ba4630173a270::t_516cc5fb821003 27
+headless-react-store/src/components/CartDrawer.tsx
+  s_6ba4630173a270::t_a9b6e732cfd0ac 84-88,91
+  s_6ba4630173a270::t_add26df1d1817d 190,192-194
+  s_6ba4630173a270::t_a30835c29b6e10 51
+  s_6ba4630173a270::t_6284f5b41544d4 1-50,52-83,89-90,92-189,191,195-210
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.8",
+  "base_commit_sha": "9dfc835e3589134bc7699d8531642c6a913013da",
+  "prompts": {},
+  "sessions": {
+    "s_6ba4630173a270": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "63fc30ef-7108-4af6-b24c-50396e6db540",
+        "model": "claude-opus-4-8-thinking-high"
+      },
+      "human_author": "Loïc DELOBEL <loic.delobel@gmail.com>"
+    }
+  }
+}
