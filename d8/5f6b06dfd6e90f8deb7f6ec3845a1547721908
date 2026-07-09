@@ -1,0 +1,48 @@
+mini-saas-billing/README.md
+  s_d3ba4adc660faa::t_3bb744588ad4b0 11-72
+  s_d3ba4adc660faa::t_5d23e325d76d72 1-10
+README.md
+  s_d3ba4adc660faa::t_f7e1e87a03e8d2 20
+mini-saas-billing/env.example
+  s_d3ba4adc660faa::t_f4913272e6d095 2-14
+  s_d3ba4adc660faa::t_2751e82dabbb48 1
+  s_d3ba4adc660faa::t_f5046c0dc73374 15-17
+mini-saas-billing/.gitignore
+  s_d3ba4adc660faa::t_1f8f4d29ebc9b3 1-4
+mini-saas-billing/package.json
+  s_d3ba4adc660faa::t_99d78f8d78efce 1-34
+mini-saas-billing/scripts/seed.ts
+  s_d3ba4adc660faa::t_e85a2bcac3fea6 1-115
+mini-saas-billing/scripts/verify-flow.ts
+  s_d3ba4adc660faa::t_9ee3979cea10b9 1-106
+mini-saas-billing/server/index.ts
+  s_d3ba4adc660faa::t_76b37020915191 1-162
+mini-saas-billing/tsconfig.json
+  s_d3ba4adc660faa::t_7a5c45a72e76a0 1-12
+mini-saas-billing/web/index.html
+  s_d3ba4adc660faa::t_438f1bad0d2606 1-12
+mini-saas-billing/web/src/App.tsx
+  s_d3ba4adc660faa::t_b07fdec0ad3443 1-280
+mini-saas-billing/web/src/main.tsx
+  s_d3ba4adc660faa::t_53716a2d9e7ac7 1-10
+mini-saas-billing/web/src/styles.css
+  s_d3ba4adc660faa::t_122ca54539b731 1-80
+mini-saas-billing/web/vite.config.ts
+  s_d3ba4adc660faa::t_e5b0d52e08730b 1-13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "d85f6b06dfd6e90f8deb7f6ec3845a1547721908",
+  "prompts": {},
+  "sessions": {
+    "s_d3ba4adc660faa": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "3a14f946-33f7-46fa-afaa-3565918c8622",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Loïc DELOBEL <loic.delobel@gmail.com>"
+    }
+  }
+}
