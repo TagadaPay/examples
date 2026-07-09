@@ -1,0 +1,34 @@
+{
+  "name": "mini-saas-billing",
+  "private": true,
+  "version": "1.0.0",
+  "description": "TagadaPay SaaS billing demo — core-js (frontend) + node-sdk (backend)",
+  "scripts": {
+    "dev": "concurrently -n server,web -c blue,green \"npm run dev:server\" \"npm run dev:web\"",
+    "dev:server": "tsx watch server/index.ts",
+    "dev:web": "vite --config web/vite.config.ts",
+    "seed": "tsx scripts/seed.ts",
+    "verify": "tsx scripts/verify-flow.ts",
+    "build": "vite build --config web/vite.config.ts"
+  },
+  "dependencies": {
+    "@tagadapay/core-js": "^3.1.0",
+    "@tagadapay/node-sdk": "^3.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^9.1.2",
+    "tsx": "^4.19.2",
+    "typescript": "~5.8.3",
+    "vite": "^7.1.2"
+  }
+}

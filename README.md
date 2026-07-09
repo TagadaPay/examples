@@ -17,6 +17,7 @@ Not sure where to start? This table should help.
 | Fork a real-looking storefront and rebrand it | [`headless-react-store/`](./headless-react-store) | ~60 s | `headless-sdk` |
 | Learn the React hooks one by one | [`headless-react/`](./headless-react) | ~60 s | `headless-sdk` |
 | Use the SDK from plain HTML/JS (no React, no build) | [`headless-vanilla/`](./headless-vanilla) | ~30 s | `headless-sdk` |
+| **Bill SaaS subscriptions (migrate from Stripe)** | [`mini-saas-billing/`](./mini-saas-billing) | ~2 min | `core-js` + `node-sdk` |
 | Charge a card end-to-end with 3DS | [`core-js-card-payment/`](./core-js-card-payment) | ~30 s | `core-js` |
 | Just tokenize a card (no payment) | [`core-js-tokenization/`](./core-js-tokenization) | ~30 s | `core-js` |
 | Add Apple Pay or Google Pay buttons | [`apple-google-tokenization/`](./apple-google-tokenization) | ~5 min* | `core-js` |
