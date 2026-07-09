@@ -79,7 +79,12 @@ app.post('/api/payments', async (req, res) => {
   }
 });
 
-/** POST /api/payments/continue — resume after 3DS / Radar */
+/**
+ * POST /api/payments/continue — resume after platform-hosted 3DS / Radar.
+ * This is the NORMAL 3DS path: the processor hosts the challenge
+ * (requireAction: 'redirect'), the customer authenticates and returns,
+ * then you continue the payment here.
+ */
 app.post('/api/payments/continue', async (req, res) => {
   try {
     const { paymentId } = req.body;
@@ -102,7 +107,14 @@ app.get('/api/payments/:id', async (req, res) => {
   }
 });
 
-/** POST /api/threeds/sessions — persist 3DS session before charging */
+/**
+ * POST /api/threeds/sessions — STANDALONE 3DS (the exception, rarely needed).
+ *
+ * Only for gateway-style processors (e.g. NMI) that accept pre-authenticated
+ * 3DS values on the charge. Hosted-3DS PSPs (Adyen, Stripe, Checkout.com,
+ * TagadaPay TPAs) handle 3DS themselves: just charge with a `returnUrl` and
+ * handle `requireAction: 'redirect'` + `payments.continue()` — never call this.
+ */
 app.post('/api/threeds/sessions', async (req, res) => {
   try {
     const { provider, storeId, paymentInstrumentId, sessionData } = req.body;
