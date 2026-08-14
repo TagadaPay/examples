@@ -10,7 +10,11 @@ build, run two commands, and you're in.
 
 ## What's in here?
 
-Not sure where to start? This table should help.
+Not sure which path you need? Start at
+[Choose how you accept payments](https://docs.tagada.io/developer-tools/payments/choose-your-integration).
+Headless is for when TagadaPay manages the cart. If you already have the
+order, use `core-js` + `payments.process` — do not also create a Headless
+session for that first payment.
 
 | If you want to… | Open this | Time | SDK |
 |---|---|---|---|
@@ -18,7 +22,7 @@ Not sure where to start? This table should help.
 | Learn the React hooks one by one | [`headless-react/`](./headless-react) | ~60 s | `headless-sdk` |
 | Use the SDK from plain HTML/JS (no React, no build) | [`headless-vanilla/`](./headless-vanilla) | ~30 s | `headless-sdk` |
 | **Bill SaaS subscriptions (migrate from Stripe)** | [`mini-saas-billing/`](./mini-saas-billing) | ~2 min | `core-js` + `node-sdk` |
-| Charge a card end-to-end with 3DS | [`core-js-card-payment/`](./core-js-card-payment) | ~30 s | `core-js` |
+| Charge a card when you already have the order | [`core-js-card-payment/`](./core-js-card-payment) | ~30 s | `core-js` + `node-sdk` |
 | Just tokenize a card (no payment) | [`core-js-tokenization/`](./core-js-tokenization) | ~30 s | `core-js` |
 | Add Apple Pay or Google Pay buttons | [`apple-google-tokenization/`](./apple-google-tokenization) | ~5 min* | `core-js` |
 
@@ -155,6 +159,7 @@ You'll need:
 
 ## Want to read more?
 
+- **[Choose how you accept payments](https://docs.tagada.io/developer-tools/payments/choose-your-integration)** — Headless vs core-js vs Plugin vs `payments.process`
 - **[Build a Store with AI + TagadaPay](https://docs.tagada.io/developer-tools/headless-sdk/build-store-with-ai)** — paste these prompts into Claude or Cursor
 - [Headless SDK introduction](https://docs.tagada.io/developer-tools/headless-sdk/introduction)
 - [Node SDK quick start](https://docs.tagada.io/developer-tools/node-sdk/quick-start)
