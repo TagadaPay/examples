@@ -1,0 +1,20 @@
+mini-saas-billing/server/index.ts
+  s_d3ba4adc660faa::t_1ac60e350cdcaa 110-117
+  s_d3ba4adc660faa::t_70519cbc835962 82-87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "7c1deb9960965e163f97251ccfb19bd715e30528",
+  "prompts": {},
+  "sessions": {
+    "s_d3ba4adc660faa": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "3a14f946-33f7-46fa-afaa-3565918c8622",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Loïc DELOBEL <loic.delobel@gmail.com>"
+    }
+  }
+}
