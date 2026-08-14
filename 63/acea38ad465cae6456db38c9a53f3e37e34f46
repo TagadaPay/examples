@@ -1,0 +1,20 @@
+README.md
+  s_84e25af5998f19::t_450fd50a7c6f45 13-17,24
+  s_84e25af5998f19::t_ec8bb69f3ef10d 161
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "63acea38ad465cae6456db38c9a53f3e37e34f46",
+  "prompts": {},
+  "sessions": {
+    "s_84e25af5998f19": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "d95e86f6-5d9b-4aa1-b27f-964f5eb6e90b",
+        "model": "grok-4.6"
+      },
+      "human_author": "Loïc DELOBEL <loic.delobel@gmail.com>"
+    }
+  }
+}
