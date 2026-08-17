@@ -2,7 +2,7 @@
 
 Hey! Welcome. This repo is the fastest way to see TagadaPay in action.
 
-Five small apps, each one does one thing well, all of them boot in
+Small apps, each one does one thing well, all of them boot in
 under a minute. Pick whichever one looks like what you're trying to
 build, run two commands, and you're in.
 
@@ -18,6 +18,7 @@ session for that first payment.
 
 | If you want to… | Open this | Time | SDK |
 |---|---|---|---|
+| **Walk a landing → OTO → downsell → thank you funnel** | [`basic-post-purchase/`](./basic-post-purchase) | ~60 s | `headless-sdk` |
 | Fork a real-looking storefront and rebrand it | [`headless-react-store/`](./headless-react-store) | ~60 s | `headless-sdk` |
 | Learn the React hooks one by one | [`headless-react/`](./headless-react) | ~60 s | `headless-sdk` |
 | Use the SDK from plain HTML/JS (no React, no build) | [`headless-vanilla/`](./headless-vanilla) | ~30 s | `headless-sdk` |
@@ -43,9 +44,9 @@ store with demo products, and drops the API key into `.env` for you.
 No dashboard, no signup form, no copy-pasting tokens.
 
 ```bash
-cd headless-react-store        # or any other example here
+cd basic-post-purchase         # or any other example here
 npx -p @tagadapay/node-sdk tagada-init you@example.com
-pnpm install && pnpm dev
+pnpm install && pnpm seed && pnpm dev
 ```
 
 Open <http://localhost:5173> and you're shopping. That's it.
@@ -159,6 +160,7 @@ You'll need:
 
 ## Want to read more?
 
+- **[Basic post-purchase funnel](https://docs.tagada.io/developer-tools/funnel-demos/basic-post-purchase)** — the tutorial that matches [`basic-post-purchase/`](./basic-post-purchase)
 - **[Choose how you accept payments](https://docs.tagada.io/developer-tools/payments/choose-your-integration)** — Headless vs core-js vs Plugin vs `payments.process`
 - **[Build a Store with AI + TagadaPay](https://docs.tagada.io/developer-tools/headless-sdk/build-store-with-ai)** — paste these prompts into Claude or Cursor
 - [Headless SDK introduction](https://docs.tagada.io/developer-tools/headless-sdk/introduction)
