@@ -19,6 +19,9 @@ session for that first payment.
 | If you want to… | Open this | Time | SDK |
 |---|---|---|---|
 | **Walk a landing → OTO → downsell → thank you funnel** | [`basic-post-purchase/`](./basic-post-purchase) | ~60 s | `headless-sdk` |
+| Route the post-purchase offer by visitor region (🇺🇸/🇪🇺/🌍) | [`geo-offers/`](./geo-offers) | ~60 s | `headless-sdk` |
+| Route the offer by CRM tags (⭐ VIP vs 🆕 new customer) | [`vip-tag-offers/`](./vip-tag-offers) | ~60 s | `headless-sdk` |
+| Route the offer by cart value (premium vs easy add-on) | [`cart-value-upsell/`](./cart-value-upsell) | ~60 s | `headless-sdk` |
 | Fork a real-looking storefront and rebrand it | [`headless-react-store/`](./headless-react-store) | ~60 s | `headless-sdk` |
 | Learn the React hooks one by one | [`headless-react/`](./headless-react) | ~60 s | `headless-sdk` |
 | Use the SDK from plain HTML/JS (no React, no build) | [`headless-vanilla/`](./headless-vanilla) | ~30 s | `headless-sdk` |
@@ -161,6 +164,7 @@ You'll need:
 ## Want to read more?
 
 - **[Basic post-purchase funnel](https://docs.tagada.io/developer-tools/funnel-demos/basic-post-purchase)** — the tutorial that matches [`basic-post-purchase/`](./basic-post-purchase)
+- **[Funnel demos](https://docs.tagada.io/developer-tools/funnel-demos/introduction)** — the routed variations: [geo-offers](https://docs.tagada.io/developer-tools/funnel-demos/geo-offers), [vip-tag-offers](https://docs.tagada.io/developer-tools/funnel-demos/vip-tag-offers), [cart-value-upsell](https://docs.tagada.io/developer-tools/funnel-demos/cart-value-upsell)
 - **[Choose how you accept payments](https://docs.tagada.io/developer-tools/payments/choose-your-integration)** — Headless vs core-js vs Plugin vs `payments.process`
 - **[Build a Store with AI + TagadaPay](https://docs.tagada.io/developer-tools/headless-sdk/build-store-with-ai)** — paste these prompts into Claude or Cursor
 - [Headless SDK introduction](https://docs.tagada.io/developer-tools/headless-sdk/introduction)
