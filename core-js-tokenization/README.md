@@ -1,5 +1,7 @@
 # Card Tokenization & 3DS Demo
 
+> 📘 **Step-by-step tutorial:** [Card tokenization & 3DS](https://docs.tagada.io/developer-tools/examples/card-tokenization)
+
 Complete demonstration of `@tagadapay/core-js` v2.0.0 with card tokenization, payment instrument creation, 3DS authentication, and payment processing.
 
 ## Features

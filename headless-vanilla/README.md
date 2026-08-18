@@ -1,5 +1,7 @@
 # Headless Vanilla Example
 
+> 📘 **Step-by-step tutorial:** [Checkout in plain HTML](https://docs.tagada.io/developer-tools/examples/headless-vanilla)
+
 A complete checkout funnel using **plain HTML + JavaScript** (no React,
 no build step) and the [TagadaPay Headless SDK](https://www.npmjs.com/package/@tagadapay/headless-sdk)
 loaded from a CDN.

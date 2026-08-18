@@ -1,5 +1,7 @@
 # Apple Pay & Google Pay Integration Demo
 
+> 📘 **Step-by-step tutorial:** [Apple Pay & Google Pay](https://docs.tagada.io/developer-tools/examples/apple-google-pay)
+
 Complete demonstration of `@tagadapay/core-js` v2.0.0 with Apple Pay, Google Pay, and traditional card tokenization, including payment instrument creation, 3DS authentication, and payment processing.
 
 ## Features

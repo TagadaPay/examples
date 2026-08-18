@@ -163,8 +163,15 @@ You'll need:
 
 ## Want to read more?
 
+**Every example here has a step-by-step tutorial on docs.tagada.io** — the
+[Examples catalog](https://docs.tagada.io/developer-tools/examples/introduction)
+maps each folder to its tutorial.
+
 - **[Basic post-purchase funnel](https://docs.tagada.io/developer-tools/funnel-demos/basic-post-purchase)** — the tutorial that matches [`basic-post-purchase/`](./basic-post-purchase)
 - **[Funnel demos](https://docs.tagada.io/developer-tools/funnel-demos/introduction)** — the routed variations: [geo-offers](https://docs.tagada.io/developer-tools/funnel-demos/geo-offers), [vip-tag-offers](https://docs.tagada.io/developer-tools/funnel-demos/vip-tag-offers), [cart-value-upsell](https://docs.tagada.io/developer-tools/funnel-demos/cart-value-upsell)
+- **[Checkout in plain HTML](https://docs.tagada.io/developer-tools/examples/headless-vanilla)** — the tutorial that matches [`headless-vanilla/`](./headless-vanilla)
+- **[Card tokenization & 3DS](https://docs.tagada.io/developer-tools/examples/card-tokenization)** — matches [`core-js-tokenization/`](./core-js-tokenization) and [`core-js-card-payment/`](./core-js-card-payment)
+- **[Apple Pay & Google Pay](https://docs.tagada.io/developer-tools/examples/apple-google-pay)** — matches [`apple-google-tokenization/`](./apple-google-tokenization)
 - **[Choose how you accept payments](https://docs.tagada.io/developer-tools/payments/choose-your-integration)** — Headless vs core-js vs Plugin vs `payments.process`
 - **[Build a Store with AI + TagadaPay](https://docs.tagada.io/developer-tools/headless-sdk/build-store-with-ai)** — paste these prompts into Claude or Cursor
 - [Headless SDK introduction](https://docs.tagada.io/developer-tools/headless-sdk/introduction)
