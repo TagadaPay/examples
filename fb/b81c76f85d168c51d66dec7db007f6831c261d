@@ -1,0 +1,27 @@
+core-js-card-payment/README.md
+  s_991824b34dfeb9::t_7c3eed915b4944 1-39
+apple-google-tokenization/README.md
+  s_991824b34dfeb9::t_e36946899d2a2f 3-4
+README.md
+  s_991824b34dfeb9::t_48e08ff6963381 166-169,172-174
+headless-vanilla/README.md
+  s_991824b34dfeb9::t_ad7df94ac2fcaf 3-4
+core-js-tokenization/README.md
+  s_991824b34dfeb9::t_10ce8ee81a4159 3-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "fbb81c76f85d168c51d66dec7db007f6831c261d",
+  "prompts": {},
+  "sessions": {
+    "s_991824b34dfeb9": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "fc2aa26b-ab6e-4a6f-97c9-af911dd6a184",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Loïc DELOBEL <loic.delobel@gmail.com>"
+    }
+  }
+}
