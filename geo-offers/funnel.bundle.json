@@ -1,0 +1,311 @@
+{
+  "version": 1,
+  "id": "geo-offers",
+  "name": "Geo-based offers",
+  "description": "Campaign funnel: tee checkout, then US cap / EU beanie / rest-of-world tote.",
+  "products": [
+    {
+      "name": "Essential Tee",
+      "description": "The cart on landing / checkout.",
+      "isShippable": true,
+      "variants": [
+        {
+          "name": "Essential Tee",
+          "sku": "GEO-TEE",
+          "default": true,
+          "priceCents": 2999,
+          "currency": "USD",
+          "imageUrl": "https://v3b.fal.media/files/b/0a86aad1/NiNcgPJGRyc3lFl9y2KsI.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Varsity Cap",
+      "description": "One-click offer for US visitors.",
+      "isShippable": true,
+      "variants": [
+        {
+          "name": "Varsity Cap",
+          "sku": "GEO-CAP",
+          "default": true,
+          "priceCents": 1999,
+          "currency": "USD",
+          "imageUrl": "https://v3b.fal.media/files/b/0a86aad5/JlAc5Dxh-8N1HBKYKXsH-.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Alpine Beanie",
+      "description": "One-click offer for EU visitors.",
+      "isShippable": true,
+      "variants": [
+        {
+          "name": "Alpine Beanie",
+          "sku": "GEO-BEANIE",
+          "default": true,
+          "priceCents": 1799,
+          "currency": "USD",
+          "imageUrl": "https://v3b.fal.media/files/b/0a86aad2/ZJNj5AUvWOWZGdIhGDJeu.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Travel Tote",
+      "description": "One-click offer for everyone else.",
+      "isShippable": true,
+      "variants": [
+        {
+          "name": "Travel Tote",
+          "sku": "GEO-TOTE",
+          "default": true,
+          "priceCents": 2400,
+          "currency": "USD",
+          "imageUrl": "https://v3b.fal.media/files/b/0a86aad3/i2W3by-BzJ9PrcnDUX70k.jpg"
+        }
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "key": "us",
+      "type": "upsell",
+      "title": "Varsity Cap",
+      "lineItems": [
+        {
+          "sku": "GEO-CAP",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "key": "eu",
+      "type": "upsell",
+      "title": "Alpine Beanie",
+      "lineItems": [
+        {
+          "sku": "GEO-BEANIE",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "key": "row",
+      "type": "upsell",
+      "title": "Travel Tote",
+      "lineItems": [
+        {
+          "sku": "GEO-TOTE",
+          "quantity": 1
+        }
+      ]
+    }
+  ],
+  "funnel": {
+    "id": "geo-offers",
+    "name": "Geo-based offers",
+    "description": "One checkout, three localized one-click offers by visitor country.",
+    "version": "1.0.0",
+    "nodes": [
+      {
+        "id": "step_landing",
+        "name": "Landing",
+        "kind": "step",
+        "type": "landing",
+        "isEntry": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "config": {
+          "path": "/"
+        }
+      },
+      {
+        "id": "step_checkout",
+        "name": "Checkout",
+        "kind": "step",
+        "type": "checkout",
+        "isDefault": true,
+        "position": {
+          "x": 280,
+          "y": 0
+        },
+        "config": {
+          "path": "/checkout"
+        }
+      },
+      {
+        "id": "step_offer_us",
+        "name": "US offer",
+        "kind": "step",
+        "type": "offer",
+        "position": {
+          "x": 620,
+          "y": -160
+        },
+        "config": {
+          "path": "/offer-us/:orderId",
+          "stepConfig": {
+            "upsellOffers": {
+              "mode": "custom",
+              "enabledUpsellIds": [
+                "us"
+              ]
+            },
+            "resources": {
+              "offer": "us"
+            }
+          }
+        }
+      },
+      {
+        "id": "step_offer_eu",
+        "name": "EU offer",
+        "kind": "step",
+        "type": "offer",
+        "position": {
+          "x": 620,
+          "y": 0
+        },
+        "config": {
+          "path": "/offer-eu/:orderId",
+          "stepConfig": {
+            "upsellOffers": {
+              "mode": "custom",
+              "enabledUpsellIds": [
+                "eu"
+              ]
+            },
+            "resources": {
+              "offer": "eu"
+            }
+          }
+        }
+      },
+      {
+        "id": "step_offer_row",
+        "name": "World offer",
+        "kind": "step",
+        "type": "offer",
+        "position": {
+          "x": 620,
+          "y": 160
+        },
+        "config": {
+          "path": "/offer-row/:orderId",
+          "stepConfig": {
+            "upsellOffers": {
+              "mode": "custom",
+              "enabledUpsellIds": [
+                "row"
+              ]
+            },
+            "resources": {
+              "offer": "row"
+            }
+          }
+        }
+      },
+      {
+        "id": "step_thankyou",
+        "name": "Thank you",
+        "kind": "step",
+        "type": "thankyou",
+        "isConversion": true,
+        "position": {
+          "x": 980,
+          "y": 0
+        },
+        "config": {
+          "path": "/thankyou/:orderId"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "e_land",
+        "source": "step_landing",
+        "target": "step_checkout"
+      },
+      {
+        "id": "e_us",
+        "source": "step_checkout",
+        "target": "step_offer_us",
+        "label": "US",
+        "conditions": {
+          "when": {
+            "customer.fromCountry": {
+              "country": "US"
+            }
+          },
+          "priority": 10
+        }
+      },
+      {
+        "id": "e_eu",
+        "source": "step_checkout",
+        "target": "step_offer_eu",
+        "label": "EU",
+        "conditions": {
+          "when": "customer.fromEU",
+          "priority": 10
+        }
+      },
+      {
+        "id": "e_row",
+        "source": "step_checkout",
+        "target": "step_offer_row",
+        "label": "Rest of world",
+        "conditions": {
+          "when": "always",
+          "priority": 1
+        }
+      },
+      {
+        "id": "e_us_done",
+        "source": "step_offer_us",
+        "target": "step_thankyou"
+      },
+      {
+        "id": "e_eu_done",
+        "source": "step_offer_eu",
+        "target": "step_thankyou"
+      },
+      {
+        "id": "e_row_done",
+        "source": "step_offer_row",
+        "target": "step_thankyou"
+      }
+    ],
+    "metadata": {
+      "staticResources": {
+        "step_offer_us": {
+          "offer": "us"
+        },
+        "step_offer_eu": {
+          "offer": "eu"
+        },
+        "step_offer_row": {
+          "offer": "row"
+        }
+      }
+    }
+  },
+  "studio": {
+    "pages": {},
+    "byStepType": {
+      "landing": {
+        "starterId": "default"
+      },
+      "checkout": {
+        "starterId": "default"
+      },
+      "offer": {
+        "starterId": "default"
+      },
+      "thankyou": {
+        "starterId": "default"
+      }
+    }
+  }
+}

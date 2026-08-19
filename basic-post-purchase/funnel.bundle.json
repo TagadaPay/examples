@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "id": "basic-post-purchase",
+  "name": "Basic post-purchase",
+  "description": "Landing → checkout → cap OTO → cap downsell → tote OTO → thank you.",
+  "products": [
+    { "name": "Essential Tee", "description": "Cart on landing / checkout.", "isShippable": true, "variants": [{ "name": "Essential Tee", "sku": "tee-essential", "default": true, "priceCents": 2999, "currency": "USD" }] },
+    { "name": "Essential Cap", "description": "First one-click offer.", "isShippable": true, "variants": [{ "name": "Essential Cap", "sku": "cap-essential", "default": true, "priceCents": 1999, "currency": "USD" }] },
+    { "name": "Essential Cap — sale", "description": "Downsell if they decline the cap.", "isShippable": true, "variants": [{ "name": "Essential Cap — sale", "sku": "cap-essential-sale", "default": true, "priceCents": 1499, "currency": "USD" }] },
+    { "name": "Essential Tote", "description": "Second one-click offer.", "isShippable": true, "variants": [{ "name": "Essential Tote", "sku": "tote-essential", "default": true, "priceCents": 2400, "currency": "USD" }] }
+  ],
+  "offers": [
+    { "key": "cap", "type": "upsell", "title": "Essential Cap", "lineItems": [{ "sku": "cap-essential", "quantity": 1 }] },
+    { "key": "cap-sale", "type": "upsell", "title": "Essential Cap — sale", "lineItems": [{ "sku": "cap-essential-sale", "quantity": 1 }] },
+    { "key": "tote", "type": "upsell", "title": "Essential Tote", "lineItems": [{ "sku": "tote-essential", "quantity": 1 }] }
+  ],
+  "funnel": {
+    "id": "basic-post-purchase",
+    "name": "Basic post-purchase",
+    "version": "1.0.0",
+    "nodes": [
+      { "id": "step_landing", "name": "Landing", "kind": "step", "type": "landing", "isEntry": true, "position": { "x": 0, "y": 0 }, "config": { "path": "/" } },
+      { "id": "step_checkout", "name": "Checkout", "kind": "step", "type": "checkout", "isDefault": true, "position": { "x": 280, "y": 0 }, "config": { "path": "/checkout" } },
+      { "id": "step_offer_cap", "name": "Cap OTO", "kind": "step", "type": "offer", "position": { "x": 560, "y": 0 }, "config": { "path": "/offer/:orderId", "stepConfig": { "upsellOffers": { "mode": "custom", "enabledUpsellIds": ["cap"] }, "resources": { "offer": "cap" } } } },
+      { "id": "step_offer_cap_sale", "name": "Cap downsell", "kind": "step", "type": "offer", "position": { "x": 560, "y": 180 }, "config": { "path": "/downsell/:orderId", "stepConfig": { "upsellOffers": { "mode": "custom", "enabledUpsellIds": ["cap-sale"] }, "resources": { "offer": "cap-sale" } } } },
+      { "id": "step_offer_tote", "name": "Tote OTO", "kind": "step", "type": "offer", "position": { "x": 840, "y": 0 }, "config": { "path": "/offer-tote/:orderId", "stepConfig": { "upsellOffers": { "mode": "custom", "enabledUpsellIds": ["tote"] }, "resources": { "offer": "tote" } } } },
+      { "id": "step_thankyou", "name": "Thank you", "kind": "step", "type": "thankyou", "isConversion": true, "position": { "x": 1120, "y": 0 }, "config": { "path": "/thankyou/:orderId" } }
+    ],
+    "edges": [
+      { "id": "e_land", "source": "step_landing", "target": "step_checkout" },
+      { "id": "e_pay", "source": "step_checkout", "target": "step_offer_cap", "conditions": { "when": "payment.success" } },
+      { "id": "e_cap_yes", "source": "step_offer_cap", "target": "step_offer_tote", "conditions": { "when": "offer.accepted" } },
+      { "id": "e_cap_no", "source": "step_offer_cap", "target": "step_offer_cap_sale", "conditions": { "when": "offer.declined" } },
+      { "id": "e_sale_yes", "source": "step_offer_cap_sale", "target": "step_offer_tote", "conditions": { "when": "offer.accepted" } },
+      { "id": "e_sale_no", "source": "step_offer_cap_sale", "target": "step_thankyou", "conditions": { "when": "offer.declined" } },
+      { "id": "e_tote_done", "source": "step_offer_tote", "target": "step_thankyou" }
+    ],
+    "metadata": {
+      "staticResources": {
+        "step_offer_cap": { "offer": "cap" },
+        "step_offer_cap_sale": { "offer": "cap-sale" },
+        "step_offer_tote": { "offer": "tote" }
+      }
+    }
+  },
+  "studio": {
+    "pages": {},
+    "byStepType": {
+      "landing": { "starterId": "default" },
+      "checkout": { "starterId": "default" },
+      "offer": { "starterId": "default" },
+      "thankyou": { "starterId": "default" }
+    }
+  }
+}

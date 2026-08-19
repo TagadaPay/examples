@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "id": "vip-tag-offers",
+  "name": "VIP tag offers",
+  "description": "Checkout then VIP hoodie or welcome cap, routed by customer.hasTag.",
+  "products": [
+    { "name": "Essential Tee", "description": "Cart on landing / checkout.", "isShippable": true, "variants": [{ "name": "Essential Tee", "sku": "tee-essential", "default": true, "priceCents": 2999, "currency": "USD" }] },
+    { "name": "Members Hoodie", "description": "One-click offer for VIP customers.", "isShippable": true, "variants": [{ "name": "Members Hoodie", "sku": "hoodie-members-vip", "default": true, "priceCents": 3900, "currency": "USD" }] },
+    { "name": "Welcome Cap", "description": "One-click offer for everyone else.", "isShippable": true, "variants": [{ "name": "Welcome Cap", "sku": "cap-welcome", "default": true, "priceCents": 1499, "currency": "USD" }] }
+  ],
+  "offers": [
+    { "key": "vip", "type": "upsell", "title": "Members Hoodie — $39 (VIP)", "lineItems": [{ "sku": "hoodie-members-vip", "quantity": 1 }] },
+    { "key": "welcome", "type": "upsell", "title": "Welcome Cap — $14.99", "lineItems": [{ "sku": "cap-welcome", "quantity": 1 }] }
+  ],
+  "funnel": {
+    "id": "vip-tag-offers",
+    "name": "VIP tag offers",
+    "version": "1.0.0",
+    "nodes": [
+      { "id": "step_landing", "name": "Landing", "kind": "step", "type": "landing", "isEntry": true, "position": { "x": 0, "y": 0 }, "config": { "path": "/" } },
+      { "id": "step_checkout", "name": "Checkout", "kind": "step", "type": "checkout", "isDefault": true, "position": { "x": 280, "y": 0 }, "config": { "path": "/checkout" } },
+      { "id": "step_offer_vip", "name": "VIP offer", "kind": "step", "type": "offer", "position": { "x": 620, "y": -120 }, "config": { "path": "/offer-vip/:orderId", "stepConfig": { "upsellOffers": { "mode": "custom", "enabledUpsellIds": ["vip"] }, "resources": { "offer": "vip" } } } },
+      { "id": "step_offer_welcome", "name": "Welcome offer", "kind": "step", "type": "offer", "position": { "x": 620, "y": 120 }, "config": { "path": "/offer-welcome/:orderId", "stepConfig": { "upsellOffers": { "mode": "custom", "enabledUpsellIds": ["welcome"] }, "resources": { "offer": "welcome" } } } },
+      { "id": "step_thankyou", "name": "Thank you", "kind": "step", "type": "thankyou", "isConversion": true, "position": { "x": 960, "y": 0 }, "config": { "path": "/thankyou/:orderId" } }
+    ],
+    "edges": [
+      { "id": "e_land", "source": "step_landing", "target": "step_checkout" },
+      { "id": "e_vip", "source": "step_checkout", "target": "step_offer_vip", "label": "VIP", "conditions": { "when": { "customer.hasTag": { "tag": "vip" } }, "priority": 10 } },
+      { "id": "e_welcome", "source": "step_checkout", "target": "step_offer_welcome", "label": "Welcome", "conditions": { "when": "always", "priority": 1 } },
+      { "id": "e_vip_done", "source": "step_offer_vip", "target": "step_thankyou" },
+      { "id": "e_welcome_done", "source": "step_offer_welcome", "target": "step_thankyou" }
+    ],
+    "metadata": {
+      "staticResources": {
+        "step_offer_vip": { "offer": "vip" },
+        "step_offer_welcome": { "offer": "welcome" }
+      }
+    }
+  },
+  "studio": {
+    "pages": {},
+    "byStepType": {
+      "landing": { "starterId": "default" },
+      "checkout": { "starterId": "default" },
+      "offer": { "starterId": "default" },
+      "thankyou": { "starterId": "default" }
+    }
+  }
+}

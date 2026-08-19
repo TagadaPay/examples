@@ -11,6 +11,8 @@ Clone this folder if you want the working project first. Walk the tutorial if yo
 https://github.com/TagadaPay/examples/tree/main/vip-tag-offers
 ```
 
+**CRM import (beta):** [`funnel.bundle.json`](./funnel.bundle.json) → Funnels → **Import bundle**. Preview from the landing step. The store needs a default payment flow.
+
 ---
 
 ## Run it

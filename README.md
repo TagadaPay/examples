@@ -19,6 +19,7 @@ session for that first payment.
 | If you want to… | Open this | Time | SDK |
 |---|---|---|---|
 | **Walk a landing → OTO → downsell → thank you funnel** | [`basic-post-purchase/`](./basic-post-purchase) | ~60 s | `headless-sdk` |
+| **Import that same funnel into the CRM (beta)** | `funnel.bundle.json` in each demo folder | ~30 s | dashboard |
 | Route the post-purchase offer by visitor region (🇺🇸/🇪🇺/🌍) | [`geo-offers/`](./geo-offers) | ~60 s | `headless-sdk` |
 | Route the offer by CRM tags (⭐ VIP vs 🆕 new customer) | [`vip-tag-offers/`](./vip-tag-offers) | ~60 s | `headless-sdk` |
 | Route the offer by cart value (premium vs easy add-on) | [`cart-value-upsell/`](./cart-value-upsell) | ~60 s | `headless-sdk` |
@@ -64,6 +65,18 @@ Open <http://localhost:5173> and you're shopping. That's it.
 > `tagada-init` provisions the former and pre-configures a sandbox
 > processor for you, so you can test payments without setting anything
 > up. You can swap in Stripe, Adyen, etc. later from the dashboard.
+
+---
+
+## Import a demo funnel into the CRM (beta)
+
+Each of the four funnel demos ships a `funnel.bundle.json` (products, offers, graph). You can drop it into any store without cloning the repo:
+
+1. Download the file from the demo folder (or from the [docs](https://docs.tagada.io/developer-tools/funnel-demos/introduction))
+2. Dashboard → a store → Funnels → **Import bundle**
+3. Open the **landing** step to preview (checkout alone has no cart)
+
+The store needs a default payment flow or checkout will spin. Pixels and payment methods stay on the target account.
 
 ---
 

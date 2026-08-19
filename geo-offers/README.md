@@ -25,6 +25,18 @@ pnpm dev
 
 Open [http://localhost:5173](http://localhost:5173). Pick a region on the landing, buy the tee, and watch the offer change.
 
+---
+
+## Or import the funnel in the CRM (beta)
+
+[`funnel.bundle.json`](./funnel.bundle.json) is the same graph as a portable bundle (products, offers, steps).
+
+1. CRM → a store → Funnels
+2. **Import bundle** → pick `funnel.bundle.json`
+3. Preview from the **landing** step (opening checkout alone has no cart)
+
+The store needs a default payment flow or checkout will spin. This is a beta — pixels and payment methods stay on the target account.
+
 Already have a key?
 
 ```bash

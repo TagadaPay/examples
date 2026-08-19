@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "id": "cart-value-upsell",
+  "name": "Cart-value upsell",
+  "description": "Checkout then premium hoodie or cheap socks, routed by mainOrder.totalGreaterThan.",
+  "products": [
+    { "name": "Essential Tee", "description": "Cart on landing / checkout.", "isShippable": true, "variants": [{ "name": "Essential Tee", "sku": "tee-essential", "default": true, "priceCents": 2999, "currency": "USD" }] },
+    { "name": "Heavyweight Hoodie", "description": "One-click offer when the cart is ≥ $50.", "isShippable": true, "variants": [{ "name": "Heavyweight Hoodie", "sku": "hoodie-heavyweight", "default": true, "priceCents": 3900, "currency": "USD" }] },
+    { "name": "Crew Socks", "description": "Easy add-on when the cart is below $50.", "isShippable": true, "variants": [{ "name": "Crew Socks", "sku": "socks-crew", "default": true, "priceCents": 900, "currency": "USD" }] }
+  ],
+  "offers": [
+    { "key": "hoodie", "type": "upsell", "title": "Heavyweight Hoodie — $39", "lineItems": [{ "sku": "hoodie-heavyweight", "quantity": 1 }] },
+    { "key": "socks", "type": "upsell", "title": "Crew Socks — $9", "lineItems": [{ "sku": "socks-crew", "quantity": 1 }] }
+  ],
+  "funnel": {
+    "id": "cart-value-upsell",
+    "name": "Cart-value upsell",
+    "version": "1.0.0",
+    "nodes": [
+      { "id": "step_landing", "name": "Landing", "kind": "step", "type": "landing", "isEntry": true, "position": { "x": 0, "y": 0 }, "config": { "path": "/" } },
+      { "id": "step_checkout", "name": "Checkout", "kind": "step", "type": "checkout", "isDefault": true, "position": { "x": 280, "y": 0 }, "config": { "path": "/checkout" } },
+      { "id": "step_offer_hoodie", "name": "Premium offer", "kind": "step", "type": "offer", "position": { "x": 620, "y": -120 }, "config": { "path": "/offer-hoodie/:orderId", "stepConfig": { "upsellOffers": { "mode": "custom", "enabledUpsellIds": ["hoodie"] }, "resources": { "offer": "hoodie" } } } },
+      { "id": "step_offer_socks", "name": "Add-on offer", "kind": "step", "type": "offer", "position": { "x": 620, "y": 120 }, "config": { "path": "/offer-socks/:orderId", "stepConfig": { "upsellOffers": { "mode": "custom", "enabledUpsellIds": ["socks"] }, "resources": { "offer": "socks" } } } },
+      { "id": "step_thankyou", "name": "Thank you", "kind": "step", "type": "thankyou", "isConversion": true, "position": { "x": 960, "y": 0 }, "config": { "path": "/thankyou/:orderId" } }
+    ],
+    "edges": [
+      { "id": "e_land", "source": "step_landing", "target": "step_checkout" },
+      { "id": "e_premium", "source": "step_checkout", "target": "step_offer_hoodie", "label": "≥ $50", "conditions": { "when": { "mainOrder.totalGreaterThan": { "amount": 5000 } }, "priority": 10 } },
+      { "id": "e_addon", "source": "step_checkout", "target": "step_offer_socks", "label": "Add-on", "conditions": { "when": "always", "priority": 1 } },
+      { "id": "e_premium_done", "source": "step_offer_hoodie", "target": "step_thankyou" },
+      { "id": "e_addon_done", "source": "step_offer_socks", "target": "step_thankyou" }
+    ],
+    "metadata": {
+      "staticResources": {
+        "step_offer_hoodie": { "offer": "hoodie" },
+        "step_offer_socks": { "offer": "socks" }
+      }
+    }
+  },
+  "studio": {
+    "pages": {},
+    "byStepType": {
+      "landing": { "starterId": "default" },
+      "checkout": { "starterId": "default" },
+      "offer": { "starterId": "default" },
+      "thankyou": { "starterId": "default" }
+    }
+  }
+}
