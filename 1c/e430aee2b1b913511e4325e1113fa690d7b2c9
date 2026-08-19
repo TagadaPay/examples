@@ -1,0 +1,36 @@
+basic-post-purchase/README.md
+  s_991824b34dfeb9::t_d8e6396c2ab21a 13-14
+cart-value-upsell/funnel.bundle.json
+  s_991824b34dfeb9::t_4419a2477c18f7 1-49
+cart-value-upsell/README.md
+  s_991824b34dfeb9::t_bab1d638c20d1e 14-15
+README.md
+  s_991824b34dfeb9::t_b08f9a630d54c6 22
+  s_991824b34dfeb9::t_1287298fb31739 71-82
+basic-post-purchase/funnel.bundle.json
+  s_991824b34dfeb9::t_139c5873852211 1-55
+vip-tag-offers/README.md
+  s_991824b34dfeb9::t_ff1ef1217110a9 14-15
+geo-offers/README.md
+  s_991824b34dfeb9::t_18a3af974e011f 28-39
+vip-tag-offers/funnel.bundle.json
+  s_991824b34dfeb9::t_dc47d1e9b000e9 1-49
+geo-offers/funnel.bundle.json
+  s_991824b34dfeb9::t_6b7ac2d735e751 1-311
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "1ce430aee2b1b913511e4325e1113fa690d7b2c9",
+  "prompts": {},
+  "sessions": {
+    "s_991824b34dfeb9": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "fc2aa26b-ab6e-4a6f-97c9-af911dd6a184",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Loïc DELOBEL <loic.delobel@gmail.com>"
+    }
+  }
+}
