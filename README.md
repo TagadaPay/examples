@@ -23,6 +23,7 @@ session for that first payment.
 | Route the post-purchase offer by visitor region (🇺🇸/🇪🇺/🌍) | [`geo-offers/`](./geo-offers) | ~60 s | `headless-sdk` |
 | Route the offer by CRM tags (⭐ VIP vs 🆕 new customer) | [`vip-tag-offers/`](./vip-tag-offers) | ~60 s | `headless-sdk` |
 | Route the offer by cart value (premium vs easy add-on) | [`cart-value-upsell/`](./cart-value-upsell) | ~60 s | `headless-sdk` |
+| **Build a Tagada Rx storefront + install the Funnel v2** | [`rx-storefront/`](./rx-storefront) | ~60 s | `headless-sdk` + `node-sdk` |
 | Fork a real-looking storefront and rebrand it | [`headless-react-store/`](./headless-react-store) | ~60 s | `headless-sdk` |
 | Learn the React hooks one by one | [`headless-react/`](./headless-react) | ~60 s | `headless-sdk` |
 | Use the SDK from plain HTML/JS (no React, no build) | [`headless-vanilla/`](./headless-vanilla) | ~30 s | `headless-sdk` |
@@ -180,6 +181,7 @@ You'll need:
 [Examples catalog](https://docs.tagada.io/developer-tools/examples/introduction)
 maps each folder to its tutorial.
 
+- **[Tagada Rx headless storefront](https://docs.tagada.io/developer-tools/rx/headless-sdk)** — matches [`rx-storefront/`](./rx-storefront) (Funnel v2 + `tagada.rx`)
 - **[Basic post-purchase funnel](https://docs.tagada.io/developer-tools/funnel-demos/basic-post-purchase)** — the tutorial that matches [`basic-post-purchase/`](./basic-post-purchase)
 - **[Funnel demos](https://docs.tagada.io/developer-tools/funnel-demos/introduction)** — the routed variations: [geo-offers](https://docs.tagada.io/developer-tools/funnel-demos/geo-offers), [vip-tag-offers](https://docs.tagada.io/developer-tools/funnel-demos/vip-tag-offers), [cart-value-upsell](https://docs.tagada.io/developer-tools/funnel-demos/cart-value-upsell)
 - **[Checkout in plain HTML](https://docs.tagada.io/developer-tools/examples/headless-vanilla)** — the tutorial that matches [`headless-vanilla/`](./headless-vanilla)
