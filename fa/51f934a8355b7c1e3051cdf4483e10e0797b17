@@ -1,0 +1,80 @@
+rx-storefront/env.example
+  s_6eb3891c72547a::t_0a25070c03e410 1-12
+rx-storefront/package.json
+  s_6eb3891c72547a::t_0e8f75abd249af 2
+  s_6eb3891c72547a::t_f4fdc97c928d63 1
+  s_6eb3891c72547a::t_6ce172dc526c17 3-5
+  s_6eb3891c72547a::t_20f32a96573a8c 6-28
+rx-storefront/src/main.tsx
+  s_6eb3891c72547a::t_df1bdc3d11fd61 1-10
+rx-storefront/src/pages/ThankYou.tsx
+  s_6eb3891c72547a::t_f89a96ca7052c9 32
+  s_6eb3891c72547a::t_0922da87b03512 1-31,33-170
+rx-storefront/src/pages/Portal.tsx
+  s_6eb3891c72547a::t_84950344b661c0 1-33
+rx-storefront/src/pages/Quiz.tsx
+  s_6eb3891c72547a::t_915b59d6580b5e 1,3-82
+  s_6eb3891c72547a::t_3f101337bc5d41 2
+rx-storefront/README.md
+  s_6eb3891c72547a::t_2a88379297d337 1-60
+rx-storefront/funnel.bundle.json
+  s_6eb3891c72547a::t_b15b06c8168485 1-36
+rx-storefront/src/lib/config.ts
+  s_6eb3891c72547a::t_a3049ae06b5e45 1-15
+README.md
+  s_6eb3891c72547a::t_7c73f2719e0151 184
+  s_6eb3891c72547a::t_6c3e64977355ff 26
+rx-storefront/src/pages/Landing.tsx
+  s_6eb3891c72547a::t_6f2eb1bcc56d6e 1-36
+rx-storefront/src/pages/Checkout.tsx
+  s_6eb3891c72547a::t_d53c1d2bf88a12 194
+  s_6eb3891c72547a::t_23f288bafe8db7 99-100
+  s_6eb3891c72547a::t_4fe6abf5e1982e 47-50
+  s_6eb3891c72547a::t_c257703ec799bf 9
+  s_6eb3891c72547a::t_26a35f12c3e147 6-8
+  s_6eb3891c72547a::t_1686b104d1b2bc 10-12,44-46
+  s_6eb3891c72547a::t_52c74e03ec1997 51-53,96-98
+  s_6eb3891c72547a::t_85f8d3d1d6e7c0 101-103,191-193
+  s_6eb3891c72547a::t_92634c03720a50 195-197
+  s_6eb3891c72547a::t_5c3a03005b003e 1-5,13-43,54-95,104-190,198-297
+rx-storefront/scripts/seed.ts
+  s_6eb3891c72547a::t_8a60e264f1ffcc 1-182
+rx-storefront/src/App.tsx
+  s_6eb3891c72547a::t_2014cb8b22b10d 1-48
+rx-storefront/src/pages/Offer.tsx
+  s_6eb3891c72547a::t_e9cec061c1030e 1-38
+rx-storefront/src/vite-env.d.ts
+  s_6eb3891c72547a::t_bb3ee0c4d641b1 1-13
+rx-storefront/index.html
+  s_6eb3891c72547a::t_5d60ac0202da66 1-18
+rx-storefront/.gitignore
+  s_6eb3891c72547a::t_7d0b99ffd1eb95 1-12
+rx-storefront/src/lib/format.ts
+  s_6eb3891c72547a::t_2888331a865ac7 1-6
+rx-storefront/src/styles.css
+  s_6eb3891c72547a::t_2f2b1d6f1bba9f 1-206
+rx-storefront/tsconfig.app.json
+  s_6eb3891c72547a::t_18b734c4891cfb 1-21
+rx-storefront/tsconfig.json
+  s_6eb3891c72547a::t_3ea44af6888beb 1-7
+rx-storefront/tsconfig.node.json
+  s_6eb3891c72547a::t_a482a2b6439992 1-19
+rx-storefront/vite.config.ts
+  s_6eb3891c72547a::t_3eb94ae2fd94dc 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "fa51f934a8355b7c1e3051cdf4483e10e0797b17",
+  "prompts": {},
+  "sessions": {
+    "s_6eb3891c72547a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "228c569d-7799-43cb-be82-81de10b497ff",
+        "model": "grok-4.6"
+      },
+      "human_author": "Loïc DELOBEL <loic.delobel@gmail.com>"
+    }
+  }
+}
