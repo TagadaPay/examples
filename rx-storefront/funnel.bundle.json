@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "rx-storefront",
+  "name": "Tagada Rx storefront",
+  "description": "Landing → marketing quiz → checkout → offer → thank-you (medical intake) → patient portal.",
+  "products": [
+    {
+      "name": "Hair treatment",
+      "description": "Demo Rx SKU. Map it to a clinical offering to exercise submitCase.",
+      "isShippable": true,
+      "variants": [{ "name": "Default", "sku": "harbor-hair", "default": true, "priceCents": 7900, "currency": "USD" }]
+    }
+  ],
+  "offers": [],
+  "funnel": {
+    "id": "rx-storefront",
+    "name": "Harbor Clinic storefront",
+    "version": "1.0.0",
+    "metadata": { "rxStorefront": true },
+    "nodes": [
+      { "id": "rx_landing", "name": "Landing", "kind": "step", "type": "landing", "isEntry": true, "isDefault": true, "position": { "x": 0, "y": 0 }, "config": { "path": "/" } },
+      { "id": "rx_quiz", "name": "Marketing quiz", "kind": "step", "type": "custom", "position": { "x": 280, "y": 0 }, "config": { "path": "/quiz", "matchSubPaths": true } },
+      { "id": "rx_checkout", "name": "Checkout", "kind": "step", "type": "checkout", "position": { "x": 560, "y": 0 }, "config": { "path": "/checkout" } },
+      { "id": "rx_offer", "name": "Offer", "kind": "step", "type": "offer", "position": { "x": 840, "y": 0 }, "config": { "path": "/offer" } },
+      { "id": "rx_thankyou", "name": "Thank you", "kind": "step", "type": "thankyou", "isConversion": true, "position": { "x": 1120, "y": 0 }, "config": { "path": "/thank-you" } },
+      { "id": "rx_portal", "name": "Patient portal", "kind": "step", "type": "custom", "position": { "x": 1400, "y": 0 }, "config": { "path": "/portal", "matchSubPaths": true } }
+    ],
+    "edges": [
+      { "id": "edge_rx_landing_quiz", "source": "rx_landing", "target": "rx_quiz" },
+      { "id": "edge_rx_quiz_checkout", "source": "rx_quiz", "target": "rx_checkout" },
+      { "id": "edge_rx_checkout_offer", "source": "rx_checkout", "target": "rx_offer", "conditions": { "when": "payment.success" } },
+      { "id": "edge_rx_offer_thankyou", "source": "rx_offer", "target": "rx_thankyou" },
+      { "id": "edge_rx_thankyou_portal", "source": "rx_thankyou", "target": "rx_portal" }
+    ]
+  }
+}
