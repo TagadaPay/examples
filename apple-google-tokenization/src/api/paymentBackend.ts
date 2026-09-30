@@ -21,6 +21,18 @@
 // TYPES
 // ============================================================================
 
+/**
+ * The shopper behind the request, as seen by YOUR server (`req.ip`, `User-Agent`).
+ *
+ * Tagada is called by your server, so it only sees your datacenter. Processors
+ * (Stripe Radar, Adyen risk, issuers) weigh the shopper IP heavily: fill this
+ * server-side on both calls below. Never send your server's own address.
+ */
+export interface ShopperContext {
+    ipAddress?: string;
+    userAgent?: string;
+}
+
 export interface CreatePaymentInstrumentParams {
     tagadaToken: string;
     storeId: string;
@@ -29,6 +41,8 @@ export interface CreatePaymentInstrumentParams {
         firstName: string;
         lastName: string;
     };
+    /** Shopper IP + User-Agent — set server-side, see {@link ShopperContext}. */
+    customer?: ShopperContext;
 }
 
 export interface PersistThreedsSessionParams {
@@ -44,6 +58,8 @@ export interface ProcessPaymentParams {
     storeId: string;
     paymentInstrumentId: string;
     threedsSessionId?: string;
+    /** Shopper IP + User-Agent — set server-side, see {@link ShopperContext}. */
+    customer?: ShopperContext;
 }
 
 // ============================================================================
@@ -67,9 +83,10 @@ export interface ProcessPaymentParams {
  * 
  * @example Express Route
  * ```typescript
+ * app.set('trust proxy', true); // so req.ip is the shopper, not your proxy
  * app.post('/api/payment-instruments', async (req, res) => {
  *   const result = await createPaymentInstrument(
- *     req.body,
+ *     { ...req.body, customer: { ipAddress: req.ip, userAgent: req.get('user-agent') } },
  *     process.env.TAGADAPAY_API_KEY
  *   );
  *   res.json(result);
