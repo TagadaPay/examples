@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@tagadapay/core-js": "^3.1.0",
-    "@tagadapay/node-sdk": "^3.2.0",
+    "@tagadapay/node-sdk": "^3.25.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",

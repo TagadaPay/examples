@@ -14,8 +14,21 @@ if (!CRM_KEY) {
 const tagada = new Tagada(CRM_KEY);
 const app = express();
 
+// `req.ip` must be the shopper, not our proxy: we forward it to Tagada as the
+// shopper IP below. Scope this to your proxy's address in production.
+app.set('trust proxy', true);
 app.use(cors({ origin: process.env.WEB_ORIGIN ?? 'http://localhost:5173' }));
 app.use(express.json());
+
+/**
+ * Shopper IP + User-Agent as this server received them. Tagada only sees our
+ * server on these calls, so this is the only way the shopper IP reaches the
+ * processor's risk engine (Stripe Radar, Adyen). Never send the server's own IP.
+ */
+const shopperContext = (req: express.Request) => ({
+  ...(req.ip ? { ipAddress: req.ip } : {}),
+  ...(req.get('user-agent') ? { userAgent: req.get('user-agent') } : {}),
+});
 
 /** GET /api/config — public store config for the frontend */
 app.get('/api/config', (_req, res) => {
@@ -49,6 +62,7 @@ app.post('/api/payment-instruments', async (req, res) => {
       tagadaToken,
       storeId,
       customerData,
+      customer: shopperContext(req),
     });
     res.json(result);
   } catch (err) {
@@ -68,6 +82,7 @@ app.post('/api/payments', async (req, res) => {
       paymentInstrumentId,
       customerId,
       initiatedBy: 'customer',
+      customer: shopperContext(req),
       ...(process.env.TAGADA_PAYMENT_FLOW_ID
         ? { paymentFlowId: process.env.TAGADA_PAYMENT_FLOW_ID }
         : {}),
