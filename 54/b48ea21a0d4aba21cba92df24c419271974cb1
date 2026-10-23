@@ -1,0 +1,109 @@
+v2/apple-google-tokenization/package.json
+  s_c44c5ce3d8f6f3::t_502e0f27eab90f 15,35-43
+v2/apple-google-tokenization/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_91c50fe3a52adf 15-16,524-525,1871,1910,2826-2827
+v2/apple-google-tokenization/src/components/GooglePayExpressCheckout.tsx
+  s_c44c5ce3d8f6f3::t_1286126181b7e7 3-5,466,468
+v2/apple-google-tokenization/src/vite-env.d.ts
+  s_c44c5ce3d8f6f3::t_15f394a412129c 2
+v2/basic-post-purchase/package.json
+  s_c44c5ce3d8f6f3::t_40efbf7d713603 13-14,20,27-35
+v2/basic-post-purchase/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_440a159a4bdcfc 12-13,15-16,28-29,452-453,460-461,474-475,1170,1180,1182,1185
+v2/basic-post-purchase/src/lib/config.ts
+  s_f49e337e7bdccf::t_7cb11b5dc7c5f9 18
+v2/basic-post-purchase/src/pages/Landing.tsx
+  s_f49e337e7bdccf::t_ba0495760c93ad 67
+v2/cart-value-upsell/package.json
+  s_c44c5ce3d8f6f3::t_6d2017211ec5b2 13-14,20,27-35
+v2/cart-value-upsell/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_fc3399ebcdb9e2 12-13,15-16,28-29,452-453,460-461,474-475,1170,1180,1182,1185
+v2/cart-value-upsell/src/lib/config.ts
+  s_f49e337e7bdccf::t_5153efcd02312b 18
+v2/cart-value-upsell/src/pages/Landing.tsx
+  s_f49e337e7bdccf::t_8f6d1aafba5af7 88
+v2/core-js-card-payment/package.json
+  s_c44c5ce3d8f6f3::t_18d3e0bc2df49f 12,28-36
+v2/core-js-card-payment/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_08cb245a9966b0 12-13,446-447,1385
+v2/core-js-card-payment/src/hooks/useCardPayment.ts
+  s_c44c5ce3d8f6f3::t_b7f0556d0ea213 223
+v2/core-js-tokenization/package.json
+  s_c44c5ce3d8f6f3::t_6de9b777ed1706 15,32-40
+v2/core-js-tokenization/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_ea3cbc8cac3dbe 12-13,527-528,1863
+v2/core-js-tokenization/src/components/CardForm.tsx
+  s_c44c5ce3d8f6f3::t_5699d29e6a420a 74,80-81,92
+v2/geo-offers/package.json
+  s_c44c5ce3d8f6f3::t_03fe3de6b3c290 13-14,20,27-35
+v2/geo-offers/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_0e3885b7cda412 12-13,15-16,28-29,452-453,460-461,474-475,1170,1180,1182,1185
+v2/geo-offers/src/lib/config.ts
+  s_f49e337e7bdccf::t_1cb012f8746455 16
+v2/geo-offers/src/pages/Landing.tsx
+  s_f49e337e7bdccf::t_d19f477314500f 95
+v2/headless-react-store/.env.example
+  s_c44c5ce3d8f6f3::t_4dba2310c1163b 1-12
+v2/headless-react-store/package.json
+  s_c44c5ce3d8f6f3::t_fc952cf1b6e4eb 16-17,24,39-47,49
+v2/headless-react-store/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_038a7dad4fbe27 12-13,15-16,31-32,547-548,555-556,569-570,1933,1942,1944,1947
+v2/headless-react/.env.example
+  s_c44c5ce3d8f6f3::t_b49fdfb9f7599b 1-8,10-11
+v2/headless-react/package.json
+  s_c44c5ce3d8f6f3::t_389cb87f3918de 15-16,22,37-45,47
+v2/headless-react/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_d465a4f6578c0d 12-13,15-16,28-29,536-537,544-545,558-559,1902,1911,1913,1916
+v2/headless-react/scripts/seed.ts
+  s_c44c5ce3d8f6f3::t_c5041cd913e3d9 20,101-102
+v2/headless-react/src/components/CheckoutStep.tsx
+  s_c44c5ce3d8f6f3::t_f86221d0f049e3 171
+v2/headless-react/src/components/GettingStarted.tsx
+  s_f49e337e7bdccf::t_6d789401a505cb 207
+v2/mini-saas-billing/package.json
+  s_c44c5ce3d8f6f3::t_b53b1753379d83 15-16,33-41
+v2/mini-saas-billing/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_520c786d084785 1-2262
+v2/rx-storefront/package.json
+  s_c44c5ce3d8f6f3::t_159788799ea692 13-14,20,27-35
+v2/rx-storefront/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_8ea8c58441d927 1-1569
+v2/rx-storefront/src/lib/config.ts
+  s_f49e337e7bdccf::t_eaad82a240e5fe 15
+v2/rx-storefront/src/pages/Landing.tsx
+  s_f49e337e7bdccf::t_ce9043fac2babd 29
+v2/rx-storefront/src/pages/Quiz.tsx
+  s_c44c5ce3d8f6f3::t_ac8ca23f065798 2
+v2/vip-tag-offers/package.json
+  s_c44c5ce3d8f6f3::t_01084d7e501310 13-14,20,27-35
+v2/vip-tag-offers/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_ab6966dbeb34f2 12-13,15-16,28-29,452-453,460-461,474-475,1170,1180,1182,1185
+v2/vip-tag-offers/src/lib/config.ts
+  s_f49e337e7bdccf::t_0c9d2ef4ae0e35 15
+v2/vip-tag-offers/src/pages/Landing.tsx
+  s_f49e337e7bdccf::t_6916576dffbd18 96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "54b48ea21a0d4aba21cba92df24c419271974cb1",
+  "prompts": {},
+  "sessions": {
+    "s_c44c5ce3d8f6f3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2a560791-0744-4b90-9b18-f54fa0fc6faf",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Loïc DELOBEL <loic.delobel@gmail.com>"
+    },
+    "s_f49e337e7bdccf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "add14fd1-ec0b-4d73-b93e-8fc072932d76",
+        "model": "unknown"
+      },
+      "human_author": "Loïc DELOBEL <loic.delobel@gmail.com>"
+    }
+  }
+}
