@@ -1,72 +1,78 @@
-# TagadaPay SaaS Billing Demo
+# SaaS subscription billing
 
-A minimal SaaS app showing how to bill subscriptions with **@tagadapay/core-js** (frontend) and **@tagadapay/node-sdk** (backend) — processor-agnostic, powered by **payment flows**.
+A minimal SaaS app that bills a monthly plan: the browser tokenizes the card with `@tagadapay/core-js`, an Express server vaults it, charges it and creates the subscription with `@tagadapay/node-sdk`, routed through a payment flow.
 
-## What this demonstrates
+| | |
+| --- | --- |
+| **API version** | Payments V2 ([V2 or V3?](https://docs.tagada.io/payments-api/v2-or-v3)) |
+| **SDKs** | `@tagadapay/core-js` 3.7.0 (browser), `@tagadapay/node-sdk` 3.27.1 (server) |
+| **Minimum versions** | core-js 3.1.0, node-sdk 3.25.0 (the `customer` block that forwards the shopper IP and user agent) |
+| **Stack** | Vite 7 + React 19 (`web/`), Express 4 + tsx (`server/`), Node 20+ |
+| **Status** | Stable |
+| **Tutorial** | [SaaS Billing quick start](https://docs.tagada.io/developer-tools/saas-billing/quick-start) |
+
+<!-- Demo: add a GIF or screenshot here (docs/demo.gif). -->
+
+## What it does
 
 | Layer | Package | Responsibility |
-|-------|---------|----------------|
-| **Frontend** | `@tagadapay/core-js` | Card tokenization (PCI-safe). Never touches your API key. |
-| **Backend** | `@tagadapay/node-sdk` | Customer, vault, charge, subscription — all server-side. |
-| **Routing** | Payment flows | Cascade across sandbox → your live TPA without re-vaulting. |
+| --- | --- | --- |
+| Frontend (`web/`) | `@tagadapay/core-js` | Card tokenization (`useCardTokenization`). Never sees your API key. |
+| Backend (`server/`) | `@tagadapay/node-sdk` | Customer, vault, charge, subscription, all server side. |
+| Routing | Payment flows | Cascade from the sandbox to your live TPA without re-vaulting the card. |
 
-Unlike Stripe, you connect **multiple processors/TPAs** to one vault. If one TPA is banned, switch the payment flow — cards stay vaulted.
+Click **Subscribe** and the page walks the whole chain: create the customer, vault the token (`paymentInstruments.createFromToken`), charge the first month (`payments.process`), then create the subscription (`subscriptions.create`) that rebills monthly.
 
-## Quick start
+## Run it in 3 steps
 
 ```bash
-cd mini-saas-billing
-cp env.example .env
-# Fill TAGADA_API_KEY and TAGADA_STORE_ID
-
-npm install
-npm run seed      # creates product + cascade payment flow
-npm run verify    # automated end-to-end test
-npm run dev       # frontend :5173 + backend :3001
+cd v2/mini-saas-billing
+cp .env.example .env            # 1. fill TAGADA_API_KEY and TAGADA_STORE_ID
+pnpm install && pnpm seed       # 2. install, then create the plan and the cascade payment flow
+pnpm dev                        # 3. open http://localhost:5173 (API on :3001)
 ```
 
-Open http://localhost:5173 and click **Subscribe**.
+No account yet? `npx -p @tagadapay/node-sdk tagada-init you@example.com` creates a free sandbox account and writes your `.env`. `pnpm verify` runs the whole flow from the terminal (tokenize, vault, charge, subscribe) to check your setup.
 
-> **Need an account?** `npx -p @tagadapay/node-sdk tagada-init you@example.com` provisions a free sandbox account and writes your `.env`.
+Pay with the sandbox card `4242 4242 4242 4242`, any future date, any CVC. It goes through the sandbox processor of the cascade; a live TPA needs a real card.
 
-## Test card
+## Files to look at
 
-```
-4242 4242 4242 4242   ·   12/30   ·   123
-```
+| File | What to read it for |
+| --- | --- |
+| [`server/index.ts`](./server/index.ts) | Every Node SDK call behind `/api/*`, and `shopperContext` (shopper IP and user agent sent with the charge) |
+| [`web/src/App.tsx`](./web/src/App.tsx) | Tokenization with `useCardTokenization` and the Subscribe sequence |
+| [`scripts/seed.ts`](./scripts/seed.ts) | The cascade payment flow and the recurring price (Pro, 19 EUR a month) |
+| [`scripts/verify-flow.ts`](./scripts/verify-flow.ts) | The same flow, end to end, without a browser |
 
-Works with the sandbox processor in the cascade flow. A live TPA requires a real card.
+## How it works
 
-## Project structure
-
-```
-mini-saas-billing/
-├── server/index.ts       ← BACKEND (node-sdk) — API routes
-├── web/src/App.tsx       ← FRONTEND (core-js) — checkout UI
-├── scripts/
-│   ├── seed.ts           ← one-time setup (product + payment flow)
-│   └── verify-flow.ts    ← automated end-to-end test
-└── env.example
-```
-
-## Payment flow (the Stripe killer)
-
-The seed script creates a **cascade** flow:
+`pnpm seed` creates a **cascade** payment flow on your account:
 
 ```
-Primary:  sandbox processor    (dev / test cards)
+Primary:  sandbox processor    (dev and test cards)
 Fallback: tagadapay-router     → your live TPA (tpa_xxx)
 ```
 
-Add Stripe, Checkout.com, or more TPAs to the same flow — one vault, automatic failover, higher approval rates. If a processor gets banned, update the flow: customers never re-enter their card.
+The server passes `paymentFlowId` on each charge. You can add more processors or TPAs to the same flow: the card stays in one vault, so switching or adding a processor never asks the customer to enter the card again.
 
-## Docs
+The server also exposes `/api/threeds/sessions`, `/api/payments/continue` and `/api/payments/:id` for 3DS and redirect flows. The demo page itself expects the first charge to succeed directly, which is the case with the sandbox test card.
+
+Every code path (tokenize, vault, charge, subscribe, rebill) was run against the production API before being documented. Run `pnpm verify` to re-validate it on your own account.
+
+## Troubleshooting
+
+| Symptom | Fix |
+| --- | --- |
+| `Missing TAGADA_API_KEY in .env` | Copy `.env.example` to `.env` and fill it, or run `tagada-init`. |
+| `pnpm seed` fails with `No tagadapay-router processor found on this account` | The cascade needs a live TagadaPay account (TPA) on the account. Apply for one first, see [Apply for TagadaPay Processing](https://docs.tagada.io/developer-tools/node-sdk/processing-applications). |
+| `No sandbox processor found` | Create a sandbox processor in the dashboard, then run `pnpm seed` again. |
+| The page shows `Payment requires_action` or another non succeeded status | The card asked for 3DS. Use the sandbox card above, or wire the 3DS endpoints of `server/index.ts` into the page. |
+
+## Learn more
 
 - [SaaS Billing introduction](https://docs.tagada.io/developer-tools/saas-billing/introduction)
-- [Quick start](https://docs.tagada.io/developer-tools/saas-billing/quick-start)
 - [Payment flows for SaaS](https://docs.tagada.io/developer-tools/saas-billing/payment-flows)
 - [Migrate from Stripe](https://docs.tagada.io/developer-tools/saas-billing/migrate-from-stripe)
 
-## Verified against production
-
-Every code path in this example (tokenize → vault → charge → subscribe → rebill) was run against the production API before being documented. Run `npm run verify` to re-validate on your own account.
+MIT licensed. Fork it freely.

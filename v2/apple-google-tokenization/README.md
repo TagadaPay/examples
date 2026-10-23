@@ -1,442 +1,104 @@
-# Apple Pay & Google Pay Integration Demo
+# Apple Pay and Google Pay tokenization
 
-> 📘 **Step-by-step tutorial:** [Apple Pay & Google Pay](https://docs.tagada.io/developer-tools/examples/apple-google-pay)
+Native Apple Pay and Google Pay buttons that turn a wallet payment into a TagadaToken with `@tagadapay/core-js`, then into a payment instrument you can charge.
 
-Complete demonstration of `@tagadapay/core-js` v2.0.0 with Apple Pay, Google Pay, and traditional card tokenization, including payment instrument creation, 3DS authentication, and payment processing.
+| | |
+| --- | --- |
+| **API version** | Payments V2 ([V2 or V3?](https://docs.tagada.io/payments-api/v2-or-v3)) |
+| **SDKs** | `@tagadapay/core-js` 3.7.0, `@google-pay/button-react` 3 |
+| **Minimum versions** | core-js 3.0.0 |
+| **Stack** | Vite 5, React 18, Tailwind 3 |
+| **Status** | Stable |
+| **Tutorial** | [Apple Pay & Google Pay](https://docs.tagada.io/developer-tools/examples/apple-google-pay) |
 
-## Features
+<!-- Demo: add a GIF or screenshot here (docs/demo.gif). -->
 
-- 🍎 **Apple Pay Integration** - Native Apple Pay button with secure payment processing
-- 🟢 **Google Pay Integration** - Google Pay API integration with tokenization
+## What it does
 
-## Quick Start
-
-```bash
-# Install dependencies
-pnpm install
-
-# Run demo
-pnpm run dev
+```
+1. Browser   Apple Pay: ApplePaySession + validateApplePayMerchant, then tokenizeApplePay
+             Google Pay: Google Pay button (gateway basistheory), then tokenizeGooglePay
+             → { tagadaToken, rawToken }
+2. Browser   show the token
+3. API       create a payment instrument   POST /api/public/v1/payment-instruments/create-from-token
 ```
 
-Open http://localhost:5173
+The running page stops at the payment instrument. To charge it, follow the same path as a card: `POST /api/public/v1/payments/process`, shown end to end in [`../core-js-tokenization`](../core-js-tokenization). The server functions for that path are already in [`src/api/paymentBackend.ts`](./src/api/paymentBackend.ts).
 
-## Apple Pay HTTPS Testing Setup
+## Run it in 3 steps
 
-**⚠️ Important**: Apple Pay requires HTTPS to function. For local development, use ngrok to create a secure tunnel:
-
-### 1. Install ngrok
 ```bash
-# Install ngrok (if not already installed)
-npm install -g ngrok
-# or
-brew install ngrok
+cd v2/apple-google-tokenization
+pnpm install      # 1. install
+pnpm dev          # 2. start on http://localhost:5173
+                  # 3. fill the server config on the page, then tap a wallet button
 ```
 
-### 2. Start your development server
+This example reads no environment variables, so there is no `.env` to fill. You pick the environment and type a store id and an API token in the server config section of the page.
+
+> **Security: demo only.** The page calls the API from the browser with your secret API token, so you can see the whole flow in one place. Never do this in production: move the calls to your server and keep the token there. [`src/api/paymentBackend.ts`](./src/api/paymentBackend.ts) has them as server functions (`createPaymentInstrument`, `persistThreedsSession`, `processPayment`, `pollPaymentStatus`).
+
+### Apple Pay needs HTTPS
+
+Google Pay works on `http://localhost`. Apple Pay only runs on an HTTPS page, in Safari, on a device with Apple Pay set up. Use a tunnel:
+
 ```bash
-pnpm run dev
-# Server runs on http://localhost:5173
+brew install ngrok          # or: npm install -g ngrok
+pnpm dev                    # terminal 1
+ngrok http 5173             # terminal 2: prints https://<id>.ngrok.app
 ```
 
-### 3. Create HTTPS tunnel with ngrok
-```bash
-# In a new terminal, create secure tunnel
-ngrok http 5173
-```
+Open the HTTPS URL in Safari. Vite only answers hosts listed in `server.allowedHosts` in [`vite.config.ts`](./vite.config.ts) (`.ngrok.app`, `.ngrok.io` and `.ngrok-free.app` are there): add your tunnel's domain if it uses another one.
 
-### 4. Use the HTTPS URL
-```bash
-# ngrok will provide URLs like:
-# https://abc123.ngrok.io -> http://localhost:5173
-```
+## Files to look at
 
-### 5. Test Apple Pay
-- Open the **https://abc123.ngrok.io** URL in Safari
-- Apple Pay button will be functional on the secure domain
-- Test the complete payment flow
+| File | What to read it for |
+| --- | --- |
+| [`src/components/ApplePayButton.tsx`](./src/components/ApplePayButton.tsx) | `ApplePaySession`, merchant validation, `tokenizeApplePay` |
+| [`src/components/GooglePayButton.tsx`](./src/components/GooglePayButton.tsx) | Google Pay payment request with `getGoogleTenantId`, `tokenizeGooglePay` |
+| [`src/components/GooglePayExpressCheckout.tsx`](./src/components/GooglePayExpressCheckout.tsx) | Advanced Google Pay sheet: shipping options, address changes, tax, live totals (not mounted by the demo page) |
+| [`src/App.tsx`](./src/App.tsx) | The demo page: server config, buttons, token, payment instrument |
+| [`src/utils/api.ts`](./src/utils/api.ts) | `createPaymentInstrument`, the call the page makes |
+| [`src/api/paymentBackend.ts`](./src/api/paymentBackend.ts) | Server functions for the full charge path, plus the demo-only `DemoBackendClient` |
+| [`src/hooks/usePaymentFlow.ts`](./src/hooks/usePaymentFlow.ts) | Instrument, 3DS session and charge orchestration (same as the card demo) |
+| [`src/components/PaymentFlow/`](./src/components/PaymentFlow) | Step components: token display, instrument creation and result, flow overview |
+| [`src/types/index.ts`](./src/types/index.ts) | Shared types |
 
+## How it works
 
-## Configuration Management
+### Google Pay gateway
 
-This example demonstrates proper configuration management using `@tagadapay/core-js` utilities:
+Google Pay encrypts the card for a gateway. Here the gateway is `basistheory` and the gateway merchant id comes from core-js, per environment:
 
-### Environment-Based Configuration
-
-```typescript
+```ts
 import { getGoogleTenantId } from '@tagadapay/core-js/core';
 
-// Automatically uses the correct tenant ID for your environment
-const tenantId = getGoogleTenantId('development'); // Test environment
-const tenantId = getGoogleTenantId('production');  // Production environment
-const tenantId = getGoogleTenantId('local');       // Local development
-```
-
-### Benefits of Using Configuration Utilities
-
-- ✅ **Environment Safety**: Prevents accidental production key usage in development
-- ✅ **Centralized Config**: Single source of truth for all environments
-- ✅ **Type Safety**: Full TypeScript support with IntelliSense
-- ✅ **Consistency**: Same configuration pattern across all TagadaPay integrations
-
-## Usage
-
-### 1. Configure Payment Methods
-
-**Digital Wallets Configuration:**
-```
-Payment Amount: $29.99 (configurable)
-Merchant ID: merchant.com.example
-Merchant Name: Example Merchant
-```
-
-**Server Configuration:**
-Get your API keys from: **[https://app.tagadapay.com/settings/apiKeys](https://app.tagadapay.com/settings/apiKeys)**
-
-```
-API Base URL: https://app.tagadapay.com
-API Token: your_api_token_here
-Store ID: store_xxx
-```
-
-### 2. Choose Payment Method
-
-**Apple Pay:**
-```typescript
-const handleApplePayAuthorized = async (paymentData) => {
-  // Extract payment token from Apple Pay
-  const applePayToken = paymentData.token.paymentData;
-  
-  // Send to your backend to create TagadaToken
-  const tagadaToken = await createTagadaTokenFromApplePay(applePayToken);
-  
-  // Continue with payment flow
-};
-```
-
-**Google Pay:**
-```typescript
-const handleGooglePayAuthorized = async (paymentData) => {
-  // Extract payment token from Google Pay
-  const googlePayToken = paymentData.paymentMethodData.tokenizationData.token;
-  
-  // Send to your backend to create TagadaToken
-  const tagadaToken = await createTagadaTokenFromGooglePay(googlePayToken);
-  
-  // Continue with payment flow
-};
-```
-
-**Google Pay Configuration:**
-
-```typescript
-import { getGoogleTenantId } from '@tagadapay/core-js/core';
-
-// Get tenant ID for current environment
-const tenantId = getGoogleTenantId('development'); // or 'production', 'local'
-
-// Configure Google Pay payment request
-const paymentRequest = {
-  apiVersion: 2,
-  apiVersionMinor: 0,
-  allowedPaymentMethods: [
-    {
-      type: 'CARD',
-      parameters: {
-        allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
-        allowedCardNetworks: ['AMEX', 'DISCOVER', 'MASTERCARD', 'VISA'],
-      },
-      tokenizationSpecification: {
-        type: 'PAYMENT_GATEWAY',
-        parameters: {
-          gateway: 'basistheory',
-          gatewayMerchantId: tenantId, // Dynamic tenant ID from core-js
-        },
-      },
-    },
-  ],
-  merchantInfo: {
-    merchantId: 'merchant.com.example',
-    merchantName: 'Example Merchant',
-  },
-  transactionInfo: {
-    totalPriceStatus: 'FINAL',
-    totalPrice: '29.99',
-    currencyCode: 'USD',
-  },
-};
-
-// Use with @google-pay/button-react
-<GooglePayButtonReact
-  environment="TEST"
-  paymentRequest={paymentRequest}
-  onPaymentAuthorized={handleGooglePayAuthorized}
-/>
-```
-
-**Advanced Google Pay Express Checkout:**
-
-For a complete implementation with shipping options, address handling, tax calculation, and dynamic pricing updates, see the comprehensive example:
-
-📁 **`src/components/GooglePayExpressCheckout.tsx`**
-
-This advanced example includes:
-- ✅ **Dynamic Shipping Calculation**: Real-time shipping options based on address
-- ✅ **Tax Calculation**: Automatic tax computation by state/region
-- ✅ **Address Handling**: Full billing and shipping address collection
-- ✅ **Order Summary Updates**: Live price updates as user selects options
-- ✅ **Shipping Options**: Multiple shipping methods with pricing
-- ✅ **Email Collection**: Customer email capture during checkout
-- ✅ **Error Handling**: Comprehensive error management for all scenarios
-- ✅ **Loading States**: Proper UI feedback during calculations
-- ✅ **Mock Services**: Complete shipping and tax calculation examples
-
-```typescript
-// Advanced usage with full express checkout features
-<GooglePayExpressCheckout
-  merchantId="merchant.com.example"
-  merchantName="Example Store"
-  initialAmount={2999} // $29.99 in cents
-  currency="USD"
-  onSuccess={(result) => {
-    // result includes: tagadaToken, rawToken, paymentData, orderSummary
-    console.log('Payment successful:', result);
-  }}
-  onError={(error) => {
-    console.error('Payment failed:', error);
-  }}
-/>
-```
-
-**Key Features Demonstrated:**
-- **`onPaymentDataChanged`**: Handles shipping address and option changes
-- **`callbackIntents`**: Enables dynamic updates during checkout flow
-- **`shippingOptionParameters`**: Provides multiple shipping methods
-- **`displayItems`**: Shows itemized pricing breakdown
-- **Mock Services**: Examples of shipping and tax calculation APIs
-
-### 3. Create Payment Instrument
-
-```typescript
-const result = await createPaymentInstrument({
-  tagadaToken,
-  storeId,
-  customerData: { email, firstName, lastName },
-});
-```
-
-### 4. Create 3DS Session (Conditional)
-
-**When to use:**
-- ✅ **Required**: If using TagadaPay's 3DS implementation
-- ❌ **Skip**: If your processor has native 3DS (example stripe),
-
-```typescript
-// Only needed for TagadaPay 3DS implementation
-const session = await create3DSSession(paymentInstrument, tokenData, {
-  amount: 2999,
-  currency: 'USD',
-  customerName,
-  customerEmail,
-  storeId,
-});
-```
-
-### 5. Process Payment
-
-```typescript
-const result = await processPayment({
-  amount: 2999,
-  currency: 'USD',
-  storeId,
-  paymentInstrumentId: paymentInstrument.id,
-  threedsSessionId: session?.id, // Optional - if created in step 4
-});
-
-// If 3DS challenge required, modal appears automatically
-// Payment polling happens automatically after challenge
-```
-
-## Architecture
-
-### Client-Side (Browser)
-
-```
-🟢 CLIENT
-├── ApplePayButton          (Apple Pay integration)
-├── GooglePayButton         (Google Pay integration)
-├── GooglePayExpressCheckout (Advanced Google Pay with shipping/tax)
-├── CardForm               (Traditional card input)
-├── useCardTokenization    (BasisTheory tokenization)
-├── useThreeds             (3DS session creation & challenge)
-├── usePaymentFlow         (UI state & flow orchestration)
-└── App.tsx                (Demo UI)
-```
-
-### Server-Side (Backend)
-
-```
-🔴 BACKEND (src/api/paymentBackend.ts)
-├── createPaymentInstrument()   Plain Node.js functions
-├── persistThreedsSession()     (easy to move to your server)
-├── processPayment()
-└── pollPaymentStatus()
-```
-
-
-### Key Components
-
-**Google Pay Integration:**
-
-```typescript
-// Uses dynamic tenant ID configuration
-import { getGoogleTenantId } from '@tagadapay/core-js/core';
-
-const GooglePayButton = () => {
-  const tenantId = getGoogleTenantId('development');
-  
-  // Payment request automatically uses correct tenant ID
-  const paymentRequest = {
-    // ... configuration
-    allowedPaymentMethods: [{
-      tokenizationSpecification: {
-        parameters: {
-          gateway: 'basistheory',
-          gatewayMerchantId: tenantId, // Environment-specific
-        },
-      },
-    }],
-  };
-};
-```
-
-**usePaymentFlow Hook:**
-
-```typescript
-const {
-  createPaymentInstrument,
-  create3DSSession,
-  processPayment,
-  resetThreeDsStatus,
-  isLoading,
-  error,
-  threeDsStatus,
-} = usePaymentFlow({
-  backendClient,
-  environment: 'production',
-});
-```
-
-**Backend Client (Demo):**
-
-```typescript
-// ⚠️ DEMO ONLY: Calls TagadaPay APIs from browser
-const backendClient = new DemoBackendClient(apiBaseUrl, () => apiToken);
-```
-
-## SCA/3DS Detection
-
-The SDK automatically detects if a card requires Strong Customer Authentication:
-
-```typescript
-const { tagadaToken, rawToken } = await tokenizeCard(cardData);
-
-// ✅ Provider-agnostic check (works with BasisTheory, Stripe, Adyen, etc.)
-if (rawToken.metadata?.auth?.scaRequired) {
-  console.log('3DS authentication required');
+tokenizationSpecification: {
+  type: 'PAYMENT_GATEWAY',
+  parameters: { gateway: 'basistheory', gatewayMerchantId: getGoogleTenantId('production') },
 }
 ```
 
+`getGoogleTenantId` takes `'production'`, `'development'` or `'local'`. Match it to the environment you tokenize in: the demo button passes `'local'` and tokenizes with `environment: 'development'`, so change both before you point it at production.
+
+### 3DS
+
+Wallet tokens go through the same `rawToken.metadata.auth.scaRequired` check as cards. When you charge, a 3DS session is needed only if you use TagadaPay's 3DS; skip it when the processor runs its own. See [`../core-js-tokenization`](../core-js-tokenization) for the full 3DS flow.
+
 ## Troubleshooting
 
-### Apple Pay Issues
+| Symptom | Fix |
+| --- | --- |
+| The Apple Pay button is missing or says Apple Pay is not available | Use the HTTPS tunnel URL in Safari, on a device with a card in Wallet. |
+| "Blocked request. This host is not allowed" | Add the tunnel's domain to `server.allowedHosts` in `vite.config.ts`. |
+| Apple Pay merchant validation fails | The domain must be registered for Apple Pay on your store. Register it in the dashboard first. |
+| The Google Pay button does not show | Use Chrome, signed in to a Google account, and check the console for errors loading the Google Pay script. |
+| 401 on `create-from-token` | The API token is wrong, or from another environment than the one selected. |
 
-**Problem**: Apple Pay button doesn't appear
-```bash
-# Check:
-✅ Using HTTPS domain (not localhost HTTP)
-✅ macOS/iOS device with Apple Pay enabled
-✅ Valid merchant ID configured
-```
+## Learn more
 
-**Problem**: "Apple Pay is not available" message
-```bash
-# Solutions:
-1. Verify HTTPS connection (check for 🔒 in address bar)
-2. Test on actual Apple device (not simulator for production testing)
-3. Ensure Apple Pay is set up in device settings
-4. Check browser console for errors
-```
+- [`../core-js-tokenization`](../core-js-tokenization): the full card flow with 3DS and the charge
+- [Apple Pay & Google Pay tutorial](https://docs.tagada.io/developer-tools/examples/apple-google-pay)
+- [core-js payments](https://docs.tagada.io/developer-tools/payments/core-js-payments)
 
-**Problem**: Merchant validation fails
-```bash
-# In development:
-- This is expected (demo doesn't implement real merchant validation)
-- Check console logs for validation URL
-- In production: 
-  1. Verify domain in TagadaPay dashboard
-  2. Implement server-side merchant validation endpoint
-```
-
-### Google Pay Issues
-
-**Problem**: Google Pay button doesn't appear
-```bash
-# Check:
-✅ Chrome browser recommended
-✅ Google account signed in
-✅ Internet connection for API loading
-✅ Check browser console for JavaScript errors
-```
-
-**Problem**: "Google Pay is not available" message
-```bash
-# Solutions:
-1. Ensure Google Pay API script loads successfully
-2. Check network connectivity
-3. Verify merchant configuration
-4. Test with different Google account
-```
-
-### General Debugging
-
-**Enable verbose logging:**
-```typescript
-// Add to browser console for detailed logs
-localStorage.setItem('tagada-debug', 'true');
-// Reload page to see detailed payment flow logs
-```
-
-**Check network requests:**
-```bash
-# Open browser DevTools > Network tab
-# Look for:
-✅ Google Pay API script loading
-✅ TagadaPay API calls
-❌ CORS errors (should not occur with proper setup)
-❌ 404 errors on payment endpoints
-```
-
-## File Structure
-
-```
-src/
-├── components/
-│   ├── ApplePayButton.tsx     # Apple Pay integration
-│   ├── GooglePayButton.tsx    # Google Pay with dynamic tenant ID
-│   └── ServerConfig.tsx       # API configuration UI
-├── hooks/
-│   └── usePaymentFlow.ts     # Payment orchestration
-├── api/
-│   └── paymentBackend.ts     # Backend API calls (demo)
-├── utils/
-│   └── localStorage.ts       # History persistence
-└── App.tsx                   # Main demo UI
-```
-
-## What's New in This Version
-
-- 🆕 **Dynamic Tenant ID**: Google Pay now uses `getGoogleTenantId()` for environment-specific configuration
-- 🆕 **Improved Configuration**: Centralized tenant ID management through `@tagadapay/core-js`
-- 🆕 **Environment Safety**: Automatic selection of correct tenant ID based on environment
-- 🆕 **Better Developer Experience**: No more hardcoded tenant IDs in your code
+MIT licensed. Fork it freely.

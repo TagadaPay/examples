@@ -1,179 +1,87 @@
-# TagadaPay Headless React Checkout
+# Headless React playground
 
-> Build a complete checkout from scratch using React hooks. No iframe, no redirect — you own every pixel.
+A store simulator that walks every React hook of the Headless SDK, one step at a time, with the code of each step shown next to the UI.
+
+| | |
+| --- | --- |
+| **API version** | Payments V2 ([V2 or V3?](https://docs.tagada.io/payments-api/v2-or-v3)) |
+| **SDKs** | `@tagadapay/headless-sdk` 1.20.1, `@tagadapay/core-js` 3.7.0, `@tagadapay/node-sdk` 3.27.1 (seed and deploy scripts) |
+| **Minimum versions** | headless-sdk 1.6.0, core-js 3.0.0; the scripts are tested on node-sdk 3.27.1 |
+| **Stack** | Vite 7, React 19, Tailwind 3, TypeScript, Node 20+ for the scripts |
+| **Status** | Stable |
+| **Tutorial** | [Build a Store with AI + TagadaPay](https://docs.tagada.io/developer-tools/headless-sdk/build-store-with-ai) |
+
+<!-- Demo: add a GIF or screenshot here (docs/demo.gif). -->
+
+## What it does
 
 ```
-┌─────────────┐    ┌──────────┐    ┌──────────┐    ┌─────────┐    ┌──────────────┐
-│  Products   │ →  │   Cart   │ →  │ Checkout │ →  │ Payment │ →  │ Confirmation │
-│ useCatalog  │    │  local   │    │useCheckout│   │usePayment│   │  useOffers   │
-└─────────────┘    └──────────┘    └──────────┘    └─────────┘    └──────────────┘
+Products      →  Cart                 →  Checkout       →  Payment       →  Confirmation
+useCatalog       useHeadlessClient       useCheckout        usePayment        useOffers
+                 checkout.createSession  useGoogleAutocomplete
 ```
-
-This example app is a **store simulator** that demonstrates every React hook in `@tagadapay/headless-sdk`:
 
 | Step | Hook | What it does |
-|------|------|-------------|
-| **Products** | `useCatalog()` | Fetches real products from your store |
-| **Cart** | `useHeadlessClient()` | Creates a checkout session from local cart items |
-| **Checkout** | `useCheckout()` | Updates customer, address, promo codes, shipping |
-| **Payment** | `usePayment()` | Tokenizes cards and processes payments |
-| **Confirmation** | `useOffers()` | Lists and accepts post-purchase upsell offers |
+| --- | --- | --- |
+| Products | `useCatalog()` | Loads the real products of your store |
+| Cart | `useHeadlessClient()` | `client.checkout.createSession()` from the local cart |
+| Checkout | `useCheckout()`, `useGoogleAutocomplete()` | Customer, address, promo code, shipping rate |
+| Payment | `usePayment()` | `tokenizeCard`, then `processPayment` (3DS and redirects included) |
+| Confirmation | `useOffers()` | `listOffers`, `previewOffer`, `processOfferPayment` for one-click upsells |
 
----
+Want a store that looks real instead of a step-by-step playground? Use [`../headless-react-store`](../headless-react-store).
 
-## Quick Start
-
-### 1. Install
+## Run it in 3 steps
 
 ```bash
-pnpm install
+cd v2/headless-react
+pnpm install && pnpm seed YOUR_API_KEY   # 1 and 2. install, then create a demo store and write .env
+pnpm dev                                 # 3. open http://localhost:5173
 ```
 
-### 2. Seed a demo store (optional)
+`pnpm seed` creates a sandbox processor, a payment flow, a store, three products (headphones $99, charger $29, a $9.99 monthly plan), two upsell offers and a checkout funnel, then writes `VITE_STORE_ID` to `.env` (see [`.env.example`](./.env.example)). Get a key in the dashboard under Settings → Access Tokens, or create a free sandbox account with `npx -p @tagadapay/node-sdk tagada-init you@example.com`.
 
-Run the seed script to create a fully configured store with products, offers, a payment processor, and a checkout funnel — all in one command:
+You can also skip the seed and type any store id into the config panel of the app.
 
-```bash
-pnpm seed <YOUR_API_KEY>
-```
+Pay with the sandbox card `4242 4242 4242 4242`, any future date, any CVC.
 
-Get your API key at [app.tagada.io](https://app.tagada.io) → Settings → Access Tokens.
+## Files to look at
 
-The script creates:
-- **Sandbox processor** (test mode — no real charges)
-- **Payment flow** (simple routing)
-- **3 products**: Wireless Headphones ($99), USB-C Charger ($29), Cloud Storage ($9.99/mo)
-- **2 upsell offers** triggered after any purchase
-- **Checkout funnel** (checkout → thank you)
-- **`.env` file** with your store ID pre-loaded
+| File | What to read it for |
+| --- | --- |
+| [`src/App.tsx`](./src/App.tsx) | `TagadaHeadlessProvider`, cart state and the step flow |
+| [`src/components/ProductGrid.tsx`](./src/components/ProductGrid.tsx) | `useCatalog` |
+| [`src/components/CartDrawer.tsx`](./src/components/CartDrawer.tsx) | `useHeadlessClient` and `client.checkout.createSession` |
+| [`src/components/CheckoutStep.tsx`](./src/components/CheckoutStep.tsx) | `useCheckout` and `useGoogleAutocomplete` |
+| [`src/components/PaymentStep.tsx`](./src/components/PaymentStep.tsx) | `usePayment`: `tokenizeCard`, `processPayment` |
+| [`src/components/ConfirmationStep.tsx`](./src/components/ConfirmationStep.tsx) | `useOffers`: `listOffers`, `previewOffer`, `processOfferPayment` |
+| [`scripts/seed.ts`](./scripts/seed.ts) | The Node SDK calls that build the demo store |
+| [`scripts/deploy.ts`](./scripts/deploy.ts) | Deploy the build to the TagadaPay CDN |
 
-### 3. Start
+## Troubleshooting
 
-```bash
-pnpm dev
-```
+| Symptom | Fix |
+| --- | --- |
+| No products show up | The store id is empty or wrong. Run `pnpm seed YOUR_API_KEY`, or paste a store id in the config panel. |
+| `pnpm seed` prints the usage line | Pass the API key as the first argument. |
+| Address autocomplete does nothing | It needs a Google Places key in `VITE_GOOGLE_AUTOCOMPLETE_API_KEY`. The rest of the checkout works without it. |
+| `pnpm deploy` says "Missing TAGADA_API_KEY" | Pass it inline: `TAGADA_API_KEY=... pnpm deploy`. |
 
-Open [localhost:5173](http://localhost:5173) — your store ID is pre-filled from `.env`.
+## Going further
 
-### 4. Deploy to TagadaPay CDN (optional)
-
-Build and deploy your store to TagadaPay's global edge CDN in one command:
+Deploy to the TagadaPay edge CDN:
 
 ```bash
 pnpm build
-TAGADA_API_KEY=your-api-key pnpm deploy
+TAGADA_API_KEY=your_api_key pnpm deploy
 ```
 
-Your store will be live at `https://headless-react-example--{storeId}.cdn.tagada.io/`.
+The app goes live at `https://headless-react-example--<storeId>.cdn.tagada.io/`. Large builds are zipped and uploaded for you.
 
-Handles any build size automatically (small builds go inline, larger builds are zipped and uploaded via blob storage).
+## Learn more
 
-### 5. Test payment
+- [Headless SDK introduction](https://docs.tagada.io/developer-tools/headless-sdk/introduction)
+- [Checkout flow](https://docs.tagada.io/developer-tools/headless-sdk/checkout-flow) and [offers](https://docs.tagada.io/developer-tools/headless-sdk/offers)
+- [Node SDK quick start](https://docs.tagada.io/developer-tools/node-sdk/quick-start)
 
-Use the test card:
-
-```
-Card:   4242 4242 4242 4242
-Expiry: 12/28
-CVC:    123
-```
-
----
-
-## Project Structure
-
-```
-headless-react/
-├── scripts/
-│   ├── seed.ts              # One-command demo store setup
-│   └── deploy.ts            # One-command deploy to TagadaPay CDN
-├── src/
-│   ├── App.tsx              # Main app — routing, cart state, step flow
-│   ├── index.css            # Tailwind + custom dark theme
-│   └── components/
-│       ├── ConfigPanel.tsx   # Store ID + environment selector
-│       ├── StepIndicator.tsx # Visual step progress bar
-│       ├── ProductGrid.tsx   # Product cards with useCatalog()
-│       ├── CartDrawer.tsx    # Cart management + session creation
-│       ├── CheckoutStep.tsx  # Customer info, address, shipping, promo
-│       ├── PaymentStep.tsx   # Card form + tokenization + payment
-│       └── ConfirmationStep.tsx # Success + upsell offers
-└── package.json
-```
-
----
-
-## How It Works
-
-### Initialization
-
-Wrap your app with `TagadaHeadlessProvider`:
-
-```tsx
-import { TagadaHeadlessProvider } from '@tagadapay/headless-sdk/react';
-
-<TagadaHeadlessProvider storeId="store_xxx" environment="production">
-  <App />
-</TagadaHeadlessProvider>
-```
-
-### Catalog → Cart → Checkout flow
-
-```tsx
-// 1. Load products
-const { products, loadProducts } = useCatalog();
-
-// 2. Create a checkout session from cart items
-const client = useHeadlessClient();
-const session = await client.checkout.createSession({
-  items: [{ variantId: 'variant_xxx', quantity: 1 }],
-  currency: 'USD',
-});
-
-// 3. Update customer and address
-const { updateCustomer, updateAddress, getShippingRates } = useCheckout(
-  session.checkoutToken,
-  session.sessionToken,
-);
-await updateCustomer({ email, firstName, lastName });
-await updateAddress({ shippingAddress: { line1, city, state, postalCode, country } });
-
-// 4. Tokenize card and pay
-const { tokenizeCard, pay } = usePayment();
-const { tagadaToken } = await tokenizeCard({ cardNumber, expiryDate, cvc, cardholderName });
-const result = await pay({ checkoutSessionId: session.id, tagadaToken });
-
-// 5. Show post-purchase offers
-const { listOffers, payPreviewedOffer } = useOffers();
-const offers = await listOffers({ type: 'upsell' });
-```
-
----
-
-## Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `VITE_STORE_ID` | Your TagadaPay store ID | — |
-| `VITE_ENVIRONMENT` | `production` or `development` | `production` |
-
-These are auto-generated by `pnpm seed`.
-
----
-
-## SDK Packages
-
-| Package | Purpose |
-|---------|---------|
-| [`@tagadapay/headless-sdk`](https://www.npmjs.com/package/@tagadapay/headless-sdk) | Client-side checkout, payment, offers, catalog |
-| [`@tagadapay/core-js`](https://www.npmjs.com/package/@tagadapay/core-js) | Card tokenization (peer dependency) |
-| [`@tagadapay/node-sdk`](https://www.npmjs.com/package/@tagadapay/node-sdk) | Server-side store/product/funnel management (seed script) |
-
----
-
-## Tech Stack
-
-- **React 19** + TypeScript
-- **Vite 7** — dev server and build
-- **Tailwind CSS 3** — dark theme UI
-- **pnpm** — package manager
+MIT licensed. Fork it freely.

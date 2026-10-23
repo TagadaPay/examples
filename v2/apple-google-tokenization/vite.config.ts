@@ -13,7 +13,7 @@ export default defineConfig({
       '127.0.0.1',
       '.ngrok.app',
       '.ngrok.io',
-      'c77926c6a0fe.ngrok.app'
+      '.ngrok-free.app',
     ],
   },
 });

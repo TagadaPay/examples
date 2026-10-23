@@ -1,375 +1,129 @@
-# headless-react-store
+# Headless React store
 
-A real-looking storefront template built on the [TagadaPay Headless SDK](https://www.npmjs.com/package/@tagadapay/headless-sdk).
-Fork it, rebrand it, ship it in a day.
-
-```
-┌───────────────────────────────────────────────────┐
-│  React Router · Tailwind · TypeScript · Vite      │
-│  Cart in localStorage  →  TagadaPay Headless SDK  │
-└───────────────────────────────────────────────────┘
-```
-
-Unlike the playground at [`../headless-react`](../headless-react), this package
-is **not a tutorial**. There are no code panels, no step indicators, no
-"Getting Started" overlays. It looks and behaves like a real boutique store
-that you can hand to a designer or paste into Claude and iterate on.
+A fork-ready boutique storefront (catalog, cart drawer, one-page checkout, one-click upsells) that you can rebrand and ship in a day.
 
 | | |
-|---|---|
-| **Stack** | React 19, React Router 6, Vite 7, Tailwind 3, TypeScript |
-| **Cart** | Slide-out drawer + quick-add + full page, `localStorage`, persists across reloads |
-| **Checkout** | Single page — contact + shipping + payment, no redirect |
-| **Payments** | TagadaPay Headless SDK (3DS, multi-PSP, sandbox supported) |
-| **Upsells** | Post-purchase, one-click on the thank-you page |
-| **Lines of code** | ~1,200 across ~15 files |
+| --- | --- |
+| **API version** | Payments V2 ([V2 or V3?](https://docs.tagada.io/payments-api/v2-or-v3)) |
+| **SDKs** | `@tagadapay/headless-sdk` 1.20.1, `@tagadapay/core-js` 3.7.0, `@tagadapay/node-sdk` 3.27.1 (seed, apply and deploy scripts) |
+| **Minimum versions** | headless-sdk 1.6.0, core-js 3.0.0; the scripts are tested on node-sdk 3.27.1 |
+| **Stack** | Vite 7, React 19, React Router 6, Tailwind 3, TypeScript, Node 20+ for the scripts |
+| **Status** | Stable |
+| **Tutorial** | [Build a Store with AI + TagadaPay](https://docs.tagada.io/developer-tools/headless-sdk/build-store-with-ai) |
+| **Live demo** | [headless-react-store--store_6c28b7398a82.cdn.tagada.io](https://headless-react-store--store_6c28b7398a82.cdn.tagada.io/) |
 
----
+<!-- Demo: add a GIF or screenshot here (docs/demo.gif). -->
 
-## 1 · Set up
+## What it does
 
-**Easiest path — one command, no browser:**
+Unlike the playground in [`../headless-react`](../headless-react), this is not a tutorial: no code panels, no step indicators. It looks and behaves like a real store you can hand to a designer or to an AI assistant.
 
-```bash
-npx -p @tagadapay/node-sdk tagada-init you@example.com
-pnpm install
-pnpm dev
-```
+| | |
+| --- | --- |
+| **Cart** | Slide-out drawer, quick add and a full cart page, kept in `localStorage` |
+| **Checkout** | One page: contact, shipping address, shipping rate, promo code, card, no redirect |
+| **Payments** | Headless SDK with 3DS, sandbox processor by default, a real TagadaPay account (TPA) when you are ready |
+| **Upsells** | One-click post-purchase offers on the thank you page |
 
-`tagada-init` mails you a 6-digit code, verifies it, creates a fresh
-sandbox **Tagada** account, provisions a store with two demo products
-(an *Essential Tee* in 3 colorways and an *Essential Cap*), a checkout
-upsell, a default shipping rate, a sandbox processor, and a checkout
-funnel — then writes `TAGADA_API_KEY` / `TAGADA_STORE_ID` /
-`TAGADA_ACCOUNT_ID` to `.env`. Open
-[localhost:5173](http://localhost:5173) and you're shopping.
-
-> Want a richer 6-product apparel catalog instead of the 2-product
-> default? After `tagada-init`, run `pnpm seed $TAGADA_API_KEY` to
-> extend the demo using `scripts/seed.ts`.
-
-<details>
-<summary>Or use the classic web flow</summary>
-
-If you'd rather sign up via the dashboard:
+## Run it in 3 steps
 
 ```bash
-pnpm install
-pnpm seed YOUR_API_KEY     # creates the store + writes .env
-pnpm dev
+cd v2/headless-react-store
+npx -p @tagadapay/node-sdk tagada-init you@example.com   # 1. free sandbox account and demo store, writes .env
+pnpm install                                              # 2. install
+pnpm dev                                                  # 3. open http://localhost:5173
 ```
 
-Get the API key at [app.tagada.io](https://app.tagada.io/sign-up?source=examples-headless-react-store)
-→ **Settings → Access Tokens**.
+`tagada-init` emails you a 6-digit code, creates a sandbox account with a store, two demo products, an upsell, a shipping rate, a sandbox processor and a checkout funnel, then writes `TAGADA_API_KEY`, `TAGADA_STORE_ID` and `VITE_STORE_ID` to `.env`.
 
-</details>
+Already have an API key? Run `pnpm seed YOUR_API_KEY` instead of step 1: it builds a richer apparel catalog and writes `.env` (see [`.env.example`](./.env.example)). Keys live in the dashboard under Settings → Access Tokens.
 
-> **Tagada** is the CRM (your account, your stores, your API keys).
-> **TagadaPay** is the payment processor — one PSP among many you can
-> plug into your Tagada account. The CLI provisions the former; the
-> latter is sandbox-configured by default and can be swapped for Stripe
-> et al. from the dashboard. To take **live payments through a real
-> Adyen/Stripe merchant account (TPA)**, see [§3b](#3b--use-a-real-tagadapay-tpa-take-live-payments).
+Pay with the sandbox card `4242 4242 4242 4242`, any future date, any CVC.
 
-### Test card
+## Files to look at
 
-```
-4242 4242 4242 4242   ·   12/28   ·   123
-```
+| File | What to read it for |
+| --- | --- |
+| [`src/App.tsx`](./src/App.tsx) | `TagadaHeadlessProvider` and the routes |
+| [`src/pages/Home.tsx`](./src/pages/Home.tsx), [`src/pages/Product.tsx`](./src/pages/Product.tsx) | `useCatalog` and `loadProducts` |
+| [`src/lib/use-start-checkout.ts`](./src/lib/use-start-checkout.ts) | `useHeadlessClient` and `client.checkout.createSessionUrl({ items })` from the cart |
+| [`src/pages/Checkout.tsx`](./src/pages/Checkout.tsx) | `useCheckout` (`updateCustomer`, `updateAddress`, `getShippingRates`, `selectShippingRate`, `applyPromo`) and `usePayment` (`tokenizeCard`, `processPayment`) |
+| [`src/pages/ThankYou.tsx`](./src/pages/ThankYou.tsx) | `useOffers`: `listOffers`, `previewOffer`, `processOfferPayment` |
+| [`src/lib/config.ts`](./src/lib/config.ts) | Brand name, tagline, free shipping threshold, env vars |
+| [`scripts/seed.ts`](./scripts/seed.ts) | Node SDK: processor, payment flow, store, products, offers, funnel |
+| [`scripts/apply-tpa.ts`](./scripts/apply-tpa.ts) | Node SDK: apply for a TagadaPay account and list activated ones |
+| [`scripts/deploy.ts`](./scripts/deploy.ts) | Node SDK: deploy the build to the TagadaPay CDN |
 
----
+## Troubleshooting
 
-## 2 · How it's wired
+| Symptom | Fix |
+| --- | --- |
+| The catalog stays empty | `VITE_STORE_ID` is missing from `.env`. Run `tagada-init` or `pnpm seed YOUR_API_KEY`, then restart `pnpm dev`. |
+| `pnpm seed` prints the usage line | Pass the key as the first argument: `pnpm seed YOUR_API_KEY`. The script does not read it from `.env`. |
+| `pnpm seed --tpa` says "No tagadapay-router processor found" | The TPA is not activated yet. Check it with `pnpm apply-tpa YOUR_API_KEY --status ent_xxx`. |
+| `pnpm deploy` says "Missing TAGADA_API_KEY" | Pass it inline: `TAGADA_API_KEY=... pnpm deploy`. Set `TAGADA_STORE_ID` too if the account has several stores. |
 
-```
-src/
-├── App.tsx                 ← TagadaHeadlessProvider + React Router
-├── main.tsx                ← entry
-├── index.css               ← Tailwind
-├── components/
-│   ├── Layout.tsx          ← header (nav + cart) + mobile menu + footer
-│   ├── ProductCard.tsx     ← home-grid tile with hover "Quick add"
-│   ├── CartDrawer.tsx      ← slide-out mini-cart (open on add / cart click)
-│   └── FreeShippingBar.tsx ← progress-to-free-shipping nudge
-├── pages/
-│   ├── Home.tsx            ← hero + product grid (useCatalog)
-│   ├── Product.tsx         ← product detail + add-to-cart (opens drawer)
-│   ├── Cart.tsx            ← localStorage cart, "Checkout" button
-│   ├── Checkout.tsx        ← contact + address + shipping + payment
-│   └── ThankYou.tsx        ← confirmation + post-purchase upsells
-├── lib/
-│   ├── cart.ts             ← useCart() — localStorage cart data
-│   ├── cart-ui.tsx         ← useCartUI() — drawer open/close state
-│   ├── use-start-checkout.ts ← createSession + navigate to /checkout
-│   ├── config.ts           ← brand + env vars
-│   └── format.ts           ← formatPrice() helper
-└── scripts/
-    ├── seed.ts             ← Node SDK — creates store/products/funnel (+ --tpa)
-    ├── apply-tpa.ts        ← Node SDK — apply for a real TPA & list activated ones
-    └── deploy.ts           ← Node SDK — deploys to TagadaPay edge CDN
-```
+## Going further
 
-### The four hook calls that do all the work
+### Seed your own catalog
 
-| Page | Hook | What it does |
-|---|---|---|
-| `Home.tsx` | `useCatalog()` | `loadProducts()` to render the grid |
-| `Cart.tsx` / `CartDrawer.tsx` | `useStartCheckout()` → `useHeadlessClient()` | `client.checkout.createSessionUrl({ items })` returns a self-hosted checkout URL |
-| `Checkout.tsx` | `useCheckout()` + `usePayment()` | `updateCustomer`, `updateAddress`, `getShippingRates`, `selectShippingRate`, `applyPromo`, `tokenizeCard`, `processPayment` |
-| `ThankYou.tsx` | `useOffers()` | `listOffers({ type: 'upsell' })` + `payPreviewedOffer({ mainOrderId })` for one-click upsells |
-
-That's the whole SDK surface used by this store. Everything else is regular
-React + Tailwind.
-
----
-
-## 3 · Seed your own catalog (Node SDK)
-
-The `scripts/seed.ts` file is your *single source of truth* for what's
-inside your store. To replace the demo apparel with your own products, edit
-the `PRODUCTS` array near the top of that file.
+[`scripts/seed.ts`](./scripts/seed.ts) is the single source of truth for the store's content. Edit the `PRODUCTS` array near the top, then run `pnpm seed YOUR_API_KEY` again: it creates a fresh store, products, upsells, payment flow and funnel, and overwrites `.env` with the new store id.
 
 ```ts
 const PRODUCTS: SeedProduct[] = [
   {
-    name: 'My amazing product',
+    name: 'My product',
     description: '…',
     sku: 'sku-001',
     imageUrl: 'https://your-cdn.example.com/product-1.jpg',
-    priceCents: 4800,         // $48.00
-    compareAtCents: 6500,     // strike-through reference
-    priceCentsEur: 4500,      // optional EUR override
+    priceCents: 4800,       // $48.00
+    compareAtCents: 6500,   // strike-through reference
+    priceCentsEur: 4500,    // optional EUR override
     grams: 320,
   },
-  // …add as many as you like
 ];
 ```
 
-Then re-run:
+### Go live with a TagadaPay account (TPA)
+
+The default seed uses a sandbox processor that never touches a bank. To charge real cards you route the store through a **TPA** (TagadaPay Account, `tpa_xxx`): a KYB-approved legal entity that charges through an acquirer behind Tagada. You do not create a TPA, you apply for one, and Tagada provisions it after review. [`scripts/apply-tpa.ts`](./scripts/apply-tpa.ts) drives the whole journey with the same API key:
 
 ```bash
-pnpm seed YOUR_API_KEY
+pnpm apply-tpa $TAGADA_API_KEY                  # 1. apply (edit the APPLICATION object first)
+pnpm apply-tpa $TAGADA_API_KEY --status ent_xxx # 2. poll until approved
+pnpm apply-tpa $TAGADA_API_KEY --tpas           # 3. list activated TPAs
+pnpm seed $TAGADA_API_KEY --tpa tpa_xxx         # 4. route the store through it
 ```
 
-The script will create a fresh store, products, upsells, payment flow, and
-funnel — and overwrite `.env` with the new store ID. Reload the dev server
-and your new catalog appears.
+Only the business name and country plus the representative's first name, last name and email are required, but a complete application (IDs, VAT, bank, documents) is approved much faster; `apply-tpa` lists what is still missing. Field reference: [Apply for TagadaPay Processing](https://docs.tagada.io/developer-tools/node-sdk/processing-applications).
 
-### What seed.ts actually does (Node SDK calls)
+How it plugs in: an activated TPA appears as a `tagadapay-router` processor that Tagada creates for you. In `--tpa` mode the seed looks that processor up (instead of creating a sandbox one), builds a payment flow on it, and sets the store's `selectedPaymentFlowId`. Keep `threeDsEnabled: false` on that flow: the acquirer runs its own 3DS. Charges are real, so refund your test orders (dashboard, or `tagada.payments.refund({ paymentIds })`). Routing across several TPAs: [Payment flows](https://docs.tagada.io/developer-tools/node-sdk/multi-stripe-routing).
 
-```ts
-import Tagada from '@tagadapay/node-sdk';
-const tagada = new Tagada(API_KEY);
+### Customise the brand
 
-// 1. A processor — sandbox now, swap for stripe/adyen/etc. later
-const { processor } = await tagada.processors.create({ processor: { type: 'sandbox', /* … */ } });
+Two files own the look: [`src/lib/config.ts`](./src/lib/config.ts) (`BRAND.name`, `BRAND.tagline`, `FREE_SHIPPING_THRESHOLD_CENTS`) and [`tailwind.config.js`](./tailwind.config.js) (the `ink-*` palette, Inter and Fraunces fonts). Change the name, swap the fonts in `index.html`, and the whole site reskins.
 
-// 2. A payment flow — routes payments to one or more processors
-const flow = await tagada.paymentFlows.create({ data: { /* processorConfigs */ } });
+### Deploy
 
-// 3. The store
-const store = await tagada.stores.create({ name: 'My Store', selectedPaymentFlowId: flow.id });
-
-// 4. Products with variants + multi-currency prices
-await tagada.products.create({
-  storeId: store.id,
-  name: 'Heavyweight Tee',
-  variants: [{ sku: 'tee-stone', price: 4800, prices: [{ currencyOptions: { USD: { amount: 4800 } } }] }],
-});
-
-// 5. Upsell offers (post-purchase, one-click)
-await tagada.offers.create({
-  storeId: store.id,
-  type: 'upsell',
-  triggers: [{ productId: null, type: 'any' }],
-  offers: [{ productId, variantId, priceId, title: 'Add a Canvas Tote — 25% off' }],
-});
-
-// 6. The checkout funnel — defines the URL paths and which step uses which payment flow
-await tagada.funnels.create({ storeId: store.id, config: { /* nodes & edges */ }, isDefault: true });
-```
-
-Read the full file at [`scripts/seed.ts`](./scripts/seed.ts) — it's heavily
-commented and ~280 lines.
-
----
-
-## 3b · Go live with a real TagadaPay TPA
-
-The default seed wires a **sandbox** processor — great for building, but it
-never touches a bank. To accept real money you route the store through a
-**TPA** (*TagadaPay Account*, id `tpa_xxx`): a KYB-approved legal entity that
-charges real cards through an acquirer (Adyen / Stripe) sitting behind Tagada.
-
-Once you *have* an activated TPA, plugging it in is a one-word change:
-
-```bash
-pnpm seed YOUR_API_KEY --tpa tpa_xxxxxxxxxxxx
-```
-
-The store, products, funnel, and checkout code are identical — payments just
-flow through your TPA's PSP (with the PSP's own 3DS) instead of the sandbox.
-
-### Don't have a TPA yet? Apply for one — from the terminal
-
-You don't *create* a TPA; you **apply** for one and Tagada provisions it after
-KYB. The bundled [`scripts/apply-tpa.ts`](./scripts/apply-tpa.ts) drives the
-whole journey with the **same `sk_crm_…` key** the seed uses. Nothing here
-touches the dashboard.
-
-```bash
-# 0. Get a Tagada account + CRM key (if you don't have one).
-#    tagada-init writes it to .env as TAGADA_API_KEY.
-npx -p @tagadapay/node-sdk tagada-init you@example.com
-
-# 1. APPLY — edit the APPLICATION object at the top of scripts/apply-tpa.ts
-#    with your real business + representative + bank, then:
-pnpm apply-tpa $TAGADA_API_KEY
-#    → prints an application id (ent_xxx) and any recommended fields still missing
-
-# 2. CHECK — poll until our team approves it and provisions your TPA
-pnpm apply-tpa $TAGADA_API_KEY --status ent_xxx
-#    → status: submitted → in_review → approved, and tpaId gets populated
-
-# 3. LIST — once activated, print your ready-to-use TPA(s) + the seed command
-pnpm apply-tpa $TAGADA_API_KEY --tpas
-#    → • tpa_xxx  processor proc_xxx
-#      pnpm seed $TAGADA_API_KEY --tpa tpa_xxx
-
-# 4. GO LIVE — plug it into the store
-pnpm seed $TAGADA_API_KEY --tpa tpa_xxx
-pnpm dev
-```
-
-That's the complete arc: **account → application → approval → TPA → live store**.
-Only 5 fields are strictly required to apply (business name + country, and the
-rep's first/last name + email), but a *complete* application (IDs, VAT, bank,
-documents) is approved far faster — `apply-tpa` echoes whatever is still
-missing. Full field reference:
-[Apply for TagadaPay Processing](https://docs.tagada.io/developer-tools/node-sdk/processing-applications).
-
-### How a TPA plugs in
-
-A TPA isn't a processor you create — it's surfaced to the API as a
-**`tagadapay-router`** processor that Tagada **auto-creates when the TPA is
-activated**. So the seed script doesn't create a processor in `--tpa` mode; it
-*looks one up*:
-
-```ts
-// Find the router processor that maps to your TPA
-const { processors } = await tagada.processors.list();
-const router = processors.find(
-  (p) => p.type === 'tagadapay-router' && p.options?.tagadapayAccountId === 'tpa_xxx',
-);
-
-// Route a payment flow through it, then bind it to the store
-const flow  = await tagada.paymentFlows.create({
-  data: { name: 'TPA Flow', strategy: 'simple',
-          processorConfigs: [{ processorId: router.id, weight: 100 }] /* … */ },
-});
-const store = await tagada.stores.create({ /* … */, selectedPaymentFlowId: flow.id });
-```
-
-<details>
-<summary>Requirements & gotchas</summary>
-
-- The **TPA must belong to the same account** as your API key, and be
-  **activated** — activation is what auto-creates the `tagadapay-router`
-  processor. If the seed says *"No tagadapay-router processor found"*, the TPA
-  isn't activated yet (still in review or provisioning — check with
-  `pnpm apply-tpa <key> --status <ent_id>`).
-- The store's **`selectedPaymentFlowId`** must point at the flow — this link is
-  **not** automatic when a TPA is created. The seed sets it for you.
-- Leave **`threeDsEnabled: false`** on the flow. The PSP/acquirer behind the TPA
-  runs its own hosted 3DS on redirect; Tagada's `threeDsEnabled` toggles the
-  *standalone* 3DS flow, which you rarely need.
-- **Real charges.** Use a real card and refund your test orders (from the
-  dashboard, or `tagada.payments.refund({ paymentIds })`).
-
-</details>
-
-More on multi-TPA routing (cascade & weighted) in the
-[Payment Flows docs](https://docs.tagada.io/developer-tools/node-sdk/multi-stripe-routing).
-
----
-
-## 4 · Customise the brand
-
-Two files own the look:
-
-- **`src/lib/config.ts`** — store name, tagline, free-shipping threshold
-- **`tailwind.config.js`** — colour palette (currently neutral `ink-*` tokens)
-  and fonts (Inter + Fraunces)
-
-Replace `BRAND.name`, drop a different font in `index.html`, and the whole
-site reskins.
-
-```ts
-// src/lib/config.ts
-export const BRAND = {
-  name: 'NORTH',                       // ← your store name
-  tagline: 'Considered apparel for every season.',
-  emailReplyTo: 'hello@example.com',
-};
-
-export const FREE_SHIPPING_THRESHOLD_CENTS = 5000;  // ← $50
-```
-
----
-
-## 5 · Deploy
-
-### To the TagadaPay edge CDN (one command)
+To the TagadaPay edge CDN:
 
 ```bash
 pnpm build
-TAGADA_API_KEY=tgd_xxx pnpm deploy
+TAGADA_API_KEY=your_api_key pnpm deploy
 ```
 
-Your store will be live at:
-`https://headless-react-store--{storeId}.cdn.tagada.io/`
+The store goes live at `https://headless-react-store--<storeId>.cdn.tagada.io/`. It is also a plain Vite SPA: push it to Vercel or Netlify and set `VITE_STORE_ID` and `VITE_ENVIRONMENT`.
 
-### To Vercel / Netlify
+### Rebuild it with an AI assistant
 
-It's a vanilla Vite SPA — push to GitHub, connect, set the env vars
-(`VITE_STORE_ID`, `VITE_ENVIRONMENT`) and you're live.
+Every file does one thing and carries a short doc comment that says what, and the SDK calls live in a handful of files (`Home.tsx`, `use-start-checkout.ts`, `Checkout.tsx`, `ThankYou.tsx`). A prompt that works:
 
----
+> Open `v2/headless-react-store`. Replace the apparel theme with a coffee shop: house blend beans (250 g, $24), an espresso cup ($32) and a monthly "Beans Club" subscription at $35. Update the products in `scripts/seed.ts`, set `BRAND.name` to "ORBIT" and the tagline to "Roasted weekly. Shipped Monday." Do not touch the checkout or the hooks.
 
-## 6 · Reproducing this with Claude
+## Learn more
 
-This template is intentionally Claude-friendly. Each file does one thing,
-files are short, and the SDK calls are concentrated in a handful of pages
-(`Cart.tsx`, `Checkout.tsx`, `ThankYou.tsx`, `Home.tsx`).
-
-A prompt that works:
-
-> *Open `examples-sdk/headless-react-store`. Replace the apparel theme with
-> a coffee-shop theme: house blend beans (250g, $24), espresso cup (ceramic,
-> $32), and a monthly subscription "Beans Club" at $35/mo. Update the
-> products in `scripts/seed.ts`, change `BRAND.name` to "ORBIT" and the
-> tagline to "Roasted weekly. Shipped Monday." Don't touch the checkout or
-> hooks.*
-
-Claude will know where to edit because every file has a one-line
-docstring at the top describing its job.
-
----
-
-## SDK packages used
-
-| Package | Purpose |
-|---|---|
-| [`@tagadapay/headless-sdk`](https://www.npmjs.com/package/@tagadapay/headless-sdk) | Catalog, checkout, payment, offers (browser) |
-| [`@tagadapay/core-js`](https://www.npmjs.com/package/@tagadapay/core-js) | Card tokenization (peer dependency) |
-| [`@tagadapay/node-sdk`](https://www.npmjs.com/package/@tagadapay/node-sdk) | Server-side store/product/funnel management (seed + deploy scripts) |
-
----
-
-## Documentation
-
-- [Build a Store with AI + TagadaPay](https://docs.tagada.io/developer-tools/headless-sdk/build-store-with-ai)
 - [Headless SDK introduction](https://docs.tagada.io/developer-tools/headless-sdk/introduction)
+- [Build a Store with AI + TagadaPay](https://docs.tagada.io/developer-tools/headless-sdk/build-store-with-ai)
 - [Node SDK quick start](https://docs.tagada.io/developer-tools/node-sdk/quick-start)
 
-License: MIT — fork freely.
+MIT licensed. Fork it freely.
