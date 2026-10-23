@@ -1,0 +1,25 @@
+apple-google-tokenization/src/api/paymentBackend.ts
+  s_a32244b5b3d16b::t_8000369a598820 24-35,44-45,61-62,86,89
+core-js-tokenization/src/api/paymentBackend.ts
+  s_a32244b5b3d16b::t_40645da01bcd06 24-35,44-45,61-62,86,89
+mini-saas-billing/package.json
+  s_a32244b5b3d16b::t_3b4c19f57856c6 16
+mini-saas-billing/server/index.ts
+  s_a32244b5b3d16b::t_9a3ef23d9bfd33 17-19,23-32,65,85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "19a2b72fd76e085592f9403379087711bb554421",
+  "prompts": {},
+  "sessions": {
+    "s_a32244b5b3d16b": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "1e3a3f70-11ac-4ed4-98fb-d71566edce64",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Loïc DELOBEL <loic.delobel@gmail.com>"
+    }
+  }
+}
