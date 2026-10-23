@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCheckout } from '@tagadapay/headless-sdk/react';
 import { VARIANT_ID } from '../lib/config';
 

@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+/* eslint-disable @typescript-eslint/no-explicit-any -- ambient declarations for the Apple Pay and Google Pay browser globals */
 
 declare global {
   interface Window {

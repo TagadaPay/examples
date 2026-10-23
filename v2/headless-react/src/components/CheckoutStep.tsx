@@ -168,7 +168,7 @@ export function CheckoutStep({ checkoutToken, sessionToken, onBack, onContinue }
       <ResourceIdBar>
         <ResourceId label="checkoutToken" value={checkoutToken} />
         {session?.id && <ResourceId label="sessionId" value={session.id} />}
-        {(session as any)?.customerId && <ResourceId label="customerId" value={(session as any).customerId} />}
+        {session?.customer?.id && <ResourceId label="customerId" value={session.customer.id} />}
       </ResourceIdBar>
 
       <div className="flex items-center justify-between">

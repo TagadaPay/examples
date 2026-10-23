@@ -15,4 +15,4 @@ export const PREMIUM_THRESHOLD = 5000;
 
 export const TUTORIAL_URL = 'https://docs.tagada.io/developer-tools/funnel-demos/cart-value-upsell';
 
-export const EXAMPLE_REPO_URL = 'https://github.com/TagadaPay/examples/tree/main/cart-value-upsell';
+export const EXAMPLE_REPO_URL = 'https://github.com/TagadaPay/examples/tree/main/v2/cart-value-upsell';

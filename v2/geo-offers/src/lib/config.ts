@@ -13,4 +13,4 @@ export const ROW_OFFER_ID = import.meta.env.VITE_ROW_OFFER_ID ?? '';
 
 export const TUTORIAL_URL = 'https://docs.tagada.io/developer-tools/funnel-demos/geo-offers';
 
-export const EXAMPLE_REPO_URL = 'https://github.com/TagadaPay/examples/tree/main/geo-offers';
+export const EXAMPLE_REPO_URL = 'https://github.com/TagadaPay/examples/tree/main/v2/geo-offers';

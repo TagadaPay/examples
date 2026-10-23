@@ -1,5 +1,8 @@
 import { useCallback, useState, useEffect } from 'react';
 import GooglePayButtonReact from '@google-pay/button-react';
+import type { ComponentProps } from 'react';
+
+type ButtonProps = ComponentProps<typeof GooglePayButtonReact>;
 import { useCardTokenization } from '@tagadapay/core-js/react';
 
 // Google Pay constants for proper typing
@@ -460,9 +463,9 @@ export function GooglePayExpressCheckout({
       ) : (
         <GooglePayButtonReact
           environment="TEST"
-          paymentRequest={paymentRequest as any}
+          paymentRequest={paymentRequest as ButtonProps['paymentRequest']}
           onPaymentAuthorized={handleGooglePayAuthorized}
-          onPaymentDataChanged={handleShippingAddressChange as any}
+          onPaymentDataChanged={handleShippingAddressChange as unknown as ButtonProps['onPaymentDataChanged']}
           onError={handleGooglePayError}
           existingPaymentMethodRequired={false}
           buttonColor="black"

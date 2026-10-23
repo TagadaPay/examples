@@ -12,4 +12,4 @@ export const WELCOME_OFFER_ID = import.meta.env.VITE_WELCOME_OFFER_ID ?? '';
 
 export const TUTORIAL_URL = 'https://docs.tagada.io/developer-tools/funnel-demos/vip-tag-offers';
 
-export const EXAMPLE_REPO_URL = 'https://github.com/TagadaPay/examples/tree/main/vip-tag-offers';
+export const EXAMPLE_REPO_URL = 'https://github.com/TagadaPay/examples/tree/main/v2/vip-tag-offers';

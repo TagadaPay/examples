@@ -85,7 +85,7 @@ export function Landing() {
           <p className="hint">
             Source:{' '}
             <a href={EXAMPLE_REPO_URL} target="_blank" rel="noreferrer">
-              github.com/TagadaPay/examples/cart-value-upsell
+              github.com/TagadaPay/examples/v2/cart-value-upsell
             </a>
           </p>
         </div>

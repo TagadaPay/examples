@@ -15,4 +15,4 @@ export const TUTORIAL_URL =
   'https://docs.tagada.io/developer-tools/funnel-demos/basic-post-purchase';
 
 export const EXAMPLE_REPO_URL =
-  'https://github.com/TagadaPay/examples/tree/main/basic-post-purchase';
+  'https://github.com/TagadaPay/examples/tree/main/v2/basic-post-purchase';

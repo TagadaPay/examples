@@ -71,13 +71,14 @@ export function CardForm({ onTokenized }: CardFormProps) {
 
   const validateField = (field: keyof CardPaymentMethod, value: string): string | null => {
     switch (field) {
-      case 'cardNumber':
+      case 'cardNumber': {
         const cleanNumber = value.replace(/\s+/g, '');
         if (!cleanNumber) return 'Card number is required';
         if (cleanNumber.length < 13 || cleanNumber.length > 19) return 'Invalid card number length';
         if (!/^\d+$/.test(cleanNumber)) return 'Card number must contain only digits';
         return null;
-      case 'expiryDate':
+      }
+      case 'expiryDate': {
         if (!value) return 'Expiry date is required';
         if (!/^\d{2}\/\d{2}$/.test(value)) return 'Format: MM/YY';
         const [month, year] = value.split('/').map(Number);
@@ -88,6 +89,7 @@ export function CardForm({ onTokenized }: CardFormProps) {
           return 'Card has expired';
         }
         return null;
+      }
       case 'cvc':
         if (!value) return 'CVC is required';
         if (!/^\d{3,4}$/.test(value)) return 'CVC must be 3-4 digits';

@@ -12,4 +12,4 @@ export const FUNNEL_ID = import.meta.env.VITE_FUNNEL_ID ?? '';
 
 export const DOCS_URL = 'https://docs.tagada.io/developer-tools/rx/headless-sdk';
 
-export const EXAMPLE_REPO_URL = 'https://github.com/TagadaPay/examples/tree/main/rx-storefront';
+export const EXAMPLE_REPO_URL = 'https://github.com/TagadaPay/examples/tree/main/v2/rx-storefront';

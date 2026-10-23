@@ -12,8 +12,8 @@
     "build": "vite build --config web/vite.config.ts"
   },
   "dependencies": {
-    "@tagadapay/core-js": "^3.1.0",
-    "@tagadapay/node-sdk": "^3.25.0",
+    "@tagadapay/core-js": "3.7.0",
+    "@tagadapay/node-sdk": "3.27.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
@@ -30,5 +30,14 @@
     "tsx": "^4.19.2",
     "typescript": "~5.8.3",
     "vite": "^7.1.2"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.12.4",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }

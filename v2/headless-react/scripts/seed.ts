@@ -17,14 +17,10 @@
  *   A .env file and the Store ID to paste into the demo app.
  */
 
-import TagadaModule from '@tagadapay/node-sdk';
+import Tagada from '@tagadapay/node-sdk';
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-// CJS/ESM interop — handle both `default.default` and `default`
-const Tagada = ('default' in TagadaModule && typeof (TagadaModule as any).default === 'function')
-  ? (TagadaModule as any).default
-  : TagadaModule;
 
 // ---------------------------------------------------------------------------
 // Config
@@ -102,6 +98,8 @@ async function main() {
     presentmentCurrencies: ['USD', 'EUR'],
     chargeCurrencies: ['USD'],
     selectedPaymentFlowId: flow.id,
+    // selectedPaymentFlowId is accepted by the API but missing from StoreCreateParams.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
   log('✓', `Store: ${store.id}`);
 

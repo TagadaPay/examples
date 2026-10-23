@@ -92,7 +92,7 @@ export function Landing() {
           <p className="hint">
             Source:{' '}
             <a href={EXAMPLE_REPO_URL} target="_blank" rel="noreferrer">
-              github.com/TagadaPay/examples/geo-offers
+              github.com/TagadaPay/examples/v2/geo-offers
             </a>
           </p>
         </div>

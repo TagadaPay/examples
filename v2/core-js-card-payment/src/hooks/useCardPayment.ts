@@ -220,7 +220,7 @@ export function useCardPayment({ config, logger }: UseCardPaymentParams): UseCar
 
     if (effectiveAction === 'redirect' || effectiveAction === 'threeds_auth' || effectiveAction === 'processor_auth') {
       const acs = effectiveAction === 'processor_auth'
-        ? meta?.redirect?.redirectUrl as string | undefined
+        ? (meta?.redirect as { redirectUrl?: string } | undefined)?.redirectUrl
         : extractAcsChallengeUrl(currentPayment);
       if (!acs) {
         logger.error('3DS redirect — missing redirect URL', actionData);

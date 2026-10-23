@@ -204,7 +204,7 @@ import { TagadaHeadlessProvider } from '@tagadapay/headless-sdk/react';
           {/* Source link */}
           <div className="border-t border-white/[0.04] pt-3">
             <a
-              href="https://github.com/TagadaPay/examples/tree/main/headless-react"
+              href="https://github.com/TagadaPay/examples/tree/main/v2/headless-react"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-xs text-white/25 hover:text-white/40 transition-colors"
