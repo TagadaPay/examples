@@ -5,8 +5,8 @@ The same tee for everyone, but the one-click post-purchase offer changes with th
 | | |
 | --- | --- |
 | **API version** | Payments V2 ([V2 or V3?](https://docs.tagada.io/payments-api/v2-or-v3)) |
-| **SDKs** | `@tagadapay/headless-sdk` 1.20.1, `@tagadapay/core-js` 3.7.0, `@tagadapay/node-sdk` 3.27.1 (seed script) |
-| **Minimum versions** | headless-sdk 1.13.0, core-js 3.2.0, node-sdk 3.16.0 |
+| **SDKs** | `@tagadapay/headless-sdk` 1.21.0, `@tagadapay/core-js` 3.7.0, `@tagadapay/node-sdk` 3.27.1 (seed script) |
+| **Minimum versions** | headless-sdk 1.13.0, core-js 3.2.0, node-sdk 3.16.0; with headless-sdk 1.21 or later, core-js 3.7.0 or later (its peer requirement) |
 | **Stack** | Vite 7, React 19, React Router 6, Node 20+ for the seed script |
 | **Status** | Stable |
 | **Tutorial** | [VIP tag offers](https://docs.tagada.io/developer-tools/funnel-demos/vip-tag-offers) |

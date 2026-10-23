@@ -42,19 +42,19 @@ The Payments API is TagadaPay's new payments interface, also called V3. It repla
 
 | Phase | Meaning | Today |
 | --- | --- | --- |
-| Preview | Live in production, contract versioned, access on request | Payments API, `@tagadapay/core-js/payments-v3` |
-| Coming soon | Designed, not available | Self-serve secret keys, merchant webhooks, `node-sdk` Payments API methods, `headless-sdk` V3 support |
+| Preview | Live in production, contract versioned, access on request | Payments API, `@tagadapay/core-js/payments-v3`, `@tagadapay/headless-sdk` 1.21.0 on a V3 store (same calls, npm build only) |
+| Coming soon | Designed, not available | Self-serve secret keys, merchant webhooks, `node-sdk` Payments API methods, V3 in the `headless-sdk` CDN build |
 | Generally available | Open to every merchant | Commerce API and V2 payments (the [`v2/`](../v2) examples) |
 
 ## Planned examples
 
 | Example | What it will show | SDK | Status |
 | --- | --- | --- | --- |
-| [`payments-browser`](./payments-browser) | Card fields and wallets, `confirmPayment`, the `next_action` loop, the return from a redirect | `@tagadapay/core-js/payments-v3` 3.7.0, then `@tagadapay/headless-sdk` 1.21+ | Coming soon |
+| [`payments-browser`](./payments-browser) | Card fields and wallets, `confirmPayment`, the `next_action` loop, the return from a redirect | `@tagadapay/core-js/payments-v3` 3.7.0; a Headless variant on `@tagadapay/headless-sdk` 1.21.0 | Coming soon |
 | [`payments-server-node`](./payments-server-node) | Create, read, capture, cancel and refund a Payment from Node, with idempotency keys | `@tagadapay/node-sdk` once `payments.*` ships | Coming soon |
 
 They will land here with the same template as the V2 examples (API version, SDK versions, run in 3 steps) once a developer can run them end to end without asking TagadaPay for keys.
 
 ## Already on V2?
 
-Nothing to do. A store moved to the Payments API keeps answering V2 calls (`processPayment()`, `payments.process()`, refunds, V2 webhooks) through a compatibility layer, so the [`v2/`](../v2) examples keep working on it. See [Migrate from V2](https://docs.tagada.io/payments-api/migrate-from-v2).
+Nothing to do. A store moved to the Payments API keeps answering V2 calls (`processPayment()`, `payments.process()`, refunds, V2 webhooks) through a compatibility layer, so the [`v2/`](../v2) examples keep working on it. From `@tagadapay/headless-sdk` 1.21.0 (with `@tagadapay/core-js` 3.7.0 or later installed next to it), `processPayment()` and `finalize()` also confirm a V3 payment themselves (3D Secure in a modal, wallet steps, redirects) and answer the usual result: nothing changes in your calls. See [Migrate from V2](https://docs.tagada.io/payments-api/migrate-from-v2).

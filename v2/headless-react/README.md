@@ -5,8 +5,8 @@ A store simulator that walks every React hook of the Headless SDK, one step at a
 | | |
 | --- | --- |
 | **API version** | Payments V2 ([V2 or V3?](https://docs.tagada.io/payments-api/v2-or-v3)) |
-| **SDKs** | `@tagadapay/headless-sdk` 1.20.1, `@tagadapay/core-js` 3.7.0, `@tagadapay/node-sdk` 3.27.1 (seed and deploy scripts) |
-| **Minimum versions** | headless-sdk 1.6.0, core-js 3.0.0; the scripts are tested on node-sdk 3.27.1 |
+| **SDKs** | `@tagadapay/headless-sdk` 1.21.0, `@tagadapay/core-js` 3.7.0, `@tagadapay/node-sdk` 3.27.1 (seed and deploy scripts) |
+| **Minimum versions** | headless-sdk 1.6.0, core-js 3.0.0 (with headless-sdk 1.21 or later, core-js 3.7.0 or later, its peer requirement); the scripts are tested on node-sdk 3.27.1 |
 | **Stack** | Vite 7, React 19, Tailwind 3, TypeScript, Node 20+ for the scripts |
 | **Status** | Stable |
 | **Tutorial** | [Build a Store with AI + TagadaPay](https://docs.tagada.io/developer-tools/headless-sdk/build-store-with-ai) |

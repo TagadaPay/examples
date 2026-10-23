@@ -5,8 +5,8 @@ A full funnel (catalog and cart, checkout, thank you page with one-click upsells
 | | |
 | --- | --- |
 | **API version** | Payments V2 ([V2 or V3?](https://docs.tagada.io/payments-api/v2-or-v3)) |
-| **SDKs** | `@tagadapay/headless-sdk` 1.20.1 (from jsDelivr), `@tagadapay/core-js` 3.x (from jsDelivr, loaded by the Headless SDK) |
-| **Minimum versions** | headless-sdk 1.20.1 as pinned, core-js 3.0.0 |
+| **SDKs** | `@tagadapay/headless-sdk` 1.21.0 (from jsDelivr), `@tagadapay/core-js` 3.7.0 (from jsDelivr, loaded by the Headless SDK) |
+| **Minimum versions** | headless-sdk 1.21.0 as pinned, core-js 3.7.0 (the peer requirement of headless-sdk 1.21) |
 | **Stack** | HTML, ES modules, any static web server |
 | **Status** | Stable |
 | **Tutorial** | [Checkout in plain HTML](https://docs.tagada.io/developer-tools/examples/headless-vanilla) |

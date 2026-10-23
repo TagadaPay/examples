@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@tagadapay/core-js": "3.7.0",
-    "@tagadapay/headless-sdk": "1.20.1",
+    "@tagadapay/headless-sdk": "1.21.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^6.27.0"

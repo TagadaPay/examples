@@ -15,19 +15,19 @@ The repo is split by payments API version:
 
 | I want to | Example | API | SDKs (version in the example) | Status |
 | --- | --- | --- | --- | --- |
-| Run a landing → checkout → upsell → downsell → thank you funnel | [`v2/basic-post-purchase`](./v2/basic-post-purchase) | V2 | headless-sdk 1.20.1, core-js 3.7.0, node-sdk 3.27.1 | Stable |
-| Route the post-purchase offer by visitor region | [`v2/geo-offers`](./v2/geo-offers) | V2 | headless-sdk 1.20.1, core-js 3.7.0, node-sdk 3.27.1 | Stable |
-| Route the offer by customer tags (VIP or new) | [`v2/vip-tag-offers`](./v2/vip-tag-offers) | V2 | headless-sdk 1.20.1, core-js 3.7.0, node-sdk 3.27.1 | Stable |
-| Route the offer by cart value | [`v2/cart-value-upsell`](./v2/cart-value-upsell) | V2 | headless-sdk 1.20.1, core-js 3.7.0, node-sdk 3.27.1 | Stable |
-| Fork a real looking storefront and rebrand it | [`v2/headless-react-store`](./v2/headless-react-store) | V2 | headless-sdk 1.20.1, core-js 3.7.0, node-sdk 3.27.1 | Stable |
-| Learn the Headless React hooks one by one | [`v2/headless-react`](./v2/headless-react) | V2 | headless-sdk 1.20.1, core-js 3.7.0, node-sdk 3.27.1 | Stable |
-| Use the Headless SDK from plain HTML (no build step) | [`v2/headless-vanilla`](./v2/headless-vanilla) | V2 | headless-sdk 1.20.1 and core-js 3.7.0 from jsDelivr | Stable |
-| Build a Tagada Rx storefront on the Funnel v2 | [`v2/rx-storefront`](./v2/rx-storefront) | V2 | headless-sdk 1.20.1, core-js 3.7.0, node-sdk 3.27.1 | Stable |
+| Run a landing → checkout → upsell → downsell → thank you funnel | [`v2/basic-post-purchase`](./v2/basic-post-purchase) | V2 | headless-sdk 1.21.0, core-js 3.7.0, node-sdk 3.27.1 | Stable |
+| Route the post-purchase offer by visitor region | [`v2/geo-offers`](./v2/geo-offers) | V2 | headless-sdk 1.21.0, core-js 3.7.0, node-sdk 3.27.1 | Stable |
+| Route the offer by customer tags (VIP or new) | [`v2/vip-tag-offers`](./v2/vip-tag-offers) | V2 | headless-sdk 1.21.0, core-js 3.7.0, node-sdk 3.27.1 | Stable |
+| Route the offer by cart value | [`v2/cart-value-upsell`](./v2/cart-value-upsell) | V2 | headless-sdk 1.21.0, core-js 3.7.0, node-sdk 3.27.1 | Stable |
+| Fork a real looking storefront and rebrand it | [`v2/headless-react-store`](./v2/headless-react-store) | V2 | headless-sdk 1.21.0, core-js 3.7.0, node-sdk 3.27.1 | Stable |
+| Learn the Headless React hooks one by one | [`v2/headless-react`](./v2/headless-react) | V2 | headless-sdk 1.21.0, core-js 3.7.0, node-sdk 3.27.1 | Stable |
+| Use the Headless SDK from plain HTML (no build step) | [`v2/headless-vanilla`](./v2/headless-vanilla) | V2 | headless-sdk 1.21.0 and core-js 3.7.0 from jsDelivr | Stable |
+| Build a Tagada Rx storefront on the Funnel v2 | [`v2/rx-storefront`](./v2/rx-storefront) | V2 | headless-sdk 1.21.0, core-js 3.7.0, node-sdk 3.27.1 | Stable |
 | Charge a card when you already own the order | [`v2/core-js-card-payment`](./v2/core-js-card-payment) | V2 | core-js 3.7.0 | Stable |
 | Tokenize a card, run 3DS, charge (full walkthrough) | [`v2/core-js-tokenization`](./v2/core-js-tokenization) | V2 | core-js 3.7.0 | Stable |
 | Add Apple Pay and Google Pay buttons | [`v2/apple-google-tokenization`](./v2/apple-google-tokenization) | V2 | core-js 3.7.0 | Stable (Apple Pay needs HTTPS) |
 | Bill SaaS subscriptions from your own server | [`v2/mini-saas-billing`](./v2/mini-saas-billing) | V2 | core-js 3.7.0, node-sdk 3.27.1 | Stable |
-| Create and confirm a Payment in the browser with the Payments API | [`v3/payments-browser`](./v3/payments-browser) | V3 | core-js 3.7.0 (`/payments-v3`), headless-sdk 1.21+ | Coming soon |
+| Create and confirm a Payment in the browser with the Payments API | [`v3/payments-browser`](./v3/payments-browser) | V3 | core-js 3.7.0 (`/payments-v3`), headless-sdk 1.21.0 | Coming soon |
 | Create and capture a Payment from a Node server with the Payments API | [`v3/payments-server-node`](./v3/payments-server-node) | V3 | node-sdk (`payments.*`, not released yet) | Coming soon |
 
 Two families inside V2:
@@ -86,7 +86,7 @@ The SDKs used here:
 
 | Package | Runs in | API | Version here | Status |
 | --- | --- | --- | --- | --- |
-| [`@tagadapay/headless-sdk`](https://www.npmjs.com/package/@tagadapay/headless-sdk) | Browser | V2 (V3 support coming in a minor version) | 1.20.1 | Stable |
+| [`@tagadapay/headless-sdk`](https://www.npmjs.com/package/@tagadapay/headless-sdk) | Browser | V2; on a store moved to V3, 1.21.0 confirms the payment through `core-js/payments-v3` with the same calls (npm build only, not the CDN build yet) | 1.21.0 | Stable |
 | [`@tagadapay/core-js`](https://www.npmjs.com/package/@tagadapay/core-js) | Browser | V2 (root export), V3 (`/payments-v3`) | 3.7.0 | Stable; `/payments-v3` is Preview |
 | [`@tagadapay/node-sdk`](https://www.npmjs.com/package/@tagadapay/node-sdk) | Your server | V2 (V3 `payments.*` coming soon) | 3.27.1 | Stable |
 | [`@tagadapay/plugin-sdk`](https://www.npmjs.com/package/@tagadapay/plugin-sdk) | Inside TagadaPay plugins | V2 | not used here | Legacy: use headless-sdk for new work |

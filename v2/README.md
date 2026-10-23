@@ -8,14 +8,14 @@ Every example below installs from its lockfile, builds, and runs against a free 
 
 | Example | What it shows | SDKs |
 | --- | --- | --- |
-| [`basic-post-purchase`](./basic-post-purchase) | Landing → checkout → offer → downsell → thank you | headless-sdk 1.20.1, core-js 3.7.0, node-sdk 3.27.1 |
+| [`basic-post-purchase`](./basic-post-purchase) | Landing → checkout → offer → downsell → thank you | headless-sdk 1.21.0, core-js 3.7.0, node-sdk 3.27.1 |
 | [`geo-offers`](./geo-offers) | The offer changes with the visitor's region | same |
 | [`vip-tag-offers`](./vip-tag-offers) | The offer changes with the customer's tags | same |
 | [`cart-value-upsell`](./cart-value-upsell) | The offer changes with the order total | same |
 | [`headless-react-store`](./headless-react-store) | A complete storefront to rebrand, deploy, and take live | same |
 | [`headless-react`](./headless-react) | Every React hook, one step at a time | same |
-| [`headless-vanilla`](./headless-vanilla) | The same checkout in plain HTML, no build | headless-sdk 1.20.1, core-js 3.7.0 (CDN) |
-| [`rx-storefront`](./rx-storefront) | A Tagada Rx storefront that installs the Funnel v2 | headless-sdk 1.20.1, core-js 3.7.0, node-sdk 3.27.1 |
+| [`headless-vanilla`](./headless-vanilla) | The same checkout in plain HTML, no build | headless-sdk 1.21.0, core-js 3.7.0 (CDN) |
+| [`rx-storefront`](./rx-storefront) | A Tagada Rx storefront that installs the Funnel v2 | headless-sdk 1.21.0, core-js 3.7.0, node-sdk 3.27.1 |
 
 ## Card first: you own the order
 

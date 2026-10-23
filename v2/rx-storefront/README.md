@@ -5,8 +5,8 @@ A headless Tagada Rx storefront that creates the same Funnel v2 the hosted templ
 | | |
 | --- | --- |
 | **API version** | Payments V2 ([V2 or V3?](https://docs.tagada.io/payments-api/v2-or-v3)) |
-| **SDKs** | `@tagadapay/headless-sdk` 1.20.1, `@tagadapay/core-js` 3.7.0, `@tagadapay/node-sdk` 3.27.1 (seed script) |
-| **Minimum versions** | headless-sdk 1.13.0 (`useRx`), core-js 3.2.0, node-sdk 3.16.0 (`funnels.create`) |
+| **SDKs** | `@tagadapay/headless-sdk` 1.21.0, `@tagadapay/core-js` 3.7.0, `@tagadapay/node-sdk` 3.27.1 (seed script) |
+| **Minimum versions** | headless-sdk 1.13.0 (`useRx`), core-js 3.2.0, node-sdk 3.16.0 (`funnels.create`); with headless-sdk 1.21 or later, core-js 3.7.0 or later (its peer requirement) |
 | **Stack** | Vite 7, React 19, React Router 6, Node 20+ for the seed script |
 | **Status** | Stable. The intake step needs Tagada Rx active on the store. |
 | **Tutorial** | [Tagada Rx with the Headless SDK](https://docs.tagada.io/developer-tools/rx/headless-sdk) |

@@ -5,7 +5,7 @@
 | | |
 | --- | --- |
 | **API version** | Payments API (V3), `Payments-Version: 2026-11-01` ([V2 or V3?](https://docs.tagada.io/payments-api/v2-or-v3)) |
-| **SDKs** | `@tagadapay/core-js/payments-v3` (core-js 3.7.0 or later); a Headless variant with `@tagadapay/headless-sdk` 1.21 or later once it runs the V3 `next_action` loop |
+| **SDKs** | `@tagadapay/core-js/payments-v3` (core-js 3.7.0 or later); a Headless variant with `@tagadapay/headless-sdk` 1.21.0 or later, which runs the V3 `next_action` loop inside `processPayment()` (npm build, not the CDN build yet) |
 | **Status** | Coming soon (the API itself is in Preview) |
 
 ## What it will show
