@@ -1,0 +1,25 @@
+v3/payments-server-node/src/policy.ts
+  s_c44c5ce3d8f6f3::t_1230ddf28660c2 28
+  s_c44c5ce3d8f6f3::t_3944e26e94d4e9 46-52
+v3/payments-server-node/src/policy-cases.local.ts
+  s_c44c5ce3d8f6f3::t_aea02828dc965b 1-13,15-40
+  s_c44c5ce3d8f6f3::t_c2a81954cf90d6 14
+v3/payments-server-node/README.md
+  s_c44c5ce3d8f6f3::t_6bfcf23e226c23 78-80
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "32861a441dfc46ce72709b1ca527515b4309f57a",
+  "prompts": {},
+  "sessions": {
+    "s_c44c5ce3d8f6f3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2a560791-0744-4b90-9b18-f54fa0fc6faf",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Loïc DELOBEL <loic.delobel@gmail.com>"
+    }
+  }
+}
