@@ -5,8 +5,8 @@ A full funnel (catalog and cart, checkout, thank you page with one-click upsells
 | | |
 | --- | --- |
 | **API version** | Payments V2 ([V2 or V3?](https://docs.tagada.io/payments-api/v2-or-v3)) |
-| **SDKs** | `@tagadapay/headless-sdk` 1.21.0 (from jsDelivr), `@tagadapay/core-js` 3.7.0 (from jsDelivr, loaded by the Headless SDK) |
-| **Minimum versions** | headless-sdk 1.21.0 as pinned, core-js 3.7.0 (the peer requirement of headless-sdk 1.21) |
+| **SDKs** | `@tagadapay/headless-sdk` 1.25.0 (from jsDelivr), `@tagadapay/core-js` 3.7.0 (from jsDelivr, loaded by the Headless SDK) |
+| **Minimum versions** | headless-sdk 1.21.0 (pinned here: 1.25.0), core-js 3.7.0 (the peer requirement of headless-sdk 1.21) |
 | **Stack** | HTML, ES modules, any static web server |
 | **Status** | Stable |
 | **Tutorial** | [Checkout in plain HTML](https://docs.tagada.io/developer-tools/examples/headless-vanilla) |
@@ -51,7 +51,7 @@ The SDK is loaded like this on every page:
 <script type="importmap">
   { "imports": { "@tagadapay/core-js": "https://cdn.jsdelivr.net/npm/@tagadapay/core-js@3.7.0/dist/index.js" } }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@tagadapay/headless-sdk@1.20.1/dist/tagada-headless.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tagadapay/headless-sdk@1.25.0/dist/tagada-headless.min.js"></script>
 ```
 
 `tagada-headless.min.js` exposes `window.TagadaHeadless`. The Headless SDK imports `@tagadapay/core-js` lazily for card tokenization and 3DS; the import map points that import to the CDN. To self-host, replace both URLs with your own copies: the API is the same.

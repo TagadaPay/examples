@@ -12,8 +12,8 @@ importers:
         specifier: 3.7.0
         version: 3.7.0(react@19.2.5)
       '@tagadapay/headless-sdk':
-        specifier: 1.21.0
-        version: 1.21.0(@tagadapay/core-js@3.7.0(react@19.2.5))(react@19.2.5)
+        specifier: 1.25.0
+        version: 1.25.0(@tagadapay/core-js@3.7.0(react@19.2.5))(react@19.2.5)
       react:
         specifier: ^19.1.1
         version: 19.2.5
@@ -28,8 +28,8 @@ importers:
         specifier: ^9.33.0
         version: 9.39.4
       '@tagadapay/node-sdk':
-        specifier: 3.27.1
-        version: 3.27.1
+        specifier: 3.40.0
+        version: 3.40.0
       '@types/react':
         specifier: ^19.1.10
         version: 19.2.14
@@ -552,8 +552,8 @@ packages:
       react:
         optional: true
 
-  '@tagadapay/headless-sdk@1.21.0':
-    resolution: {integrity: sha512-t3c/XsBqU+Uae7mHBmbI63UNDC+6vGmcjGSJ8sBorSWFjybK3PZ8AfiSnA+jEVYhkX+4wdKYYgrTMtdr18oXiw==}
+  '@tagadapay/headless-sdk@1.25.0':
+    resolution: {integrity: sha512-VwPljb5ffsUc9FCJookixVf4YoZpCaIl0LLzkhbMpLAz3DlcAHF7pZfQ4Et41Kl6wycL3aqz+FJhn4xnTxk8AQ==}
     peerDependencies:
       '@stripe/stripe-js': ^7.0.0 || ^8.0.0
       '@tagadapay/core-js': ^3.7.0
@@ -566,8 +566,8 @@ packages:
       react:
         optional: true
 
-  '@tagadapay/node-sdk@3.27.1':
-    resolution: {integrity: sha512-9WUurGhztLBXySlmz5Kldm1jCRqG+nMlYLD5TkFwCEmxXdFB7ocQOj7LNCSFqmrQf/hY754TgumQF9pyOeOOdg==}
+  '@tagadapay/node-sdk@3.40.0':
+    resolution: {integrity: sha512-32nGkC6+jkjCIPOm1lcUn8wjmpW/4gMhAVeaWxMbdCdAR56Cv6yQiVxG5cVe2yjpCkdCdnW/Q4nTA1mlC627WQ==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -1939,12 +1939,12 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@tagadapay/headless-sdk@1.21.0(@tagadapay/core-js@3.7.0(react@19.2.5))(react@19.2.5)':
+  '@tagadapay/headless-sdk@1.25.0(@tagadapay/core-js@3.7.0(react@19.2.5))(react@19.2.5)':
     optionalDependencies:
       '@tagadapay/core-js': 3.7.0(react@19.2.5)
       react: 19.2.5
 
-  '@tagadapay/node-sdk@3.27.1': {}
+  '@tagadapay/node-sdk@3.40.0': {}
 
   '@types/babel__core@7.20.5':
     dependencies:

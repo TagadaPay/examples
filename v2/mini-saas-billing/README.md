@@ -5,7 +5,7 @@ A minimal SaaS app that bills a monthly plan: the browser tokenizes the card wit
 | | |
 | --- | --- |
 | **API version** | Payments V2 ([V2 or V3?](https://docs.tagada.io/payments-api/v2-or-v3)) |
-| **SDKs** | `@tagadapay/core-js` 3.7.0 (browser), `@tagadapay/node-sdk` 3.27.1 (server) |
+| **SDKs** | `@tagadapay/core-js` 3.7.0 (browser), `@tagadapay/node-sdk` 3.40.0 (server) |
 | **Minimum versions** | core-js 3.1.0, node-sdk 3.25.0 (the `customer` block that forwards the shopper IP and user agent) |
 | **Stack** | Vite 7 + React 19 (`web/`), Express 4 + tsx (`server/`), Node 20+ |
 | **Status** | Stable |
