@@ -12,8 +12,8 @@ importers:
         specifier: 3.7.0
         version: 3.7.0(react@19.3.1)
       '@tagadapay/node-sdk':
-        specifier: 3.27.1
-        version: 3.27.1
+        specifier: 3.40.0
+        version: 3.40.0
       cors:
         specifier: ^2.8.5
         version: 2.8.6
@@ -465,8 +465,8 @@ packages:
       react:
         optional: true
 
-  '@tagadapay/node-sdk@3.27.1':
-    resolution: {integrity: sha512-9WUurGhztLBXySlmz5Kldm1jCRqG+nMlYLD5TkFwCEmxXdFB7ocQOj7LNCSFqmrQf/hY754TgumQF9pyOeOOdg==}
+  '@tagadapay/node-sdk@3.40.0':
+    resolution: {integrity: sha512-32nGkC6+jkjCIPOm1lcUn8wjmpW/4gMhAVeaWxMbdCdAR56Cv6yQiVxG5cVe2yjpCkdCdnW/Q4nTA1mlC627WQ==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -1500,7 +1500,7 @@ snapshots:
       - debug
       - supports-color
 
-  '@tagadapay/node-sdk@3.27.1': {}
+  '@tagadapay/node-sdk@3.40.0': {}
 
   '@types/babel__core@7.20.5':
     dependencies:
