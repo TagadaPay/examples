@@ -25,6 +25,7 @@ try {
   const draft = policy.draft as {
     routing: { rules: unknown[]; everything_else: Record<string, unknown> };
     backups: { enabled: boolean };
+    processors: Array<{ id: string } & Record<string, unknown>>;
   };
   console.log(`policy ${policy.id} "${policy.name}", active version ${policy.active_version?.version}`);
   console.log(`  routing now: ${JSON.stringify(draft.routing.everything_else)}`);
@@ -41,6 +42,13 @@ try {
   const shares = Object.fromEntries(active.map((p, i) => [p.id, i === 0 ? 100 - share * (active.length - 1) : share]));
   draft.routing.everything_else = { pick: 'split', processors: active.map((p) => p.id), shares };
   draft.backups.enabled = true;
+
+  // Every routed processor needs its own entry in `processors` (what it accepts, caps, descriptor).
+  // A routed processor without one is left out of the route, with no error: copy an existing entry.
+  const settings = draft.processors;
+  for (const p of active) {
+    if (!settings.some((entry) => entry.id === p.id) && settings[0]) settings.push({ ...structuredClone(settings[0]), id: p.id });
+  }
 
   await tagada.payments.v3.paymentPolicies.updateDraft(policy.id, { draft }, write());
   const published = await tagada.payments.v3.paymentPolicies.publish(policy.id, write());

@@ -75,6 +75,9 @@ if (payment.status === 'requires_action') {
 | **Errors** | SDK errors carry `statusCode`, `code` and `message`. The Payments API request id to give support is in `error.raw.error.request_id`. |
 | **Mode** | `{ mode: 'test' }` on a call sends it in test mode; live otherwise. |
 | **Renewals** | Read only from this SDK: Tagada schedules renewals. |
+| **Policy drafts** | A draft is the whole policy: start from the current `draft`, change it, save, publish. A partial draft is saved but its publish answers `409 policy_has_problems`. |
+| **Routed processors** | Each processor you route to needs its own entry in `draft.processors`. One without it is left out of the route with no error. `src/policy.ts` copies an existing entry. |
+| **Payment methods** | A payment method created without a `customer` is used once; charge it again and the API answers `payment_method_not_usable`. Attach a customer to reuse a card. |
 
 ## Files
 
