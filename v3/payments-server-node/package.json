@@ -1,0 +1,31 @@
+{
+  "name": "payments-server-node",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Payments API (V3) from a Node server with @tagadapay/node-sdk tagada.payments.v3",
+  "type": "module",
+  "scripts": {
+    "charge": "tsx src/charge.ts",
+    "manual-capture": "tsx src/manual-capture.ts",
+    "policy": "tsx src/policy.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tagadapay/node-sdk": "3.40.0",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "~5.8.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.12.4",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}

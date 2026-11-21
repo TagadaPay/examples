@@ -7,7 +7,7 @@ The repo is split by payments API version:
 | Folder | API | Who it is for | Status |
 | --- | --- | --- | --- |
 | [`v2/`](./v2) | **Payments V2**: the Commerce API (`https://api.tagada.io/api/public/v1`) and the SDKs below | Every merchant, every live integration today | Generally available |
-| [`v3/`](./v3) | **Payments API (V3)**: `https://api.tagada.io/v1`, one Payment object driven by `next_action` | New direct integrations in the preview program | Preview, examples coming soon |
+| [`v3/`](./v3) | **Payments API (V3)**: `https://api.tagada.io/v1`, one Payment object driven by `next_action` | New direct integrations in the preview program | Preview: Node server example runnable, browser example coming soon |
 
 > Looking for `basic-post-purchase/` or another folder that used to sit at the root? Every existing example now lives under [`v2/`](./v2), unchanged in behavior.
 
@@ -28,7 +28,7 @@ The repo is split by payments API version:
 | Add Apple Pay and Google Pay buttons | [`v2/apple-google-tokenization`](./v2/apple-google-tokenization) | V2 | core-js 3.7.0 | Stable (Apple Pay needs HTTPS) |
 | Bill SaaS subscriptions from your own server | [`v2/mini-saas-billing`](./v2/mini-saas-billing) | V2 | core-js 3.7.0, node-sdk 3.27.1 | Stable |
 | Create and confirm a Payment in the browser with the Payments API | [`v3/payments-browser`](./v3/payments-browser) | V3 | core-js 3.7.0 (`/payments-v3`), headless-sdk 1.21.0 | Coming soon |
-| Create and capture a Payment from a Node server with the Payments API | [`v3/payments-server-node`](./v3/payments-server-node) | V3 | node-sdk (`payments.*`, not released yet) | Coming soon |
+| Create and capture a Payment from a Node server with the Payments API | [`v3/payments-server-node`](./v3/payments-server-node) | V3 | node-sdk 3.40.0 (`payments.v3`) | Experimental |
 
 Two families inside V2:
 
@@ -41,7 +41,7 @@ Not sure? Read [Choose how you accept payments](https://docs.tagada.io/developer
 
 **Use V2.** It is what every merchant runs today, it has a server SDK and self-serve keys, and every example in [`v2/`](./v2) works on it.
 
-The **Payments API (V3)** is the new payments interface: one Payment object, a dated `Payments-Version` header, publishable keys (`tpk_`) in the browser and a `next_action` loop for 3DS and redirects. It is live in **Preview**: access is on request and merchants cannot create V3 keys from the dashboard yet. A store moved to V3 keeps answering V2 calls through a compatibility layer, so V2 code keeps working.
+The **Payments API (V3)** is the new payments interface: one Payment object, a dated `Payments-Version` header, publishable keys (`tpk_`) in the browser and a `next_action` loop for 3DS and redirects. It is live in **Preview**: a store is moved to it on request. From a server, `@tagadapay/node-sdk` 3.40.0 reaches it with your usual API key (`tagada.payments.v3`); raw HTTP needs a `tsk_` key that the dashboard cannot create yet. A store moved to V3 keeps answering V2 calls through a compatibility layer, so V2 code keeps working.
 
 Full comparison: [V2 or V3: which one should I use?](https://docs.tagada.io/payments-api/v2-or-v3) · What V3 looks like: [`v3/`](./v3)
 
@@ -88,7 +88,7 @@ The SDKs used here:
 | --- | --- | --- | --- | --- |
 | [`@tagadapay/headless-sdk`](https://www.npmjs.com/package/@tagadapay/headless-sdk) | Browser | V2; on a store moved to V3, 1.21.0 confirms the payment through `core-js/payments-v3` with the same calls (npm build only, not the CDN build yet) | 1.21.0 | Stable |
 | [`@tagadapay/core-js`](https://www.npmjs.com/package/@tagadapay/core-js) | Browser | V2 (root export), V3 (`/payments-v3`) | 3.7.0 | Stable; `/payments-v3` is Preview |
-| [`@tagadapay/node-sdk`](https://www.npmjs.com/package/@tagadapay/node-sdk) | Your server | V2 (V3 `payments.*` coming soon) | 3.27.1 | Stable |
+| [`@tagadapay/node-sdk`](https://www.npmjs.com/package/@tagadapay/node-sdk) | Your server | V2; V3 through `tagada.payments.v3` since 3.40.0 (experimental) | 3.27.1 (V2 examples), 3.40.0 (V3 example) | Stable; `payments.v3` is Experimental |
 | [`@tagadapay/plugin-sdk`](https://www.npmjs.com/package/@tagadapay/plugin-sdk) | Inside TagadaPay plugins | V2 | not used here | Legacy: use headless-sdk for new work |
 
 Current versions and minimums for every package: [SDK versions](https://docs.tagada.io/developer-tools/sdk-versions).
