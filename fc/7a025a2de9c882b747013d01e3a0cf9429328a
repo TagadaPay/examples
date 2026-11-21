@@ -1,0 +1,77 @@
+v2/headless-react/package.json
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 16,22
+v2/geo-offers/README.md
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 8
+v2/headless-vanilla/index.html
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 15
+v2/headless-vanilla/README.md
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 8-9,54
+v2/vip-tag-offers/package.json
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 14,20
+v2/basic-post-purchase/package.json
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 14,20
+v2/headless-react-store/package.json
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 17,24
+v2/mini-saas-billing/README.md
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 8
+v2/cart-value-upsell/package.json
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 14,20
+README.md
+  s_c44c5ce3d8f6f3::t_0b26bd7fdd0935 89
+  s_c44c5ce3d8f6f3::t_c034e006fc8de8 91
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 18-25,29
+v2/vip-tag-offers/README.md
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 8
+v2/geo-offers/package.json
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 14,20
+v2/cart-value-upsell/README.md
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 8
+v2/headless-react-store/README.md
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 8-9
+v2/basic-post-purchase/README.md
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 8
+v2/headless-vanilla/checkout.html
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 15
+v2/mini-saas-billing/package.json
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 16
+v2/headless-vanilla/thank-you.html
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 15
+v2/rx-storefront/README.md
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 8
+v2/rx-storefront/package.json
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 14,20
+v2/headless-react/README.md
+  s_c44c5ce3d8f6f3::t_df7c51099b2db0 8-9
+v2/basic-post-purchase/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_d62cc6cb45c7f0 15-16,28-29,460-461,474-475,1180,1185
+v2/cart-value-upsell/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_52e4ea2933675c 15-16,28-29,460-461,474-475,1180,1185
+v2/geo-offers/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_c42175205a4a11 15-16,28-29,460-461,474-475,1180,1185
+v2/headless-react-store/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_24a77c6d32cf0b 15-16,31-32,555-556,569-570,1942,1947
+v2/headless-react/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_35ad469146e1aa 15-16,28-29,544-545,558-559,1911,1916
+v2/mini-saas-billing/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_1ba38c34e542bd 15-16,468-469,1503
+v2/rx-storefront/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_b26f2349d6ae47 15-16,28-29,460-461,474-475,1180,1185
+v2/vip-tag-offers/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_38d75c40b0dbce 15-16,28-29,460-461,474-475,1180,1185
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fc7a025a2de9c882b747013d01e3a0cf9429328a",
+  "prompts": {},
+  "sessions": {
+    "s_c44c5ce3d8f6f3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2a560791-0744-4b90-9b18-f54fa0fc6faf",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Loïc DELOBEL <loic.delobel@gmail.com>"
+    }
+  }
+}
