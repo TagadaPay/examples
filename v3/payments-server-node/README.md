@@ -77,7 +77,7 @@ if (payment.status === 'requires_action') {
 | **Renewals** | Read only from this SDK: Tagada schedules renewals. |
 | **Policy drafts** | A draft is the whole policy: start from the current `draft`, change it, save, publish. A partial draft is saved but its publish answers `409 policy_has_problems`. |
 | **Routed processors** | Each processor you route to needs its own entry in `draft.processors`. One without it is left out of the route with no error. `src/policy.ts` copies an existing entry. |
-| **Payment methods** | A payment method created without a `customer` is used once; charge it again and the API answers `payment_method_not_usable`. Attach a customer to reuse a card. |
+| **Payment methods** | A payment method is charged once; charge it again and the API answers `payment_method_not_usable`. To reuse a card, save it on the first payment: `customer`, `future_usage: 'off_session'` and `save_payment_method: true`; later payments use it with `initiator: 'merchant'`. |
 
 ## Files
 
