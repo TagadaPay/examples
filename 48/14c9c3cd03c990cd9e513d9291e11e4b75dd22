@@ -1,0 +1,47 @@
+v3/payments-server-node/package.json
+  s_c44c5ce3d8f6f3::t_0d96d44a36c9ca 1-31
+v3/payments-server-node/README.md
+  s_c44c5ce3d8f6f3::t_784cc6fd04e172 3,8-11,13,15-17,19,21-88
+v3/README.md
+  s_c44c5ce3d8f6f3::t_c43d54396caaa7 3,11,14,45-46,49,54
+v3/payments-server-node/src/policy.ts
+  s_c44c5ce3d8f6f3::t_f683c4279f2448 10,51
+  s_c44c5ce3d8f6f3::t_e6b9275c4679ca 1-9,11-50,52-56
+v3/payments-server-node/.env.example
+  s_c44c5ce3d8f6f3::t_0d96d44a36c9ca 1-16,20-21
+  s_c44c5ce3d8f6f3::t_f683c4279f2448 17-19
+v3/payments-server-node/src/tagada.ts
+  s_c44c5ce3d8f6f3::t_f683c4279f2448 43-51
+  s_c44c5ce3d8f6f3::t_02d4e1265ecb99 1-42,52-54
+v3/payments-server-node/src/manual-capture.ts
+  s_c44c5ce3d8f6f3::t_f683c4279f2448 8,21,43
+  s_c44c5ce3d8f6f3::t_83389a614a3e81 1-7,9-20,22-42,44-47
+README.md
+  s_c44c5ce3d8f6f3::t_c43d54396caaa7 10,31,44,91
+v3/payments-server-node/.gitignore
+  s_c44c5ce3d8f6f3::t_0d96d44a36c9ca 1-2
+v3/payments-server-node/src/charge.ts
+  s_c44c5ce3d8f6f3::t_f683c4279f2448 7,28,63
+  s_c44c5ce3d8f6f3::t_375f93e9cc3eae 1-6,8-27,29-62,64-67
+v3/payments-server-node/tsconfig.json
+  s_c44c5ce3d8f6f3::t_0d96d44a36c9ca 1-8,11-14
+  s_c44c5ce3d8f6f3::t_cd031e715f0321 9-10
+v3/payments-server-node/pnpm-lock.yaml
+  s_c44c5ce3d8f6f3::t_d51bee33ad714a 1-349
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4814c9c3cd03c990cd9e513d9291e11e4b75dd22",
+  "prompts": {},
+  "sessions": {
+    "s_c44c5ce3d8f6f3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2a560791-0744-4b90-9b18-f54fa0fc6faf",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Loïc DELOBEL <loic.delobel@gmail.com>"
+    }
+  }
+}
