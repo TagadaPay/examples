@@ -1,0 +1,19 @@
+v3/payments-server-node/.gitignore
+  s_c44c5ce3d8f6f3::t_2df51f16aeda39 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3fdf6b2fc9fad6bfe74f160d7f8d897fbb2f512f",
+  "prompts": {},
+  "sessions": {
+    "s_c44c5ce3d8f6f3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2a560791-0744-4b90-9b18-f54fa0fc6faf",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Loïc DELOBEL <loic.delobel@gmail.com>"
+    }
+  }
+}
